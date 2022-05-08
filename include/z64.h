@@ -764,6 +764,13 @@ typedef struct OverlayRelocationSection {
     /* 0x14 */ u32 relocations[1]; // size is nRelocations
 } OverlayRelocationSection; // size >= 0x18
 
+//! @bug This struct is used at osAppNMIBuffer, which is not 8-bytes aligned. This causes a
+//! crash when OSTime variables actually use 64-bit load/store instructions. The alignment
+//! attribute conveys that this structure will not always be 8-bytes aligned, resulting in
+//! LDL/LDR SDL/SDR instructions to be generated for loads/stores.
+#ifdef __GNUC__
+__attribute__((aligned(4)))
+#endif
 typedef struct {
     /* 0x00 */ u32 resetting;
     /* 0x04 */ u32 resetCount;

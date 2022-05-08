@@ -167,6 +167,7 @@ f32 __powisf2(f32 x, s32 m) {
 
 // Compute division and modulo of 64-bit signed and unsigned integers
 
+#if _MIPS_SIM == _ABIO32
 __asm__("                                   \n\
     .set push                               \n\
     .set noreorder                          \n\
@@ -246,3 +247,4 @@ __divdi3:                                   \n\
                                             \n\
     .set pop                                \n\
                                             \n");
+#endif

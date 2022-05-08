@@ -14,6 +14,8 @@ NON_MATCHING ?= 0
 ORIG_COMPILER ?= 0
 # If COMPILER is "gcc", compile with GCC instead of IDO.
 COMPILER ?= ido
+# ABI, ignored when building with IDO.
+ABI ?= 32
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -29,6 +31,8 @@ ifeq ($(COMPILER),gcc)
   CFLAGS += -DCOMPILER_GCC
   CPPFLAGS += -DCOMPILER_GCC
   NON_MATCHING := 1
+else
+  ABI := 32
 endif
 
 # Set prefix to mips binutils binaries (mips-linux-gnu-ld => 'mips-linux-gnu-') - Change at your own risk!
@@ -91,7 +95,12 @@ ifeq ($(ORIG_COMPILER),1)
   CC_OLD    = $(QEMU_IRIX) -L tools/ido5.3_compiler tools/ido5.3_compiler/usr/bin/cc
 endif
 
-AS         := $(MIPS_BINUTILS_PREFIX)as
+AS_NOCPP   := $(MIPS_BINUTILS_PREFIX)as
+ifeq ($(COMPILER),gcc)
+AS         = $(CC) -x assembler-with-cpp $(CPPFLAGS) -c $<
+else
+AS         = $(CPP) $(CPPFLAGS) -I include $< | $(AS_NOCPP)
+endif
 LD         := $(MIPS_BINUTILS_PREFIX)ld
 OBJCOPY    := $(MIPS_BINUTILS_PREFIX)objcopy
 OBJDUMP    := $(MIPS_BINUTILS_PREFIX)objdump
@@ -116,14 +125,23 @@ else
   OPTFLAGS := -O2
 endif
 
-ASFLAGS := -march=vr4300 -32 -no-pad-sections -Iinclude
+ifeq ($(ABI),n32)
+# Select n32 output format based on toolchain default
+  LD_OUTPUT_FORMAT := $(shell $(LD) --print-output-format | sed -E 's/elf(32|64)-(n)?(trad)?(big|little)mips/elf\1-n\3\4mips/')
+else
+  LD_OUTPUT_FORMAT := $(shell $(LD) --print-output-format | sed -E 's/elf(32|64)-(n)?(trad)?(big|little)mips/elf\1-\3\4mips/')
+endif
 
 ifeq ($(COMPILER),gcc)
-  CFLAGS += -G 0 -nostdinc $(INC) -march=vr4300 -mfix4300 -mabi=32 -mno-abicalls -mdivide-breaks -fno-zero-initialized-in-bss -fno-toplevel-reorder -ffreestanding -fno-common -fno-merge-constants -mno-explicit-relocs -mno-split-addresses $(CHECK_WARNINGS) -funsigned-char
+  CFLAGS += -G 0 -nostdinc $(INC) -march=vr4300 -mfix4300 -mabi=$(ABI) -mno-abicalls -mdivide-breaks -fno-zero-initialized-in-bss -fno-toplevel-reorder -ffreestanding -fno-common -fno-merge-constants -mno-explicit-relocs -mno-split-addresses $(CHECK_WARNINGS) -funsigned-char
+  ASFLAGS := -march=vr4300 -mabi=$(ABI) -mno-abicalls -Wa,-no-pad-sections -I include
+  ASFLAGS_NOCPP := -march=vr4300 -$(ABI) -no-pad-sections -I include
   MIPS_VERSION := -mips3
 else
   # we support Microsoft extensions such as anonymous structs, which the compiler does support but warns for their usage. Surpress the warnings with -woff.
   CFLAGS += -G 0 -non_shared -fullwarn -verbose -Xcpluscomm $(INC) -Wab,-r4300_mul -woff 516,649,838,712
+  ASFLAGS := -march=vr4300 -32 -no-pad-sections -Iinclude
+  ASFLAGS_NOCPP := $(ASFLAGS)
   MIPS_VERSION := -mips2
 endif
 
@@ -232,11 +250,11 @@ build/src/libultra/rmon/%.o: CC := $(CC_OLD)
 build/src/code/jpegutils.o: CC := $(CC_OLD)
 build/src/code/jpegdecoder.o: CC := $(CC_OLD)
 
-build/src/boot/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS) $(ASFLAGS) --
-build/src/code/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS) $(ASFLAGS) --
-build/src/overlays/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS) $(ASFLAGS) --
+build/src/boot/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS_NOCPP) $(ASFLAGS_NOCPP) --
+build/src/code/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS_NOCPP) $(ASFLAGS_NOCPP) --
+build/src/overlays/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS_NOCPP) $(ASFLAGS_NOCPP) --
 
-build/assets/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS) $(ASFLAGS) --
+build/assets/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS_NOCPP) $(ASFLAGS_NOCPP) --
 else
 build/src/libultra/libc/ll.o: OPTFLAGS := -Ofast
 build/src/%.o: CC := $(CC) -fexec-charset=euc-jp
@@ -284,7 +302,7 @@ $(ROM): $(ELF)
 	$(ELF2ROM) -cic 6105 $< $@
 
 $(ELF): $(TEXTURE_FILES_OUT) $(ASSET_FILES_OUT) $(O_FILES) $(OVL_RELOC_FILES) build/ldscript.txt build/undefined_syms.txt
-	$(LD) -T build/undefined_syms.txt -T build/ldscript.txt --no-check-sections --accept-unknown-input-arch --emit-relocs -Map build/z64.map -o $@
+	$(LD) --oformat $(LD_OUTPUT_FORMAT) -T build/undefined_syms.txt -T build/ldscript.txt --no-check-sections --accept-unknown-input-arch --emit-relocs -Map build/z64.map -o $@
 
 ## Order-only prerequisites
 # These ensure e.g. the O_FILES are built before the OVL_RELOC_FILES.
@@ -311,7 +329,7 @@ build/baserom/%.o: baserom/%
 	$(OBJCOPY) -I binary -O elf32-big $< $@
 
 build/data/%.o: data/%.s
-	$(AS) $(ASFLAGS) $< -o $@
+	$(AS) $(ASFLAGS) -o $@
 
 build/assets/text/%.enc.h: assets/text/%.h assets/text/charmap.txt
 	python3 tools/msgenc.py assets/text/charmap.txt $< $@
@@ -329,7 +347,7 @@ build/assets/%.o: assets/%.c
 	$(OBJCOPY) -O binary $@ $@.bin
 
 build/src/%.o: src/%.s
-	$(CPP) $(CPPFLAGS) -Iinclude $< | $(AS) $(ASFLAGS) -o $@
+	$(AS) $(ASFLAGS) -o $@
 
 build/dmadata_table_spec.h: build/$(SPEC)
 	$(MKDMADATA) $< $@
@@ -356,18 +374,22 @@ build/src/%.o: src/%.c
 build/src/libultra/libc/ll.o: src/libultra/libc/ll.c
 	$(CC_CHECK) $<
 	$(CC) -c $(CFLAGS) $(MIPS_VERSION) $(OPTFLAGS) -o $@ $<
+ifeq ($(ABI),32)
 	python3 tools/set_o32abi_bit.py $@
+endif
 	@$(OBJDUMP) $(OBJDUMP_FLAGS) $@ > $(@:.o=.s)
 
 build/src/libultra/libc/llcvt.o: src/libultra/libc/llcvt.c
 	$(CC_CHECK) $<
 	$(CC) -c $(CFLAGS) $(MIPS_VERSION) $(OPTFLAGS) -o $@ $<
+ifeq ($(ABI),32)
 	python3 tools/set_o32abi_bit.py $@
+endif
 	@$(OBJDUMP) $(OBJDUMP_FLAGS) $@ > $(@:.o=.s)
 
 build/src/overlays/%_reloc.o: build/$(SPEC)
 	$(FADO) $$(tools/reloc_prereq $< $(notdir $*)) -n $(notdir $*) -o $(@:.o=.s) -M $(@:.o=.d)
-	$(AS) $(ASFLAGS) $(@:.o=.s) -o $@
+	$(AS_NOCPP) $(ASFLAGS_NOCPP) $(@:.o=.s) -o $@
 
 build/%.inc.c: %.png
 	$(ZAPD) btex -eh -tt $(subst .,,$(suffix $*)) -i $< -o $@
