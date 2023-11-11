@@ -1129,7 +1129,14 @@ void AudioLoad_Init(void* heap, u32 heapSize) {
         s32 i;
         u8* audioContextPtr = (u8*)&gAudioCtx;
 
+#ifndef AVOID_UB
+        //! @bug This clearing loop sets one extra byte to 0 following gAudioCtx.
+        //! In practice this is harmless as it would set a byte in D_801755D0 to 0, which was just reset to 0 above.
         for (i = sizeof(gAudioCtx); i >= 0; i--) {
+#else
+        // Avoid out-of-bounds memory access.
+        for (i = sizeof(gAudioCtx); i > 0; i--) {
+#endif
             *audioContextPtr++ = 0;
         }
     }

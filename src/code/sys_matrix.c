@@ -603,11 +603,11 @@ Mtx* Matrix_MtxFToMtx(MtxF* src, Mtx* dest) {
     return dest;
 }
 
-Mtx* Matrix_ToMtx(Mtx* dest, char* file, s32 line) {
+Mtx* Matrix_ToMtx(Mtx* dest, char* file, int line) {
     return Matrix_MtxFToMtx(Matrix_CheckFloats(sCurrentMatrix, file, line), dest);
 }
 
-Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx, char* file, s32 line) {
+Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx, char* file, int line) {
     return Matrix_ToMtx(Graph_Alloc(gfxCtx, sizeof(Mtx)), file, line);
 }
 
@@ -955,7 +955,7 @@ void Matrix_RotateAxis(f32 angle, Vec3f* axis, u8 mode) {
     }
 }
 
-MtxF* Matrix_CheckFloats(MtxF* mf, char* file, s32 line) {
+MtxF* Matrix_CheckFloats(MtxF* mf, char* file, int line) {
     s32 i, j;
 
     for (i = 0; i < 4; i++) {

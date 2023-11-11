@@ -101,7 +101,7 @@ EMU_FLAGS  ?=
 INC := -Iinclude -Iinclude/libc -Isrc -Ibuild -I.
 
 # Check code syntax with host compiler
-CHECK_WARNINGS := -Wall -Wextra -Wno-format-security -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-variable -Wno-missing-braces
+CHECK_WARNINGS := -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-variable -Wno-missing-braces -Wno-format
 
 CPP        := cpp
 MKLDSCRIPT := tools/mkldscript
@@ -119,7 +119,7 @@ endif
 ASFLAGS := -march=vr4300 -32 -no-pad-sections -Iinclude
 
 ifeq ($(COMPILER),gcc)
-  CFLAGS += -G 0 -nostdinc $(INC) -march=vr4300 -mfix4300 -mabi=32 -mno-abicalls -mdivide-breaks -ffreestanding -fbuiltin -fno-builtin-sinf -fno-builtin-cosf -fno-pic -fno-common -fno-merge-constants -mno-explicit-relocs -mno-split-addresses $(CHECK_WARNINGS) -funsigned-char
+  CFLAGS += -G 0 -nostdinc $(INC) -march=vr4300 -mfix4300 -mabi=32 -mno-abicalls -mdivide-breaks -fno-PIC -fno-common -ffreestanding -fbuiltin -fno-builtin-sinf -fno-builtin-cosf $(CHECK_WARNINGS) -funsigned-char
   MIPS_VERSION := -mips3
 else
   # we support Microsoft extensions such as anonymous structs, which the compiler does support but warns for their usage. Surpress the warnings with -woff.
@@ -240,7 +240,9 @@ build/assets/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS) $(AS
 else
 # The / is intentionally left out to capture other directories starting with "assets"
 build/assets%.o: CFLAGS += -fno-zero-initialized-in-bss -fno-toplevel-reorder
+build/src/overlays/%.o: CFLAGS += -fno-merge-constants -mno-explicit-relocs -mno-split-addresses
 build/src/%.o: CFLAGS += -fexec-charset=euc-jp
+
 build/src/libultra/libc/ll.o: OPTFLAGS := -Ofast
 endif
 

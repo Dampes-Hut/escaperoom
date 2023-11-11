@@ -27,7 +27,7 @@ OSMesg sDmaMgrMsgBuf[32];
 OSThread sDmaMgrThread;
 STACK(sDmaMgrStack, 0x500);
 const char* sDmaMgrCurFileName;
-s32 sDmaMgrCurFileLine;
+int sDmaMgrCurFileLine;
 
 u32 gDmaMgrVerbose = 0;
 size_t gDmaMgrDmaBuffSize = DMAMGR_DEFAULT_BUFSIZE;
@@ -261,7 +261,7 @@ NORETURN void DmaMgr_Error(DmaRequest* req, const char* file, const char* errorN
         sprintf(buff1, "DMA ERROR: %s", errorName != NULL ? errorName : "???");
     }
 
-    sprintf(buff2, "%07X %08X %X %s", vrom, ram, size, file != NULL ? file : "???");
+    sprintf(buff2, "%07X %08X %X %s", vrom, (uintptr_t)ram, size, file != NULL ? file : "???");
     Fault_AddHungupAndCrashImpl(buff1, buff2);
 }
 
@@ -579,7 +579,7 @@ void DmaMgr_Init(void) {
  * @return 0
  */
 s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size, u32 unk5, OSMesgQueue* queue,
-                        OSMesg msg, const char* file, s32 line) {
+                        OSMesg msg, const char* file, int line) {
     req->filename = file;
     req->line = line;
     return DmaMgr_SendRequest(req, ram, vrom, size, unk5, queue, msg);
@@ -590,7 +590,7 @@ s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size,
  *
  * @see DmaMgr_RequestSync
  */
-s32 DmaMgr_RequestSyncDebug(void* ram, uintptr_t vrom, size_t size, const char* file, s32 line) {
+s32 DmaMgr_RequestSyncDebug(void* ram, uintptr_t vrom, size_t size, const char* file, int line) {
     DmaRequest req;
     s32 ret;
     OSMesgQueue queue;

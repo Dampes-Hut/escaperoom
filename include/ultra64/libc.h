@@ -3,6 +3,9 @@
 
 #include "stddef.h"
 
+#ifdef __GNUC__
+__attribute__((format(printf, 1, 2)))
+#endif
 void osSyncPrintf(const char* fmt, ...);
 
 void bzero(void* __s, size_t __n);
