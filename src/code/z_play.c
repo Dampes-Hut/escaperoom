@@ -1785,9 +1785,11 @@ int Play_CamIsNotFixed(PlayState* this) {
            (R_SCENE_CAM_TYPE != SCENE_CAM_TYPE_FIXED_MARKET) && (this->sceneId != SCENE_CASTLE_COURTYARD_GUARDS_DAY);
 }
 
+#ifndef NDEBUG
 int FrameAdvance_IsEnabled(PlayState* this) {
     return !!this->frameAdvCtx.enabled;
 }
+#endif
 
 s32 func_800C0D34(PlayState* this, Actor* actor, s16* yaw) {
     TransitionActorEntry* transitionActor;

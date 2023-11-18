@@ -16,6 +16,8 @@ ORIG_COMPILER ?= 0
 COMPILER ?= gcc
 # ABI, ignored when building with IDO.
 ABI ?= eabi
+# NDEBUG, set to 1 for release build.
+NDEBUG ?= 0
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -33,6 +35,11 @@ ifeq ($(COMPILER),gcc)
   NON_MATCHING := 1
 else
   ABI := 32
+endif
+
+ifeq ($(NDEBUG),1)
+  CFLAGS += -DNDEBUG
+  CPPFLAGS += -DNDEBUG
 endif
 
 # Set prefix to mips binutils binaries (mips-linux-gnu-ld => 'mips-linux-gnu-') - Change at your own risk!
@@ -115,7 +122,7 @@ EMU_FLAGS  ?=
 INC := -Iinclude -Iinclude/libc -Isrc -Ibuild -I.
 
 # Check code syntax with host compiler
-CHECK_WARNINGS := -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-variable -Wno-missing-braces -Wno-format
+CHECK_WARNINGS := -Wall -Wextra -Wno-unknown-pragmas -Wno-unused-parameter -Wno-unused-variable -Wno-missing-braces -Wno-format -Werror=incompatible-pointer-types
 
 CPP        := cpp
 MKLDSCRIPT := tools/mkldscript

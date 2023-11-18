@@ -1,4 +1,3 @@
-#if 0
 #include "global.h"
 #include "terminal.h"
 
@@ -28,14 +27,6 @@ AudioMgr gAudioMgr;
 OSMesgQueue sSerialEventQueue;
 OSMesg sSerialMsgBuf[1];
 
-void Main_LogSystemHeap(void) {
-    osSyncPrintf(VT_FGCOL(GREEN));
-    // "System heap size% 08x (% dKB) Start address% 08x"
-    osSyncPrintf("システムヒープサイズ %08x(%dKB) 開始アドレス %08x\n", gSystemHeapSize, gSystemHeapSize / 1024,
-                 _buffersSegmentEnd);
-    osSyncPrintf(VT_RST);
-}
-
 void Main(void* arg) {
     IrqMgrClient irqClient;
     OSMesgQueue irqMgrMsgQueue;
@@ -46,28 +37,29 @@ void Main(void* arg) {
     u32 debugHeapSize;
     s16* msg;
 
-    osSyncPrintf("mainproc 実行開始\n"); // "Start running"
     gScreenWidth = SCREEN_WIDTH;
     gScreenHeight = SCREEN_HEIGHT;
+
     gAppNmiBufferPtr = (PreNmiBuff*)osAppNMIBuffer;
     PreNmiBuff_Init(gAppNmiBufferPtr);
     Fault_Init();
-    SysCfb_Init(0);
+
+    assert(osMemSize >= 0x800000); // TODO display an error message if this is not the case
+
     systemHeapStart = (uintptr_t)_buffersSegmentEnd;
-    fb = (uintptr_t)SysCfb_GetFbPtr(0);
-    gSystemHeapSize = fb - systemHeapStart;
-    // "System heap initalization"
-    osSyncPrintf("システムヒープ初期化 %08x-%08x %08x\n", systemHeapStart, fb, gSystemHeapSize);
-    SystemHeap_Init((void*)systemHeapStart, gSystemHeapSize); // initializes the system heap
-    if (osMemSize >= 0x800000) {
-        debugHeapStart = SysCfb_GetFbEnd();
-        debugHeapSize = PHYS_TO_K0(0x600000) - (uintptr_t)debugHeapStart;
-    } else {
-        debugHeapSize = 0x400;
-        debugHeapStart = SystemArena_MallocDebug(debugHeapSize, "../main.c", 565);
+    gSystemHeapSize = (uintptr_t)gZBuffer - systemHeapStart;
+    SystemArena_Init((void*)systemHeapStart, gSystemHeapSize);
+
+#ifndef NDEBUG
+    {
+        // Take remaining memory in last DRAM bank. Slows down FB1 render/scanout but it should be disabled for release.
+        void* debugHeapStart = (void*)(0x80700000 + 2 * SCREEN_WIDTH * SCREEN_HEIGHT);
+        u32 debugHeapSize = 0x80800000 - (u32)debugHeapStart;
+
+        DebugArena_Init(debugHeapStart, debugHeapSize);
     }
-    osSyncPrintf("debug_InitArena(%08x, %08x)\n", debugHeapStart, debugHeapSize);
-    DebugArena_Init(debugHeapStart, debugHeapSize);
+#endif
+
     Regs_Init();
 
     R_ENABLE_ARENA_DBG = 0;
@@ -75,13 +67,10 @@ void Main(void* arg) {
     osCreateMesgQueue(&sSerialEventQueue, sSerialMsgBuf, ARRAY_COUNT(sSerialMsgBuf));
     osSetEventMesg(OS_EVENT_SI, &sSerialEventQueue, NULL);
 
-    Main_LogSystemHeap();
-
     osCreateMesgQueue(&irqMgrMsgQueue, irqMgrMsgBuf, ARRAY_COUNT(irqMgrMsgBuf));
     StackCheck_Init(&sIrqMgrStackInfo, sIrqMgrStack, STACK_TOP(sIrqMgrStack), 0, 0x100, "irqmgr");
     IrqMgr_Init(&gIrqMgr, STACK_TOP(sIrqMgrStack), THREAD_PRI_IRQMGR, 1);
 
-    osSyncPrintf("タスクスケジューラの初期化\n"); // "Initialize the task scheduler"
     StackCheck_Init(&sSchedStackInfo, sSchedStack, STACK_TOP(sSchedStack), 0, 0x100, "sched");
     Sched_Init(&gScheduler, STACK_TOP(sSchedStack), THREAD_PRI_SCHED, gViConfigModeType, 1, &gIrqMgr);
 
@@ -107,15 +96,10 @@ void Main(void* arg) {
             break;
         }
         if (*msg == OS_SC_PRE_NMI_MSG) {
-            osSyncPrintf("main.c: リセットされたみたいだよ\n"); // "Looks like it's been reset"
             PreNmiBuff_SetReset(gAppNmiBufferPtr);
         }
     }
 
-    osSyncPrintf("mainproc 後始末\n"); // "Cleanup"
     osDestroyThread(&sGraphThread);
     RcpUtils_Reset();
-    osSyncPrintf("mainproc 実行終了\n"); // "End of execution"
 }
-
-#endif

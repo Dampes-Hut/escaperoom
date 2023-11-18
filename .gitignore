@@ -54,3 +54,6 @@ graphs/
 
 # Per-user configuration
 .python-version
+
+# Ares emulator
+*.ram

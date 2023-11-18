@@ -3,6 +3,10 @@
 
 #include "stddef.h"
 
+#ifdef osSyncPrintf
+#error "bad header order"
+#endif
+
 #ifdef __GNUC__
 __attribute__((format(printf, 1, 2)))
 #endif

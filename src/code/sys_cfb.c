@@ -1,3 +1,4 @@
+#if 0
 #include "global.h"
 
 uintptr_t sSysCfbFbPtr[2];
@@ -52,3 +53,4 @@ void* SysCfb_GetFbPtr(s32 idx) {
 void* SysCfb_GetFbEnd(void) {
     return (void*)sSysCfbEnd;
 }
+#endif

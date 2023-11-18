@@ -3939,9 +3939,11 @@ void Interface_Draw(PlayState* play) {
         }
     }
 
+#ifndef NDEBUG
     if (pauseCtx->debugState == 3) {
         FlagSet_Update(play);
     }
+#endif
 
     if (interfaceCtx->unk_244 != 0) {
         gDPPipeSync(OVERLAY_DISP++);

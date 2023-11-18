@@ -1,4 +1,3 @@
-#if 0
 #include "global.h"
 #include "terminal.h"
 
@@ -100,10 +99,10 @@ void Graph_InitTHGA(GraphicsContext* gfxCtx) {
 
     pool->headMagic = GFXPOOL_HEAD_MAGIC;
     pool->tailMagic = GFXPOOL_TAIL_MAGIC;
-    THGA_Init(&gfxCtx->polyOpa, pool->polyOpaBuffer, sizeof(pool->polyOpaBuffer));
-    THGA_Init(&gfxCtx->polyXlu, pool->polyXluBuffer, sizeof(pool->polyXluBuffer));
-    THGA_Init(&gfxCtx->overlay, pool->overlayBuffer, sizeof(pool->overlayBuffer));
-    THGA_Init(&gfxCtx->work, pool->workBuffer, sizeof(pool->workBuffer));
+    THGA_Init(&gfxCtx->polyOpa, (void*)K0_TO_K1(pool->polyOpaBuffer), sizeof(pool->polyOpaBuffer));
+    THGA_Init(&gfxCtx->polyXlu, (void*)K0_TO_K1(pool->polyXluBuffer), sizeof(pool->polyXluBuffer));
+    THGA_Init(&gfxCtx->overlay, (void*)K0_TO_K1(pool->overlayBuffer), sizeof(pool->overlayBuffer));
+    THGA_Init(&gfxCtx->work, (void*)K0_TO_K1(pool->workBuffer), sizeof(pool->workBuffer));
 
     gfxCtx->polyOpaBuffer = pool->polyOpaBuffer;
     gfxCtx->polyXluBuffer = pool->polyXluBuffer;
@@ -149,8 +148,9 @@ void Graph_Destroy(GraphicsContext* gfxCtx) {
     Fault_RemoveClient(&sGraphFaultClient);
 }
 
+Gfx* sPrevTaskWorkBuffer = NULL;
+
 void Graph_TaskSet00(GraphicsContext* gfxCtx) {
-    static Gfx* sPrevTaskWorkBuffer = NULL;
     static s32 sGraphCfbInfoIdx = 0;
 
     OSTime timeNow;
@@ -451,6 +451,7 @@ void Graph_ThreadEntry(void* arg0) {
     osSyncPrintf("グラフィックスレッド実行終了\n"); // "End of graphic thread execution"
 }
 
+#undef Graph_Alloc
 void* Graph_Alloc(GraphicsContext* gfxCtx, size_t size) {
     TwoHeadGfxArena* thga = &gfxCtx->polyOpa;
 
@@ -471,37 +472,35 @@ void* Graph_Alloc2(GraphicsContext* gfxCtx, size_t size) {
     return THGA_AllocTail(&gfxCtx->polyOpa, ALIGN16(size));
 }
 
+#undef Graph_OpenDisps
 void Graph_OpenDisps(Gfx** dispRefs, GraphicsContext* gfxCtx, const char* file, int line) {
-    if (R_HREG_MODE == HREG_MODE_UCODE_DISAS && R_UCODE_DISAS_LOG_MODE != 4) {
-        dispRefs[0] = gfxCtx->polyOpa.p;
-        dispRefs[1] = gfxCtx->polyXlu.p;
-        dispRefs[2] = gfxCtx->overlay.p;
+    dispRefs[0] = gfxCtx->polyOpa.p;
+    dispRefs[1] = gfxCtx->polyXlu.p;
+    dispRefs[2] = gfxCtx->overlay.p;
 
-        gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, file, line);
-        gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, file, line);
-        gDPNoOpOpenDisp(gfxCtx->overlay.p++, file, line);
-    }
+    gDPNoOpOpenDisp(gfxCtx->polyOpa.p++, file, line);
+    gDPNoOpOpenDisp(gfxCtx->polyXlu.p++, file, line);
+    gDPNoOpOpenDisp(gfxCtx->overlay.p++, file, line);
 }
 
+#undef Graph_CloseDisps
 void Graph_CloseDisps(Gfx** dispRefs, GraphicsContext* gfxCtx, const char* file, int line) {
-    if (R_HREG_MODE == HREG_MODE_UCODE_DISAS && R_UCODE_DISAS_LOG_MODE != 4) {
-        if (dispRefs[0] + 1 == gfxCtx->polyOpa.p) {
-            gfxCtx->polyOpa.p = dispRefs[0];
-        } else {
-            gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, file, line);
-        }
+    if (dispRefs[0] + 1 == gfxCtx->polyOpa.p) {
+        gfxCtx->polyOpa.p = dispRefs[0];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->polyOpa.p++, file, line);
+    }
 
-        if (dispRefs[1] + 1 == gfxCtx->polyXlu.p) {
-            gfxCtx->polyXlu.p = dispRefs[1];
-        } else {
-            gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, file, line);
-        }
+    if (dispRefs[1] + 1 == gfxCtx->polyXlu.p) {
+        gfxCtx->polyXlu.p = dispRefs[1];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->polyXlu.p++, file, line);
+    }
 
-        if (dispRefs[2] + 1 == gfxCtx->overlay.p) {
-            gfxCtx->overlay.p = dispRefs[2];
-        } else {
-            gDPNoOpCloseDisp(gfxCtx->overlay.p++, file, line);
-        }
+    if (dispRefs[2] + 1 == gfxCtx->overlay.p) {
+        gfxCtx->overlay.p = dispRefs[2];
+    } else {
+        gDPNoOpCloseDisp(gfxCtx->overlay.p++, file, line);
     }
 }
 
@@ -528,4 +527,3 @@ void* Graph_DlistAlloc(Gfx** gfxP, u32 size) {
     *gfxP = dst;
     return ptr;
 }
-#endif

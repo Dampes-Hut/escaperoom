@@ -1,3 +1,4 @@
+#if 0
 #include "global.h"
 
 #define LOG_SEVERITY_NOLOG 0
@@ -108,3 +109,4 @@ void SystemArena_Cleanup(void) {
 u8 SystemArena_IsInitialized(void) {
     return __osMallocIsInitialized(&gSystemArena);
 }
+#endif

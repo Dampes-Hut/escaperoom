@@ -95,6 +95,8 @@ s32 BgCheck_PosErrorCheck(Vec3f* pos, char* file, int line) {
     return false;
 }
 
+#define BgCheck_PosErrorCheck(pos, ...) BgCheck_PosErrorCheck(pos, __FILE__, __LINE__)
+
 /**
  * Set SSNode
  */

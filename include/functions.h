@@ -311,7 +311,9 @@ void EffectSsDeadSound_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f
 void EffectSsDeadSound_SpawnStationary(PlayState* play, Vec3f* pos, u16 sfxId, s16 lowerPriority,
                                        s16 repeatMode, s32 life);
 void EffectSsIceSmoke_Spawn(PlayState* play, Vec3f* pos, Vec3f* velocity, Vec3f* accel, s16 scale);
+#ifndef NDEBUG
 void FlagSet_Update(PlayState* play);
+#endif
 void Overlay_LoadGameState(GameStateOverlay* overlayEntry);
 void Overlay_FreeGameState(GameStateOverlay* overlayEntry);
 void ActorShape_Init(ActorShape* shape, f32 yOffset, ActorShadowFunc shadowDraw, f32 shadowScale);
@@ -896,6 +898,7 @@ Lights* Lights_NewAndDraw(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 
 Lights* Lights_New(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambientB);
 void Lights_GlowCheck(PlayState* play);
 void Lights_DrawGlow(PlayState* play);
+#if 0
 void ZeldaArena_CheckPointer(void* ptr, u32 size, const char* name, const char* action);
 void* ZeldaArena_Malloc(u32 size);
 void* ZeldaArena_MallocDebug(u32 size, const char* file, int line);
@@ -912,6 +915,7 @@ void ZeldaArena_Check(void);
 void ZeldaArena_Init(void* start, u32 size);
 void ZeldaArena_Cleanup(void);
 u8 ZeldaArena_IsInitialized(void);
+#endif
 void MapMark_Init(PlayState* play);
 void MapMark_ClearPointers(PlayState* play);
 void MapMark_Draw(PlayState* play);
@@ -1232,10 +1236,12 @@ u32 Letterbox_GetSize(void);
 void Letterbox_Init(void);
 void Letterbox_Destroy(void);
 void Letterbox_Update(s32 updateRate);
+#ifndef NDEBUG
 void DebugCamera_Init(DebugCam* debugCam, Camera* cameraPtr);
 void DebugCamera_Enable(DebugCam* debugCam, Camera* cam);
 void DebugCamera_Update(DebugCam* debugCam, Camera* cam);
 void DebugCamera_Reset(Camera* cam, DebugCam* debugCam);
+#endif
 void func_800BB0A0(f32 u, Vec3f* pos, f32* roll, f32* viewAngle, f32* point0, f32* point1, f32* point2, f32* point3);
 s32 func_800BB2B4(Vec3f* pos, f32* roll, f32* fov, CutsceneCameraPoint* point, s16* keyFrame, f32* curFrame);
 void KaleidoManager_LoadOvl(KaleidoMgrOverlay* ovl);
@@ -1278,7 +1284,9 @@ void Play_SetupRespawnPoint(PlayState* this, s32 respawnMode, s32 playerParams);
 void Play_TriggerVoidOut(PlayState* this);
 void Play_TriggerRespawn(PlayState* this);
 int Play_CamIsNotFixed(PlayState* this);
+#ifndef NDEBUG
 int FrameAdvance_IsEnabled(PlayState* this);
+#endif
 s32 func_800C0D34(PlayState* this, Actor* actor, s16* yaw);
 s32 func_800C0DB4(PlayState* this, Vec3f* pos);
 void PreRender_SetValuesSave(PreRender* this, u32 width, u32 height, void* fbuf, void* zbuf, void* cvg);
@@ -1345,9 +1353,11 @@ void ListAlloc_Free(ListAlloc* this, void* data);
 void ListAlloc_FreeAll(ListAlloc* this);
 void Main_LogSystemHeap(void);
 void Main(void* arg);
+#if 0
 void SysCfb_Init(s32 n64dd);
 void* SysCfb_GetFbPtr(s32 idx);
 void* SysCfb_GetFbEnd(void);
+#endif
 f32 Math_FactorialF(f32 n);
 f32 Math_Factorial(s32 n);
 f32 Math_PowF(f32 base, s32 exp);
@@ -1459,6 +1469,7 @@ u64* SysUcode_GetUCodeData(void);
 NORETURN void func_800D31A0(void);
 void func_800D31F0(void);
 void func_800D3210(void);
+#if 0
 void DebugArena_CheckPointer(void* ptr, u32 size, const char* name, const char* action);
 void* DebugArena_Malloc(u32 size);
 void* DebugArena_MallocDebug(u32 size, const char* file, int line);
@@ -1475,6 +1486,7 @@ void DebugArena_Check(void);
 void DebugArena_Init(void* start, u32 size);
 void DebugArena_Cleanup(void);
 u8 DebugArena_IsInitialized(void);
+#endif
 void UCodeDisas_Init(UCodeDisas*);
 void UCodeDisas_Destroy(UCodeDisas*);
 void UCodeDisas_Disassemble(UCodeDisas*, Gfx*);
@@ -1754,6 +1766,7 @@ f32 ceilf(f32 x);
 f32 truncf(f32 x);
 f32 roundf(f32 x);
 f32 nearbyintf(f32 x);
+#if 0
 void SystemArena_CheckPointer(void* ptr, u32 size, const char* name, const char* action);
 void* SystemArena_Malloc(u32 size);
 void* SystemArena_MallocDebug(u32 size, const char* file, int line);
@@ -1770,6 +1783,7 @@ void SystemArena_Check(void);
 void SystemArena_Init(void* start, u32 size);
 void SystemArena_Cleanup(void);
 u8 SystemArena_IsInitialized(void);
+#endif
 u32 Rand_Next(void);
 void Rand_Seed(u32 seed);
 f32 Rand_ZeroOne(void);
@@ -1778,6 +1792,7 @@ void Rand_Seed_Variable(u32* rndNum, u32 seed);
 u32 Rand_Next_Variable(u32* rndNum);
 f32 Rand_ZeroOne_Variable(u32* rndNum);
 f32 Rand_Centered_Variable(u32* rndNum);
+#if 0
 u32 ArenaImpl_GetFillAllocBlock(Arena* arena);
 u32 ArenaImpl_GetFillFreeBlock(Arena* arena);
 u32 ArenaImpl_GetCheckFreeBlock(Arena* arena);
@@ -1817,6 +1832,7 @@ void __osDisplayArena(Arena* arena);
 void ArenaImpl_FaultClient(Arena* arena);
 u32 __osCheckArena(Arena* arena);
 u8 func_800FF334(Arena* arena);
+#endif
 s32 PrintUtils_VPrintf(PrintCallback* pfn, const char* fmt, va_list args);
 FORMAT_PRINTF(2, 3) s32 PrintUtils_Printf(PrintCallback* pfn, const char* fmt, ...);
 void Sleep_Cycles(OSTime cycles);

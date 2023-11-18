@@ -2812,7 +2812,11 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
                 if (actorCtx->absoluteSpace == NULL) {
                     // "AMF: absolute magic field"
                     actorCtx->absoluteSpace =
+#ifdef NDEBUG
                         ZeldaArena_MallocRDebug(ACTOROVL_ABSOLUTE_SPACE_SIZE, "AMF:絶対魔法領域", 0);
+#else
+                        ZeldaArena_MallocR(ACTOROVL_ABSOLUTE_SPACE_SIZE, "ABSOLUTE MAGIC SPACE", 0);
+#endif
                     if (HREG(20) != 0) {
                         // "Absolute magic field reservation - %d bytes reserved"
                         osSyncPrintf("絶対魔法領域確保 %d バイト確保\n", ACTOROVL_ABSOLUTE_SPACE_SIZE);
@@ -2821,9 +2825,15 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
 
                 overlayEntry->loadedRamAddr = actorCtx->absoluteSpace;
             } else if (overlayEntry->allocType & ACTOROVL_ALLOC_PERSISTENT) {
+#ifdef NDEBUG
                 overlayEntry->loadedRamAddr = ZeldaArena_MallocRDebug(overlaySize, name, 0);
             } else {
                 overlayEntry->loadedRamAddr = ZeldaArena_MallocDebug(overlaySize, name, 0);
+#else // kludge for actors not using real file & line numbers
+                overlayEntry->loadedRamAddr = ZeldaArena_MallocR(overlaySize, name, 0);
+            } else {
+                overlayEntry->loadedRamAddr = ZeldaArena_Malloc(overlaySize, name, 0);
+#endif
             }
 
             if (overlayEntry->loadedRamAddr == NULL) {
@@ -2864,7 +2874,11 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
         return NULL;
     }
 
+#ifdef NDEBUG
     actor = ZeldaArena_MallocDebug(actorInit->instanceSize, name, 1);
+#else
+    actor = ZeldaArena_Malloc(actorInit->instanceSize, name, 1);
+#endif
 
     if (actor == NULL) {
         // "Actor class cannot be reserved! %s <size＝%d bytes>"

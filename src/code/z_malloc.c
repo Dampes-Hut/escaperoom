@@ -1,3 +1,4 @@
+#if 0
 #include "global.h"
 
 #define LOG_SEVERITY_NOLOG 0
@@ -107,3 +108,4 @@ void ZeldaArena_Cleanup(void) {
 u8 ZeldaArena_IsInitialized(void) {
     return __osMallocIsInitialized(&sZeldaArena);
 }
+#endif

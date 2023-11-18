@@ -217,8 +217,10 @@ extern ActiveSequence gActiveSeqs[4];
 extern AudioContext gAudioCtx;
 extern void(*D_801755D0)(void);
 
+#if 0
 extern u32 __osMalloc_FreeBlockTest_Enable;
 extern Arena gSystemArena;
+#endif
 extern OSPifRam __osContPifRam;
 extern u8 __osContLastCmd;
 extern u8 __osMaxControllers;

@@ -5,4 +5,8 @@
 #include "variables.h"
 #include "macros.h"
 
+#include "escaperoom/malloc.h"
+#include "escaperoom/functions2.h"
+#include "escaperoom/common.h"
+
 #endif

@@ -1,3 +1,4 @@
+#ifndef NDEBUG
 #include "global.h"
 
 typedef struct {
@@ -181,3 +182,5 @@ void FlagSet_Update(PlayState* play) {
 
     CLOSE_DISPS(gfxCtx, "../flg_set.c", 241);
 }
+
+#endif

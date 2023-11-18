@@ -472,6 +472,7 @@ u32 GameState_IsRunning(GameState* gameState) {
     return gameState->running;
 }
 
+#undef GameState_Alloc
 void* GameState_Alloc(GameState* gameState, size_t size, char* file, int line) {
     void* ret;
 

@@ -1,3 +1,4 @@
+#if 0
 #include "global.h"
 #include "terminal.h"
 
@@ -816,3 +817,4 @@ u32 __osCheckArena(Arena* arena) {
 u8 func_800FF334(Arena* arena) {
     return arena->unk_20;
 }
+#endif

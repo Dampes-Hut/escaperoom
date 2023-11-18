@@ -1,4 +1,3 @@
-#if 0
 /**
  * @file fault.c
  *
@@ -362,21 +361,8 @@ void Fault_Sleep(u32 msec) {
     Fault_SleepImpl(msec);
 }
 
-#ifndef AVOID_UB
-void PadMgr_RequestPadData(Input* inputs, s32 gameRequest);
-#endif
-
 void Fault_PadCallback(Input* inputs) {
-    //! @bug This function is not called correctly, it is missing a leading PadMgr* argument. This
-    //! renders the crash screen unusable.
-    //! In Majora's Mask, PadMgr functions were changed to not require this argument, and this was
-    //! likely just not addressed when backporting.
-#ifndef AVOID_UB
-    PadMgr_RequestPadData(inputs, false);
-#else
-    // Guarantee crashing behavior: false -> NULL, previous value in a2 is more often non-zero than zero
-    PadMgr_RequestPadData((PadMgr*)inputs, NULL, true);
-#endif
+    PadMgr_RequestPadData(&gPadMgr, inputs, false);
 }
 
 void Fault_UpdatePadImpl(void) {
@@ -1223,7 +1209,7 @@ void Fault_ThreadEntry(void* arg) {
         } else {
             // Draw error bar signifying the crash screen is available
             Fault_DrawCornerRec(GPACK_RGBA5551(255, 0, 0, 1));
-            Fault_WaitForButtonCombo();
+            // Fault_WaitForButtonCombo();
         }
 
         // Set auto-scrolling and default colors
@@ -1319,6 +1305,7 @@ NORETURN void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2) {
 #endif
 }
 
+#undef Fault_AddHungupAndCrash
 /**
  * Like `Fault_AddHungupAndCrashImpl`, however provides a fixed message containing
  * filename and line number
@@ -1329,4 +1316,3 @@ NORETURN void Fault_AddHungupAndCrash(const char* file, int line) {
     sprintf(msg, "HungUp %s:%d", file, line);
     Fault_AddHungupAndCrashImpl(msg, NULL);
 }
-#endif

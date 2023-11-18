@@ -563,6 +563,7 @@ void DmaMgr_Init(void) {
     osStartThread(&sDmaMgrThread);
 }
 
+#undef DmaMgr_RequestAsync
 /**
  * Submit an asynchronous DMA request. Unlike other DMA requests, this will not block the current thread. Data arrival
  * is not immediate however, ensure that the request has completed by awaiting a message sent to `queue` when the DMA
@@ -585,6 +586,7 @@ s32 DmaMgr_RequestAsync(DmaRequest* req, void* ram, uintptr_t vrom, size_t size,
     return DmaMgr_SendRequest(req, ram, vrom, size, unk5, queue, msg);
 }
 
+#undef DmaMgr_RequestSyncDebug
 /**
  * Synchronous DMA Request with source file and line info for debugging.
  *

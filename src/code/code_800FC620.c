@@ -1,5 +1,6 @@
 #include "global.h"
 
+#if 0
 typedef void (*arg3_800FC868)(void*);
 typedef void (*arg3_800FC8D8)(void*, u32);
 typedef void (*arg3_800FC948)(void*, u32, u32, u32, u32, u32, u32, u32, u32);
@@ -115,3 +116,4 @@ void SystemHeap_Init(void* start, u32 size) {
     SystemArena_Init(start, size);
     func_800FCB34();
 }
+#endif

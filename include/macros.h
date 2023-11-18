@@ -101,6 +101,7 @@
 #define CHECK_FLAG_ALL(flags, mask) (((flags) & (mask)) == (mask))
 
 
+#if 0
 #define LOG(exp, value, format, file, line)         \
     do {                                            \
         LogUtils_LogThreadId(file, line);           \
@@ -114,6 +115,7 @@
 #define LOG_HEX(exp, value, file, line) LOG(exp, value, "%x", file, line)
 #define LOG_HEX32(exp, value, file, line) LOG(exp, value, "%08x", file, line)
 #define LOG_FLOAT(exp, value, file, line) LOG(exp, value, "%f", file, line)
+#endif
 
 #define SET_NEXT_GAMESTATE(curState, newInit, newStruct) \
     do {                                                 \
@@ -132,6 +134,7 @@
     }                                      \
     (void)0
 
+#if 0
 struct GraphicsContext;
 
 extern struct GraphicsContext* __gfxCtx;
@@ -155,6 +158,7 @@ extern struct GraphicsContext* __gfxCtx;
         Graph_CloseDisps(dispRefs, gfxCtx, file, line); \
     }                                                   \
     (void)0
+#endif
 
 /**
  * `x` vertex x

@@ -720,11 +720,15 @@ void Sram_InitSave(FileSelectState* fileSelect, SramContext* sramCtx) {
     u16* ptr;
     u16 checksum;
 
+#ifndef NDEBUG
     if (fileSelect->buttonIndex != 0) {
         Sram_InitNewSave();
     } else {
         Sram_InitDebugSave();
     }
+#else
+    Sram_InitNewSave();
+#endif
 
     gSaveContext.save.entranceIndex = ENTR_LINKS_HOUSE_0;
     gSaveContext.save.linkAge = LINK_AGE_CHILD;

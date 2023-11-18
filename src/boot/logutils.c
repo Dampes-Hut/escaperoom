@@ -72,10 +72,12 @@ void LogUtils_LogHexDump(void* ptr, s32 size0) {
     }
 }
 
+#undef LogUtils_LogPointer
 void LogUtils_LogPointer(s32 value, u32 max, void* ptr, const char* name, const char* file, int line) {
     osSyncPrintf(VT_COL(RED, WHITE) "%s %d %s[%d] max=%u ptr=%08x\n" VT_RST, file, line, name, value, max, ptr);
 }
 
+#undef LogUtils_CheckBoundary
 void LogUtils_CheckBoundary(const char* name, s32 value, s32 unk, const char* file, int line) {
     u32 mask = (unk - 1);
 
@@ -85,22 +87,28 @@ void LogUtils_CheckBoundary(const char* name, s32 value, s32 unk, const char* fi
     }
 }
 
+#undef LogUtils_CheckNullPointer
 void LogUtils_CheckNullPointer(const char* exp, void* ptr, const char* file, int line) {
     if (ptr == NULL) {
         osSyncPrintf(VT_COL(RED, WHITE) "%s %d:%s は はヌルポインタです\n" VT_RST, file, line, exp);
     }
 }
 
+#undef LogUtils_CheckValidPointer
 void LogUtils_CheckValidPointer(const char* exp, void* ptr, const char* file, int line) {
     if (ptr == NULL || (u32)ptr < 0x80000000 || (0x80000000 + osMemSize) <= (u32)ptr) {
         osSyncPrintf(VT_COL(RED, WHITE) "%s %d:ポインタ %s(%08x) が異常です\n" VT_RST, file, line, exp, ptr);
     }
 }
 
+#undef LogUtils_LogThreadId
 void LogUtils_LogThreadId(const char* name, int line) {
     osSyncPrintf("<%d %s %d>", osGetThreadId(NULL), name, line);
 }
 
+#undef Fault_AddHungupAndCrash
+
+#undef LogUtils_HungupThread
 void LogUtils_HungupThread(const char* name, int line) {
     osSyncPrintf("*** HungUp in thread %d, [%s:%d] ***\n", osGetThreadId(NULL), name, line);
     Fault_AddHungupAndCrash(name, line);

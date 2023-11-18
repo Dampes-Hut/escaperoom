@@ -25,7 +25,9 @@ beginseg
     include "build/src/libultra/io/driverominit.o"
     include "build/src/boot/mio0.o"
     include "build/src/boot/stackcheck.o"
+#ifndef NDEBUG
     include "build/src/boot/logutils.o"
+#endif
     include "build/src/libultra/libc/sprintf.o"
     include "build/src/libultra/io/piacs.o"
     include "build/src/libultra/os/sendmesg.o"
@@ -333,7 +335,7 @@ beginseg
     include "build/src/code/z_lib.o"
     include "build/src/code/z_lifemeter.o"
     include "build/src/code/z_lights.o"
-    include "build/src/code/z_malloc.o"
+    include "build/src/code/escaperoom/z_malloc.o"
     include "build/src/code/z_map_mark.o"
     include "build/src/code/z_moji.o"
     include "build/src/code/z_prenmi_buff.o"
@@ -392,9 +394,9 @@ beginseg
     include "build/src/code/title_setup.o"
     include "build/src/code/game.o"
     include "build/src/code/gamealloc.o"
-    include "build/src/code/graph.o"
+    include "build/src/code/escaperoom/graph.o"
     include "build/src/code/listalloc.o"
-    include "build/src/code/main.o"
+    include "build/src/code/escaperoom/main.o"
     include "build/src/code/padmgr.o"
     include "build/src/code/sched.o"
     include "build/src/code/speed_meter.o"
@@ -407,8 +409,8 @@ beginseg
     include "build/src/code/sys_rumble.o"
     include "build/src/code/code_800D31A0.o"
     include "build/src/code/irqmgr.o"
-    include "build/src/code/debug_malloc.o"
-    include "build/src/code/fault.o"
+    include "build/src/code/escaperoom/debug_malloc.o"
+    include "build/src/code/escaperoom/fault.o"
     include "build/src/code/fault_drawer.o"
 #ifndef NON_MATCHING
     include "build/data/fault.bss.o"
@@ -440,14 +442,14 @@ beginseg
     include "build/src/code/mtxuty-cvt.o"
     include "build/src/code/relocation.o"
     include "build/src/code/load.o"
-    include "build/src/code/code_800FC620.o"
+  //include "build/src/code/code_800FC620.o"
     include "build/src/code/padutils.o"
     include "build/src/code/padsetup.o"
     include "build/src/code/code_800FCE80.o"
     include "build/src/code/fp.o"
-    include "build/src/code/system_malloc.o"
+    include "build/src/code/escaperoom/system_malloc.o"
     include "build/src/code/code_800FD970.o"
-    include "build/src/code/__osMalloc.o"
+    include "build/src/code/escaperoom/__osMalloc.o"
     include "build/src/code/printutils.o"
     include "build/src/code/sleep.o"
     include "build/src/code/jpegutils.o"
@@ -530,11 +532,23 @@ endseg
 
 beginseg
     name "buffers"
-    align 0x40
-    include "build/src/buffers/zbuffer.o"
     include "build/src/buffers/gfxbuffers.o"
     include "build/src/buffers/heaps.o"
 endseg
+
+/* Heap goes here */
+
+beginseg
+    name "zbuffer"
+    address 0x80500000
+    include "build/src/buffers/zbuffer.o"
+endseg
+
+/* Framebuffers go here */
+
+
+
+/* End of physical memory */
 
 beginseg
     name "ovl_title"
