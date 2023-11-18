@@ -1,7 +1,7 @@
 #include "global.h"
 #include "terminal.h"
 
-f32 LogUtils_CheckFloatRange(const char* exp, s32 line, const char* valueName, f32 value, const char* minName, f32 min,
+f32 LogUtils_CheckFloatRange(const char* exp, int line, const char* valueName, f32 value, const char* minName, f32 min,
                              const char* maxName, f32 max) {
     if (value < min || max < value) {
         osSyncPrintf("%s %d: range error %s(%f) < %s(%f) < %s(%f)\n", exp, line, minName, min, valueName, value,
@@ -10,7 +10,7 @@ f32 LogUtils_CheckFloatRange(const char* exp, s32 line, const char* valueName, f
     return value;
 }
 
-s32 LogUtils_CheckIntRange(const char* exp, s32 line, const char* valueName, s32 value, const char* minName, s32 min,
+s32 LogUtils_CheckIntRange(const char* exp, int line, const char* valueName, s32 value, const char* minName, s32 min,
                            const char* maxName, s32 max) {
     if (value < min || max < value) {
         osSyncPrintf("%s %d: range error %s(%d) < %s(%d) < %s(%d)\n", exp, line, minName, min, valueName, value,
@@ -72,11 +72,11 @@ void LogUtils_LogHexDump(void* ptr, s32 size0) {
     }
 }
 
-void LogUtils_LogPointer(s32 value, u32 max, void* ptr, const char* name, const char* file, s32 line) {
+void LogUtils_LogPointer(s32 value, u32 max, void* ptr, const char* name, const char* file, int line) {
     osSyncPrintf(VT_COL(RED, WHITE) "%s %d %s[%d] max=%u ptr=%08x\n" VT_RST, file, line, name, value, max, ptr);
 }
 
-void LogUtils_CheckBoundary(const char* name, s32 value, s32 unk, const char* file, s32 line) {
+void LogUtils_CheckBoundary(const char* name, s32 value, s32 unk, const char* file, int line) {
     u32 mask = (unk - 1);
 
     if (value & mask) {
@@ -85,23 +85,23 @@ void LogUtils_CheckBoundary(const char* name, s32 value, s32 unk, const char* fi
     }
 }
 
-void LogUtils_CheckNullPointer(const char* exp, void* ptr, const char* file, s32 line) {
+void LogUtils_CheckNullPointer(const char* exp, void* ptr, const char* file, int line) {
     if (ptr == NULL) {
         osSyncPrintf(VT_COL(RED, WHITE) "%s %d:%s は はヌルポインタです\n" VT_RST, file, line, exp);
     }
 }
 
-void LogUtils_CheckValidPointer(const char* exp, void* ptr, const char* file, s32 line) {
+void LogUtils_CheckValidPointer(const char* exp, void* ptr, const char* file, int line) {
     if (ptr == NULL || (u32)ptr < 0x80000000 || (0x80000000 + osMemSize) <= (u32)ptr) {
         osSyncPrintf(VT_COL(RED, WHITE) "%s %d:ポインタ %s(%08x) が異常です\n" VT_RST, file, line, exp, ptr);
     }
 }
 
-void LogUtils_LogThreadId(const char* name, s32 line) {
+void LogUtils_LogThreadId(const char* name, int line) {
     osSyncPrintf("<%d %s %d>", osGetThreadId(NULL), name, line);
 }
 
-void LogUtils_HungupThread(const char* name, s32 line) {
+void LogUtils_HungupThread(const char* name, int line) {
     osSyncPrintf("*** HungUp in thread %d, [%s:%d] ***\n", osGetThreadId(NULL), name, line);
     Fault_AddHungupAndCrash(name, line);
 }

@@ -47,7 +47,7 @@ void Idle_ThreadEntry(void* arg) {
     osSyncPrintf("ＦＩＦＯバッファのサイズは %d キロバイトです\n", 0x60);
     osSyncPrintf("ＹＩＥＬＤバッファのサイズは %d キロバイトです\n", 3);
     osSyncPrintf("オーディオヒープのサイズは %d キロバイトです\n",
-                 ((intptr_t)gSystemHeap - (intptr_t)gAudioHeap) / 1024);
+                 ((intptr_t)&gAudioHeap[ARRAY_COUNT(gAudioHeap)] - (intptr_t)gAudioHeap) / 1024);
     osSyncPrintf(VT_RST);
 
     osCreateViManager(OS_PRIORITY_VIMGR);

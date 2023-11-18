@@ -44,7 +44,7 @@ void Fault_Init(void);
 // Fatal Errors
 
 NORETURN void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2);
-NORETURN void Fault_AddHungupAndCrash(const char* file, s32 line);
+NORETURN void Fault_AddHungupAndCrash(const char* file, int line);
 
 // Client Registration
 
@@ -66,8 +66,8 @@ void FaultDrawer_SetFontColor(u16 color);
 void FaultDrawer_SetCharPad(s8 padW, s8 padH);
 void FaultDrawer_SetCursor(s32 x, s32 y);
 s32 FaultDrawer_VPrintf(const char* fmt, va_list args);
-s32 FaultDrawer_Printf(const char* fmt, ...);
-void FaultDrawer_DrawText(s32 x, s32 y, const char* fmt, ...);
+FORMAT_PRINTF(1, 2) s32 FaultDrawer_Printf(const char* fmt, ...);
+FORMAT_PRINTF(3, 4) void FaultDrawer_DrawText(s32 x, s32 y, const char* fmt, ...);
 
 typedef struct FaultMgr {
     /* 0x000 */ OSThread thread;
