@@ -172,7 +172,7 @@ OBJDUMP_FLAGS := -d -r -z -Mreg-names=32
 #### Files ####
 
 # ROM image
-ROM := zelda_ocarina_mq_dbg.z64
+ROM := escaperoom.z64
 ELF := $(ROM:.z64=.elf)
 # description of ROM segments
 SPEC := spec
