@@ -13,9 +13,9 @@ NON_MATCHING ?= 0
 # If ORIG_COMPILER is 1, compile with QEMU_IRIX and the original compiler
 ORIG_COMPILER ?= 0
 # If COMPILER is "gcc", compile with GCC instead of IDO.
-COMPILER ?= ido
+COMPILER ?= gcc
 # ABI, ignored when building with IDO.
-ABI ?= 32
+ABI ?= eabi
 
 CFLAGS ?=
 CPPFLAGS ?=
@@ -37,7 +37,11 @@ endif
 
 # Set prefix to mips binutils binaries (mips-linux-gnu-ld => 'mips-linux-gnu-') - Change at your own risk!
 # In nearly all cases, not having 'mips-linux-gnu-*' binaries on the PATH is indicative of missing dependencies
+ifneq ($(wildcard /opt/n64/bin/mips64-ultra-elf-gcc),)
+MIPS_BINUTILS_PREFIX ?= /opt/n64/bin/mips64-ultra-elf-
+else
 MIPS_BINUTILS_PREFIX ?= mips-linux-gnu-
+endif
 
 ifeq ($(NON_MATCHING),1)
   CFLAGS += -DNON_MATCHING -DAVOID_UB
