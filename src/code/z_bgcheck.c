@@ -1095,9 +1095,12 @@ s32 BgCheck_CheckLineAgainstSSList(SSList* ssList, CollisionContext* colCtx, u16
     curNode = &colCtx->polyNodes.tbl[ssList->head];
     while (true) {
         polyId = curNode->polyId;
+#if 0
         checkedPoly = &colCtx->polyNodes.polyCheckTbl[polyId];
+#endif
 
-        if (*checkedPoly == true || COLPOLY_VTX_CHECK_FLAGS_ANY(polyList[polyId].flags_vIA, xpFlags1) ||
+        // *checkedPoly == true || 
+        if (COLPOLY_VTX_CHECK_FLAGS_ANY(polyList[polyId].flags_vIA, xpFlags1) ||
             !(xpFlags2 == 0 || COLPOLY_VTX_CHECK_FLAGS_ANY(polyList[polyId].flags_vIA, xpFlags2))) {
 
             if (curNode->next == SS_NULL) {
@@ -1107,7 +1110,9 @@ s32 BgCheck_CheckLineAgainstSSList(SSList* ssList, CollisionContext* colCtx, u16
                 continue;
             }
         }
+#if 0
         *checkedPoly = true;
+#endif
         curPoly = &polyList[polyId];
         minY = CollisionPoly_GetMinY(curPoly, colCtx->colHeader->vtxList);
         if (posA->y < minY && posB->y < minY) {
@@ -2364,7 +2369,9 @@ s32 BgCheck_CheckLineImpl(CollisionContext* colCtx, u16 xpFlags1, u16 xpFlags2, 
         }
     }
 
+#if 0
     BgCheck_ResetPolyCheckTbl(&colCtx->polyNodes, colCtx->colHeader->numPolygons);
+#endif
     BgCheck_GetStaticLookupIndicesFromPos(colCtx, posA, (Vec3i*)&subdivMin);
     BgCheck_GetStaticLookupIndicesFromPos(colCtx, &posBTemp, (Vec3i*)&subdivMax);
     *posResult = *posB;
@@ -2629,9 +2636,11 @@ void SSNodeList_Alloc(PlayState* play, SSNodeList* this, s32 tblMax, s32 numPoly
 
     ASSERT(this->tbl != NULL, "this->short_slist_node_tbl != NULL", "../z_bgcheck.c", 5975);
 
+#if 0
     this->polyCheckTbl = GameState_Alloc(&play->state, numPolys, "../z_bgcheck.c", 5979);
 
     ASSERT(this->polyCheckTbl != NULL, "this->polygon_check != NULL", "../z_bgcheck.c", 5981);
+#endif
 }
 
 /**
@@ -4018,6 +4027,7 @@ void func_800418D0(CollisionContext* colCtx, PlayState* play) {
     }
 }
 
+#if 0
 /**
  * Reset SSNodeList polyCheckTbl
  */
@@ -4028,6 +4038,7 @@ void BgCheck_ResetPolyCheckTbl(SSNodeList* nodeList, s32 numPolys) {
         *t = 0;
     }
 }
+#endif
 
 /**
  * Get SurfaceType property set
