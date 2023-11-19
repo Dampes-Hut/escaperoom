@@ -1,7 +1,30 @@
 #include "global.h"
 #include "terminal.h"
 
+FaultAddrConvClient sEffectSsAddrConvClient;
+
 EffectSsInfo sEffectSsInfo = { 0 }; // "EffectSS2Info"
+
+uintptr_t EffectSs_FaultAddrConv(uintptr_t addr, void* param) {
+    u8* ptr = (u8*)addr;
+    EffectSsOverlay* overlayEntry = &gEffectSsOverlayTable[0];
+    u8* ramStart;
+    u8* ramEnd;
+    size_t size;
+    size_t offset;
+    s32 i;
+
+    for (i = 0; i < EFFECT_SS_TYPE_MAX; i++, overlayEntry++) {
+        size = (u8*)overlayEntry->vramEnd - (u8*)overlayEntry->vramStart;
+        ramStart = overlayEntry->loadedRamAddr;
+        ramEnd = ramStart + size;
+        offset = (u8*)overlayEntry->vramStart - ramStart;
+        if (ramStart != NULL && ptr >= ramStart && ptr < ramEnd) {
+            return (uintptr_t)ptr + offset;
+        }
+    }
+    return 0;
+}
 
 void EffectSs_InitInfo(PlayState* play, s32 tableSize) {
     u32 i;
@@ -30,6 +53,8 @@ void EffectSs_InitInfo(PlayState* play, s32 tableSize) {
         overlay->loadedRamAddr = NULL;
         overlay++;
     }
+
+    Fault_AddAddrConvClient(&sEffectSsAddrConvClient, EffectSs_FaultAddrConv, NULL);
 }
 
 void EffectSs_ClearAll(PlayState* play) {

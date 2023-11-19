@@ -37,12 +37,15 @@
  *
  * To navigate the pages, START and A may be used to advance to the next page, and L toggles whether to
  * automatically scroll to the next page after some time has passed.
- * DPad-Up may be pressed to enable sending fault pages over osSyncPrintf as well as displaying them on-screen.
- * DPad-Down disables sending fault pages over osSyncPrintf.
+ * DPad-Up may be pressed to enable sending fault pages over rmonPrintf as well as displaying them on-screen.
+ * DPad-Down disables sending fault pages over rmonPrintf.
  */
 #include "global.h"
+#include "debug/disasm.h"
 #include "terminal.h"
 #include "alloca.h"
+
+extern const char gBuildGitVersion[];
 
 void FaultDrawer_Init(void);
 void FaultDrawer_SetOsSyncPrintfEnabled(u32 enabled);
@@ -76,21 +79,14 @@ const char* sFpExceptionNames[] = {
     "Unimplemented operation", "Invalid operation", "Division by zero", "Overflow", "Underflow", "Inexact operation",
 };
 
-#ifndef NON_MATCHING
-// TODO: match .bss (has reordering issues)
-extern FaultMgr* sFaultInstance;
-extern u8 sFaultAwaitingInput;
-extern STACK(sFaultStack, 0x600);
-extern StackEntry sFaultThreadInfo;
-extern FaultMgr gFaultMgr;
-#else
-// Non-matching version for struct shiftability
+u8 sIsHungup = false;
+
 FaultMgr* sFaultInstance;
 u8 sFaultAwaitingInput;
 STACK(sFaultStack, 0x600);
 StackEntry sFaultThreadInfo;
 FaultMgr gFaultMgr;
-#endif
+
 
 typedef struct {
     /* 0x00 */ s32 (*callback)(void*, void*);
@@ -217,7 +213,7 @@ void Fault_AddClient(FaultClient* client, void* callback, void* arg0, void* arg1
 end:
     osSetIntMask(mask);
     if (alreadyExists) {
-        osSyncPrintf(VT_COL(RED, WHITE) "fault_AddClient: %08x は既にリスト中にある\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddClient: %08x は既にリスト中にある\n" VT_RST, client);
     }
 }
 
@@ -253,7 +249,7 @@ void Fault_RemoveClient(FaultClient* client) {
     osSetIntMask(mask);
 
     if (listIsEmpty) {
-        osSyncPrintf(VT_COL(RED, WHITE) "fault_RemoveClient: %08x リスト不整合です\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_RemoveClient: %08x リスト不整合です\n" VT_RST, client);
     }
 }
 
@@ -295,7 +291,7 @@ void Fault_AddAddrConvClient(FaultAddrConvClient* client, void* callback, void* 
 end:
     osSetIntMask(mask);
     if (alreadyExists) {
-        osSyncPrintf(VT_COL(RED, WHITE) "fault_AddressConverterAddClient: %08x は既にリスト中にある\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterAddClient: %08x は既にリスト中にある\n" VT_RST, client);
     }
 }
 
@@ -329,7 +325,7 @@ void Fault_RemoveAddrConvClient(FaultAddrConvClient* client) {
     osSetIntMask(mask);
 
     if (listIsEmpty) {
-        osSyncPrintf(VT_COL(RED, WHITE) "fault_AddressConverterRemoveClient: %08x は既にリスト中にある\n" VT_RST,
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterRemoveClient: %08x は既にリスト中にある\n" VT_RST,
                      client);
     }
 }
@@ -373,8 +369,8 @@ void Fault_UpdatePadImpl(void) {
  * Awaits user input
  *
  * L toggles auto-scroll
- * DPad-Up enables osSyncPrintf output
- * DPad-Down disables osSyncPrintf output
+ * DPad-Up enables rmonPrintf output
+ * DPad-Down disables rmonPrintf output
  * A and DPad-Right continues and returns true
  * DPad-Left continues and returns false
  */
@@ -462,9 +458,9 @@ void Fault_LogFReg(s32 idx, f32* value) {
     s32 exp = ((raw & 0x7F800000) >> 0x17) - 0x7F;
 
     if ((exp >= -0x7E && exp < 0x80) || raw == 0) {
-        osSyncPrintf("F%02d:%14.7e ", idx, *value);
+        rmonPrintf("F%02d:%14.7e ", idx, *value);
     } else {
-        osSyncPrintf("F%02d:  %08x(16) ", idx, *(u32*)value);
+        rmonPrintf("F%02d:  %08x(16) ", idx, *(u32*)value);
     }
 }
 
@@ -490,10 +486,10 @@ void Fault_LogFPCSR(u32 value) {
     s32 i;
     u32 flag = FPCSR_CE;
 
-    osSyncPrintf("FPCSR:%08xH  ", value);
+    rmonPrintf("FPCSR:%08xH  ", value);
     for (i = 0; i < ARRAY_COUNT(sFpExceptionNames); i++) {
         if (value & flag) {
-            osSyncPrintf("(%s)\n", sFpExceptionNames[i]);
+            rmonPrintf("(%s)\n", sFpExceptionNames[i]);
             break;
         }
         flag >>= 1;
@@ -513,9 +509,12 @@ void Fault_PrintThreadContext(OSThread* thread) {
 
     FaultDrawer_FillScreen();
     FaultDrawer_SetCharPad(-2, 4);
-    FaultDrawer_SetCursor(22, 20);
+    FaultDrawer_SetCursor(22, 18);
 
     ctx = &thread->context;
+#ifdef PACKAGE_VERSION
+    FaultDrawer_Printf("GIT COMMIT %s\n", gBuildGitVersion);
+#endif
     FaultDrawer_Printf("THREAD:%d (%d:%s)\n", thread->id, causeStrIdx, sExceptionNames[causeStrIdx]);
     FaultDrawer_SetCharPad(-1, 0);
 
@@ -557,7 +556,6 @@ void Fault_PrintThreadContext(OSThread* thread) {
     FaultDrawer_Printf("\n");
     Fault_PrintFReg(28, &ctx->fp28.f.f_even);
     Fault_PrintFReg(30, &ctx->fp30.f.f_even);
-    FaultDrawer_Printf("\n");
 
     FaultDrawer_SetCharPad(0, 0);
 }
@@ -574,49 +572,52 @@ void Fault_LogThreadContext(OSThread* thread) {
     }
 
     ctx = &thread->context;
-    osSyncPrintf("\n");
-    osSyncPrintf("THREAD ID:%d (%d:%s)\n", thread->id, causeStrIdx, sExceptionNames[causeStrIdx]);
+    rmonPrintf("\n");
+#ifdef PACKAGE_VERSION
+    rmonPrintf("GIT COMMIT %s\n", gBuildGitVersion);
+#endif
+    rmonPrintf("THREAD ID:%d (%d:%s)\n", thread->id, causeStrIdx, sExceptionNames[causeStrIdx]);
 
-    osSyncPrintf("PC:%08xH   SR:%08xH   VA:%08xH\n", (u32)ctx->pc, (u32)ctx->sr, (u32)ctx->badvaddr);
-    osSyncPrintf("AT:%08xH   V0:%08xH   V1:%08xH\n", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
-    osSyncPrintf("A0:%08xH   A1:%08xH   A2:%08xH\n", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
-    osSyncPrintf("A3:%08xH   T0:%08xH   T1:%08xH\n", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
-    osSyncPrintf("T2:%08xH   T3:%08xH   T4:%08xH\n", (u32)ctx->t2, (u32)ctx->t3, (u32)ctx->t4);
-    osSyncPrintf("T5:%08xH   T6:%08xH   T7:%08xH\n", (u32)ctx->t5, (u32)ctx->t6, (u32)ctx->t7);
-    osSyncPrintf("S0:%08xH   S1:%08xH   S2:%08xH\n", (u32)ctx->s0, (u32)ctx->s1, (u32)ctx->s2);
-    osSyncPrintf("S3:%08xH   S4:%08xH   S5:%08xH\n", (u32)ctx->s3, (u32)ctx->s4, (u32)ctx->s5);
-    osSyncPrintf("S6:%08xH   S7:%08xH   T8:%08xH\n", (u32)ctx->s6, (u32)ctx->s7, (u32)ctx->t8);
-    osSyncPrintf("T9:%08xH   GP:%08xH   SP:%08xH\n", (u32)ctx->t9, (u32)ctx->gp, (u32)ctx->sp);
-    osSyncPrintf("S8:%08xH   RA:%08xH   LO:%08xH\n", (u32)ctx->s8, (u32)ctx->ra, (u32)ctx->lo);
-    osSyncPrintf("\n");
+    rmonPrintf("PC:%08xH   SR:%08xH   VA:%08xH\n", (u32)ctx->pc, (u32)ctx->sr, (u32)ctx->badvaddr);
+    rmonPrintf("AT:%08xH   V0:%08xH   V1:%08xH\n", (u32)ctx->at, (u32)ctx->v0, (u32)ctx->v1);
+    rmonPrintf("A0:%08xH   A1:%08xH   A2:%08xH\n", (u32)ctx->a0, (u32)ctx->a1, (u32)ctx->a2);
+    rmonPrintf("A3:%08xH   T0:%08xH   T1:%08xH\n", (u32)ctx->a3, (u32)ctx->t0, (u32)ctx->t1);
+    rmonPrintf("T2:%08xH   T3:%08xH   T4:%08xH\n", (u32)ctx->t2, (u32)ctx->t3, (u32)ctx->t4);
+    rmonPrintf("T5:%08xH   T6:%08xH   T7:%08xH\n", (u32)ctx->t5, (u32)ctx->t6, (u32)ctx->t7);
+    rmonPrintf("S0:%08xH   S1:%08xH   S2:%08xH\n", (u32)ctx->s0, (u32)ctx->s1, (u32)ctx->s2);
+    rmonPrintf("S3:%08xH   S4:%08xH   S5:%08xH\n", (u32)ctx->s3, (u32)ctx->s4, (u32)ctx->s5);
+    rmonPrintf("S6:%08xH   S7:%08xH   T8:%08xH\n", (u32)ctx->s6, (u32)ctx->s7, (u32)ctx->t8);
+    rmonPrintf("T9:%08xH   GP:%08xH   SP:%08xH\n", (u32)ctx->t9, (u32)ctx->gp, (u32)ctx->sp);
+    rmonPrintf("S8:%08xH   RA:%08xH   LO:%08xH\n", (u32)ctx->s8, (u32)ctx->ra, (u32)ctx->lo);
+    rmonPrintf("\n");
 
     Fault_LogFPCSR(ctx->fpcsr);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
 
     Fault_LogFReg(0, &ctx->fp0.f.f_even);
     Fault_LogFReg(2, &ctx->fp2.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(4, &ctx->fp4.f.f_even);
     Fault_LogFReg(6, &ctx->fp6.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(8, &ctx->fp8.f.f_even);
     Fault_LogFReg(10, &ctx->fp10.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(12, &ctx->fp12.f.f_even);
     Fault_LogFReg(14, &ctx->fp14.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(16, &ctx->fp16.f.f_even);
     Fault_LogFReg(18, &ctx->fp18.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(20, &ctx->fp20.f.f_even);
     Fault_LogFReg(22, &ctx->fp22.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(24, &ctx->fp24.f.f_even);
     Fault_LogFReg(26, &ctx->fp26.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
     Fault_LogFReg(28, &ctx->fp28.f.f_even);
     Fault_LogFReg(30, &ctx->fp30.f.f_even);
-    osSyncPrintf("\n");
+    rmonPrintf("\n");
 }
 
 /**
@@ -664,11 +665,11 @@ void Fault_WaitForButtonCombo(void) {
     if (1) {}
     if (1) {}
 
-    osSyncPrintf(
+    rmonPrintf(
         VT_FGCOL(WHITE) "KeyWaitB (ＬＲＺ " VT_FGCOL(WHITE) "上" VT_FGCOL(YELLOW) "下 " VT_FGCOL(YELLOW) "上" VT_FGCOL(WHITE) "下 " VT_FGCOL(WHITE) "左" VT_FGCOL(
             YELLOW) "左 " VT_FGCOL(YELLOW) "右" VT_FGCOL(WHITE) "右 " VT_FGCOL(GREEN) "Ｂ" VT_FGCOL(BLUE) "Ａ" VT_FGCOL(RED) "START" VT_FGCOL(WHITE) ")" VT_RST
                                                                                                                                                      "\n");
-    osSyncPrintf(VT_FGCOL(WHITE) "KeyWaitB'(ＬＲ左" VT_FGCOL(YELLOW) "右 +" VT_FGCOL(RED) "START" VT_FGCOL(
+    rmonPrintf(VT_FGCOL(WHITE) "KeyWaitB'(ＬＲ左" VT_FGCOL(YELLOW) "右 +" VT_FGCOL(RED) "START" VT_FGCOL(
         WHITE) ")" VT_RST "\n");
 
     FaultDrawer_SetForeColor(GPACK_RGBA5551(255, 255, 255, 1));
@@ -796,6 +797,119 @@ void Fault_WaitForButtonCombo(void) {
 
         osWritebackDCacheAll();
     }
+}
+
+void Fault_DrawDisassemblyContents(u32 addr, u32 crashPc) {
+    u32 alignedAddr = addr & ~3;
+    u32 alignedCrashPc = crashPc & ~3;
+
+    if (alignedAddr < K0BASE) {
+        alignedAddr = K0BASE;
+    }
+    if (alignedAddr > (PHYS_TO_K0(0x800000) - 0x100)) {
+        alignedAddr = (PHYS_TO_K0(0x800000) - 0x100);
+    }
+
+    Fault_FillScreenBlack();
+    FaultDrawer_SetCharPad(-2, 0);
+
+    FaultDrawer_DrawText(36, 18, "Disassembly at %08X", alignedAddr);
+    if (alignedAddr >= K0BASE && alignedAddr < K2BASE) {
+        u32* addr;
+        u32 vAddr;
+        s32 y;
+
+        for (addr = (u32*)alignedAddr, y = 28; y != 226; y += 9, addr++) {
+            char insn[40];
+
+            MipsDecodeCPUInsn(insn, sizeof(insn), *addr, (u32)addr);
+
+            if (addr == (u32*)crashPc) {
+                FaultDrawer_SetFontColor(GPACK_RGBA5551(255, 0, 0, 1));
+            }
+
+            vAddr = Fault_ConvertAddress((uintptr_t)addr);
+            if (vAddr == 0) {
+                vAddr = (u32)addr;
+            }
+
+            FaultDrawer_DrawText(24, y, "%06X/%06X: %s", K0_TO_PHYS(addr), K0_TO_PHYS(vAddr), insn);
+
+            if (addr == (u32*)crashPc) {
+                FaultDrawer_SetFontColor(GPACK_RGBA5551(255, 255, 255, 255));
+            }
+        }
+    }
+
+    FaultDrawer_SetCharPad(0, 0);
+}
+
+void Fault_DrawDisassembly(u32 pc, u32 ra) {
+    Input* input = &sFaultInstance->inputs[0];
+    u32 addr = pc - 8;
+    s32 count;
+    u32 off;
+
+    do {
+        count = 0;
+        if (addr < K0BASE) {
+            addr = K0BASE;
+        } else if (addr > PHYS_TO_K0(0x800000) - 4) {
+            addr = PHYS_TO_K0(0x800000) - 4;
+        }
+
+        Fault_DrawDisassemblyContents(addr, pc);
+        count = 600;
+
+        while (sFaultInstance->autoScroll) {
+            if (count == 0) {
+                return;
+            }
+
+            count--;
+            Fault_Sleep(0x10);
+            Fault_UpdatePadImpl();
+            if (CHECK_BTN_ALL(input->press.button, BTN_L)) {
+                sFaultInstance->autoScroll = false;
+            }
+        }
+
+        do {
+            Fault_Sleep(0x10);
+            Fault_UpdatePadImpl();
+        } while (input->press.button == 0);
+
+        if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->cur.button, BTN_A)) {
+            return;
+        }
+
+        off = 4; // jump 1 instruction
+        if (CHECK_BTN_ALL(input->cur.button, BTN_Z)) {
+            off = 4 * 4; // jump 4 instructions
+        }
+        if (CHECK_BTN_ALL(input->cur.button, BTN_B)) {
+            off = 10 * 4; // jump 10 instructions
+        }
+
+        if (CHECK_BTN_ALL(input->press.button, BTN_DUP)) {
+            addr -= off; // move up
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_DDOWN)) {
+            addr += off; // move down
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_CUP)) {
+            addr = pc - 8; // go to crashing pc
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_CLEFT)) {
+            addr = ra - 8; // go to last ra
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_CRIGHT)) {
+            addr &= ~3; // go to branch target (or next instruction if not applicable)
+            addr = MipsGetBranchTarget(*(u32*)addr, addr);
+        }
+    } while (!CHECK_BTN_ALL(input->press.button, BTN_L));
+
+    sFaultInstance->autoScroll = true;
 }
 
 void Fault_DrawMemDumpContents(const char* title, uintptr_t addr, u32 arg2) {
@@ -983,6 +1097,7 @@ void Fault_WalkStack(uintptr_t* spPtr, uintptr_t* pcPtr, uintptr_t* raPtr) {
     u16 insnHi;
     s16 insnLo;
     u32 imm;
+    s32 gotRA = false;
 
     // ensure $sp and $ra are aligned and valid pointers, if they aren't a stack
     // trace cannot be generated
@@ -1008,7 +1123,14 @@ void Fault_WalkStack(uintptr_t* spPtr, uintptr_t* pcPtr, uintptr_t* raPtr) {
         if (insnHi == 0x8FBF) {
             // lw $ra, <imm>($sp)
             // read return address saved on the stack
-            ra = *(uintptr_t*)K0_TO_K1(sp + imm);
+            if (!gotRA) {
+                ra = *(uintptr_t*)K0_TO_K1(sp + imm);
+            }
+        } else if (insnHi == 0xAFBF) {
+            // sw $ra, <imm>($sp)
+            // error occurred before return address was saved on the stack,
+            // so it's still in the register
+            gotRA = true;
         } else if (insnHi == 0x27BD) {
             // addiu $sp, $sp, <imm>
             // stack pointer increment or decrement
@@ -1029,6 +1151,10 @@ void Fault_WalkStack(uintptr_t* spPtr, uintptr_t* pcPtr, uintptr_t* raPtr) {
             // extract jump target
             pc = pc >> 28 << 28 | lastInsn << 6 >> 4;
             goto done;
+        } else if (lastInsn >> 16 == 0x1000) {
+            // b <offset>
+            // follow unconditional branch
+            pc += (s16)((lastInsn & 0xFFFF) << 2);
         }
 
         lastInsn = insn;
@@ -1080,14 +1206,14 @@ void Fault_LogStackTrace(OSThread* thread, s32 height) {
     uintptr_t addr;
     s32 pad;
 
-    osSyncPrintf("STACK TRACE\nSP       PC       (VPC)\n");
+    rmonPrintf("STACK TRACE\nSP       PC       (VPC)\n");
     for (line = 1; line < height && (ra != 0 || sp != 0) && pc != (uintptr_t)__osCleanupThread; line++) {
-        osSyncPrintf("%08x %08x", sp, pc);
+        rmonPrintf("%08x %08x", sp, pc);
         addr = Fault_ConvertAddress(pc);
         if (addr != 0) {
-            osSyncPrintf(" -> %08x", addr);
+            rmonPrintf(" -> %08x", addr);
         }
-        osSyncPrintf("\n");
+        rmonPrintf("\n");
         Fault_WalkStack(&sp, &pc, &ra);
     }
 }
@@ -1170,25 +1296,25 @@ void Fault_ThreadEntry(void* arg) {
 
             if (msg == FAULT_MSG_CPU_BREAK) {
                 sFaultInstance->msgId = (u32)FAULT_MSG_CPU_BREAK;
-                osSyncPrintf("フォルトマネージャ:OS_EVENT_CPU_BREAKを受信しました\n");
+                rmonPrintf("フォルトマネージャ:OS_EVENT_CPU_BREAKを受信しました\n");
             } else if (msg == FAULT_MSG_FAULT) {
                 sFaultInstance->msgId = (u32)FAULT_MSG_FAULT;
-                osSyncPrintf("フォルトマネージャ:OS_EVENT_FAULTを受信しました\n");
+                rmonPrintf("フォルトマネージャ:OS_EVENT_FAULTを受信しました\n");
             } else if (msg == FAULT_MSG_UNK) {
                 Fault_UpdatePad();
                 faultedThread = NULL;
                 continue;
             } else {
                 sFaultInstance->msgId = (u32)FAULT_MSG_UNK;
-                osSyncPrintf("フォルトマネージャ:不明なメッセージを受信しました\n");
+                rmonPrintf("フォルトマネージャ:不明なメッセージを受信しました\n");
             }
 
             faultedThread = __osGetCurrFaultedThread();
-            osSyncPrintf("__osGetCurrFaultedThread()=%08x\n", faultedThread);
+            rmonPrintf("__osGetCurrFaultedThread()=%08x\n", faultedThread);
 
             if (faultedThread == NULL) {
                 faultedThread = Fault_FindFaultedThread();
-                osSyncPrintf("FindFaultedThread()=%08x\n", faultedThread);
+                rmonPrintf("FindFaultedThread()=%08x\n", faultedThread);
             }
         } while (faultedThread == NULL);
 
@@ -1209,13 +1335,17 @@ void Fault_ThreadEntry(void* arg) {
         } else {
             // Draw error bar signifying the crash screen is available
             Fault_DrawCornerRec(GPACK_RGBA5551(255, 0, 0, 1));
-            // Fault_WaitForButtonCombo();
         }
 
         // Set auto-scrolling and default colors
         sFaultInstance->autoScroll = true;
         FaultDrawer_SetForeColor(GPACK_RGBA5551(255, 255, 255, 1));
         FaultDrawer_SetBackColor(GPACK_RGBA5551(0, 0, 0, 0));
+
+        if (sIsHungup) {
+            // The rationale for this is you want to see the hungup message as the very first thing
+            goto showClients;
+        }
 
         // Draw pages
         do {
@@ -1229,8 +1359,11 @@ void Fault_ThreadEntry(void* arg) {
             Fault_DrawStackTrace(faultedThread, 36, 24, 22);
             Fault_LogStackTrace(faultedThread, 50);
             Fault_WaitForInput();
+        showClients:
             // Client pages
             Fault_ProcessClients();
+            // Disassembly page
+            Fault_DrawDisassembly(faultedThread->context.pc, faultedThread->context.ra);
             // Memory dump page
             Fault_DrawMemDump(faultedThread->context.pc - 0x100, (uintptr_t)faultedThread->context.sp, 0, 0);
             // End page
@@ -1278,9 +1411,9 @@ void Fault_Init(void) {
  * specified in arguments to `Fault_AddHungupAndCrashImpl`.
  */
 void Fault_HungupFaultClient(const char* exp1, const char* exp2) {
-    osSyncPrintf("HungUp on Thread %d\n", osGetThreadId(NULL));
-    osSyncPrintf("%s\n", exp1 != NULL ? exp1 : "(NULL)");
-    osSyncPrintf("%s\n", exp2 != NULL ? exp2 : "(NULL)");
+    rmonPrintf("HungUp on Thread %d\n", osGetThreadId(NULL));
+    rmonPrintf("%s\n", exp1 != NULL ? exp1 : "(NULL)");
+    rmonPrintf("%s\n", exp2 != NULL ? exp2 : "(NULL)");
     FaultDrawer_Printf("HungUp on Thread %d\n", osGetThreadId(NULL));
     FaultDrawer_Printf("%s\n", exp1 != NULL ? exp1 : "(NULL)");
     FaultDrawer_Printf("%s\n", exp2 != NULL ? exp2 : "(NULL)");
@@ -1296,6 +1429,7 @@ NORETURN void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2) {
     s32 pad;
 
     Fault_AddClient(&client, Fault_HungupFaultClient, (void*)exp1, (void*)exp2);
+    sIsHungup = true;
     *(u32*)0x11111111 = 0; // trigger an exception via unaligned memory access
 
     // Since the above line triggers an exception and transfers execution to the fault handler

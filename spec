@@ -411,6 +411,8 @@ beginseg
     include "build/src/code/code_800D31A0.o"
     include "build/src/code/irqmgr.o"
     include "build/src/code/escaperoom/debug_malloc.o"
+    include "build/src/code/escaperoom/debug/disasm.o"
+    include "build/src/code/escaperoom/debug/snprintf.o"
     include "build/src/code/escaperoom/fault.o"
     include "build/src/code/fault_drawer.o"
 #ifndef NON_MATCHING

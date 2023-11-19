@@ -42,6 +42,19 @@ ifeq ($(NDEBUG),1)
   CPPFLAGS += -DNDEBUG
 endif
 
+# Set PACKAGE_VERSION define for printing commit hash for crash screen
+ifeq ($(origin PACKAGE_VERSION), undefined)
+  PACKAGE_VERSION := $(shell git describe --tags --dirty 2>/dev/null)
+  ifeq ('$(PACKAGE_VERSION)', '')
+    PACKAGE_VERSION = Unknown version
+  endif
+endif
+
+CFLAGS += -DPACKAGE_VERSION='$(PACKAGE_VERSION)'
+CPPFLAGS += -DPACKAGE_VERSION='$(PACKAGE_VERSION)'
+# Make sure the build reports the correct version
+$(shell touch src/boot/build.c)
+
 # Set prefix to mips binutils binaries (mips-linux-gnu-ld => 'mips-linux-gnu-') - Change at your own risk!
 # In nearly all cases, not having 'mips-linux-gnu-*' binaries on the PATH is indicative of missing dependencies
 ifneq ($(wildcard /opt/n64/bin/mips64-ultra-elf-gcc),)
@@ -174,7 +187,7 @@ else
   CC_CHECK  = @:
 endif
 
-OBJDUMP_FLAGS := -d -r -z -Mreg-names=32
+OBJDUMP_FLAGS := -drz -Mreg-names=n32
 
 #### Files ####
 

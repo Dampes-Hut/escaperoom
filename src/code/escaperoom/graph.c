@@ -1,5 +1,6 @@
 #include "global.h"
 #include "terminal.h"
+#include "debug/disasm.h"
 
 #define GFXPOOL_HEAD_MAGIC 0x1234
 #define GFXPOOL_TAIL_MAGIC 0x5678
@@ -83,7 +84,64 @@ void Graph_DisassembleUCode(Gfx* workBuf) {
     }
 }
 
-void Graph_UCodeFaultClient(Gfx* workBuf) {
+// PJ64 will crash if you try to read certain hardware registers
+// that are readable on console.. cool emulator
+// #define PJ64
+
+void Graph_UCodeFaultClient(Gfx** workBufP) {
+#define REG_ENTRY(r) \
+    { #r, r }
+    static struct {
+        const char* name;
+        u32 addr;
+    } sSPRegs[] = {
+#ifndef PJ64
+        REG_ENTRY(SP_MEM_ADDR_REG), REG_ENTRY(SP_DRAM_ADDR_REG), REG_ENTRY(SP_RD_LEN_REG), REG_ENTRY(SP_WR_LEN_REG),
+#endif
+        REG_ENTRY(SP_STATUS_REG),
+    };
+    static struct {
+        const char* name;
+        u32 addr;
+    } sDPRegs[] = {
+#ifndef PJ64
+        REG_ENTRY(DPC_START_REG),    REG_ENTRY(DPC_END_REG),   REG_ENTRY(DPC_CURRENT_REG),
+#endif
+        REG_ENTRY(DPC_STATUS_REG),   REG_ENTRY(DPC_CLOCK_REG), REG_ENTRY(DPC_BUFBUSY_REG),
+        REG_ENTRY(DPC_PIPEBUSY_REG), REG_ENTRY(DPC_TMEM_REG),
+    };
+    s32 i;
+    u32 data = 0;
+    char insn[30];
+    u32 spPc;
+
+    FaultDrawer_SetCharPad(-2, 0);
+    FaultDrawer_Printf("WORK_DISP %08x\n", *workBufP);
+
+    if (!(IO_READ(SP_STATUS_REG) & SP_STATUS_HALT)) {
+        FaultDrawer_Printf(" = SP = \n");
+        FaultDrawer_Printf("PC: RSP not halted\n\n");
+    } else {
+        spPc = IO_READ(SP_PC_REG);
+        data = IO_READ(SP_IMEM_START | spPc);
+
+        MipsDecodeCPUInsn(insn, sizeof(insn), data, spPc);
+
+        FaultDrawer_Printf(" = SP = \n");
+        FaultDrawer_Printf("PC: %08x\n", spPc);
+        FaultDrawer_Printf("PC Disasm: %s\n", insn);
+    }
+
+    for (i = 0; i < ARRAY_COUNT(sSPRegs); i++) {
+        FaultDrawer_Printf("%s: %08x\n", sSPRegs[i].name, IO_READ(sSPRegs[i].addr));
+    }
+
+    FaultDrawer_Printf(" = DP = \n");
+    for (i = 0; i < ARRAY_COUNT(sDPRegs); i++) {
+        FaultDrawer_Printf("%s: %08x\n", sDPRegs[i].name, IO_READ(sDPRegs[i].addr));
+    }
+
+    /*
     UCodeDisas disassembler;
 
     UCodeDisas_Init(&disassembler);
@@ -92,6 +150,7 @@ void Graph_UCodeFaultClient(Gfx* workBuf) {
     UCodeDisas_SetCurUCode(&disassembler, gspF3DZEX2_NoN_PosLight_fifoTextStart);
     UCodeDisas_Disassemble(&disassembler, workBuf);
     UCodeDisas_Destroy(&disassembler);
+    */
 }
 
 void Graph_InitTHGA(GraphicsContext* gfxCtx) {
@@ -141,11 +200,13 @@ void Graph_Init(GraphicsContext* gfxCtx) {
     osCreateMesgQueue(&gfxCtx->queue, gfxCtx->msgBuff, ARRAY_COUNT(gfxCtx->msgBuff));
     func_800D31F0();
     Fault_AddClient(&sGraphFaultClient, Graph_FaultClient, NULL, NULL);
+    Fault_AddClient(&sGraphUcodeFaultClient, Graph_UCodeFaultClient, &gfxCtx->workBuffer, NULL);
 }
 
 void Graph_Destroy(GraphicsContext* gfxCtx) {
     func_800D3210();
     Fault_RemoveClient(&sGraphFaultClient);
+    Fault_RemoveClient(&sGraphUcodeFaultClient);
 }
 
 Gfx* sPrevTaskWorkBuffer = NULL;
@@ -306,27 +367,6 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
         R_HREG_MODE = HREG_MODE_UCODE_DISAS;
         R_UCODE_DISAS_TOGGLE = -1;
         R_UCODE_DISAS_LOG_LEVEL = R_PLAY_UCODE_DISAS_LOG_LEVEL;
-    }
-
-    if (R_HREG_MODE == HREG_MODE_UCODE_DISAS && R_UCODE_DISAS_TOGGLE != 0) {
-        if (R_UCODE_DISAS_LOG_MODE == 3) {
-            Fault_AddClient(&sGraphUcodeFaultClient, Graph_UCodeFaultClient, gfxCtx->workBuffer, "do_count_fault");
-        }
-
-        Graph_DisassembleUCode(gfxCtx->workBuffer);
-
-        if (R_UCODE_DISAS_LOG_MODE == 3) {
-            Fault_RemoveClient(&sGraphUcodeFaultClient);
-        }
-
-        if (R_UCODE_DISAS_TOGGLE < 0) {
-            LogUtils_LogHexDump((void*)PHYS_TO_K1(SP_BASE_REG), 0x20);
-            LogUtils_LogHexDump((void*)PHYS_TO_K1(DPC_BASE_REG), 0x20);
-        }
-
-        if (R_UCODE_DISAS_TOGGLE < 0) {
-            R_UCODE_DISAS_TOGGLE = 0;
-        }
     }
 
     problem = false;

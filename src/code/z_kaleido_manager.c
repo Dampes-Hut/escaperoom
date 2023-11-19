@@ -16,6 +16,31 @@ void* sKaleidoAreaPtr = NULL;
 KaleidoMgrOverlay* gKaleidoMgrCurOvl = NULL;
 u8 gBossMarkState = 0;
 
+FaultAddrConvClient sKaleidoAddrConvClient;
+
+uintptr_t KaleidoManager_FaultAddrConv(uintptr_t addr, void* param) {
+    u8* ptr = (u8*)addr;
+    KaleidoMgrOverlay* overlayEntry = &gKaleidoMgrOverlayTable[0];
+    u8* ramStart;
+    u8* ramEnd;
+    size_t size;
+    size_t offset;
+    s32 i;
+
+    for (i = 0; i < ARRAY_COUNT(gKaleidoMgrOverlayTable); i++, overlayEntry++) {
+        size = (u8*)overlayEntry->vramEnd - (u8*)overlayEntry->vramStart;
+        ramStart = overlayEntry->loadedRamAddr;
+        ramEnd = ramStart + size;
+        offset = (u8*)overlayEntry->vramStart - ramStart;
+        if (ramStart != NULL) {
+            if (ptr >= ramStart && ptr < ramEnd) {
+                return (uintptr_t)ptr + offset;
+            }
+        }
+    }
+    return 0;
+}
+
 void KaleidoManager_LoadOvl(KaleidoMgrOverlay* ovl) {
     LogUtils_CheckNullPointer("KaleidoArea_allocp", sKaleidoAreaPtr, "../z_kaleido_manager.c", 99);
 
@@ -30,6 +55,8 @@ void KaleidoManager_LoadOvl(KaleidoMgrOverlay* ovl) {
 
     ovl->offset = (uintptr_t)ovl->loadedRamAddr - (uintptr_t)ovl->vramStart;
     gKaleidoMgrCurOvl = ovl;
+
+    Fault_AddAddrConvClient(&sKaleidoAddrConvClient, KaleidoManager_FaultAddrConv, NULL);
 }
 
 void KaleidoManager_ClearOvl(KaleidoMgrOverlay* ovl) {
