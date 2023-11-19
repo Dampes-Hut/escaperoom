@@ -360,6 +360,129 @@ s32 CollisionPoly_CheckYIntersectApprox1(CollisionPoly* poly, Vec3s* vtxList, f3
                                                 x, yIntersect, chkDist);
 }
 
+#if 0
+/**
+ *  Check if point `p` is inside the circle centered at `c` with radius `radius`.
+ */
+static __attribute__((pure))
+s32 BgCheck_PointInCircle(Vec3f* restrict p, Vec3f* restrict c, f32 radiusSq) {
+    return SQ(p->x - c->x) + SQ(p->z - c->z) <= radiusSq;
+}
+
+/**
+ *  Check if point `p` is within `dst` from the line segment [`a`,`b`].
+ *  If there is no line perpendicular to [`a`,`b`] that intersects `p`, fail the check.
+ */
+static __attribute__((pure))
+s32 BgCheck_PointNearLine2D(Vec3f* restrict p, Vec3f* restrict a, f32 dx, f32 dz, f32 dstSq) {
+    f32 dxp = p->x - a->x;
+    f32 dzp = p->z - a->z;
+
+    f32 lenSq = SQ(dx) + SQ(dz);
+
+    f32 t = dxp * dx + dzp * dz;
+    if (t < 0.0f || t > lenSq) // No intersection
+        return false;
+
+    f32 rSq = dxp * dz - dzp * dx;
+    // Maybe intersection
+    return SQ(rSq) <= dstSq * lenSq;
+}
+#endif
+
+/**
+ * Checks if point (`x`,`z`) is within `poly`, computing `yIntersect` if true
+ * Determinant max 0.0f (checks if on or within poly)
+ */
+s32 CollisionPoly_CheckYIntersect(CollisionPoly* restrict poly, Vec3s* restrict vtxList, f32 x, f32 z,
+                                  f32* yIntersect, f32 chkDist) {
+    u16 absNy = ABS(poly->normal.y);
+    if (absNy < 263/*32767 * 0.008*/) {
+        return false;
+    }
+
+    Vec3f polyVerts[3];
+    CollisionPoly_GetVertices(poly, vtxList, polyVerts);
+
+    f32 dXij[3]; // [dX21, dX02, dX10]
+    f32 dZij[3]; // [dZ21, dZ02, dZ10]
+
+    f32 dX = x - polyVerts[2].x;
+    f32 dZ = z - polyVerts[2].z;
+    dXij[0] = polyVerts[2].x - polyVerts[1].x;
+    dZij[0] = polyVerts[2].z - polyVerts[1].z;
+    dXij[1] = polyVerts[0].x - polyVerts[2].x;
+    dZij[1] = polyVerts[0].z - polyVerts[2].z;
+
+    f32 D = (dXij[0] * dZij[1] - dZij[0] * dXij[1]);
+    f32 u = (dXij[0] * dZ      - dZij[0] * dX     );
+    f32 v = (dXij[1] * dZ      - dZij[1] * dX     );
+    if (D < 0.0f) {
+        u = -u;
+        v = -v;
+    }
+
+    if (u >= 0.0f && v >= 0.0f && u + v <= fabsf(D)) {
+        goto intersection;
+    }
+
+#if 1 // Set to 0 to disable enlarging the tri face by chkDist. Can cause seams in collision due to fp errors
+    f32 chkDistSq = SQ(chkDist);
+    dXij[2] = polyVerts[1].x - polyVerts[0].x;
+    dZij[2] = polyVerts[1].z - polyVerts[0].z;
+    for (unsigned i = 0; i < 3; i++) {
+        if (SQ(x - polyVerts[i].x) + SQ(z - polyVerts[i].z) <= chkDistSq) {
+            goto intersection;
+        }
+        if (absNy > 16383/*32767 * 0.5*/) {
+            unsigned j = (i & 0b10) ? 0 : (i + 1); // j = (i + 1) % 3
+            f32 dxp = x - polyVerts[j].x;
+            f32 dzp = z - polyVerts[j].z;
+
+            f32 lenSq = SQ(dXij[i]) + SQ(dZij[i]);
+
+            f32 t = dxp * dXij[i] + dzp * dZij[i];
+            if (t < 0.0f || t > lenSq) {
+                // No intersection
+                continue;
+            } 
+
+            f32 rSq = dxp * dZij[i] - dzp * dXij[i];
+            // Maybe intersection
+            if  (SQ(rSq) <= chkDistSq * lenSq) {
+                goto intersection;
+            }
+        }
+    }
+#if 0
+    if (BgCheck_PointInCircle(&p, &polyVerts[0], chkDistSq) ||
+        BgCheck_PointInCircle(&p, &polyVerts[1], chkDistSq) ||
+        BgCheck_PointInCircle(&p, &polyVerts[2], chkDistSq)) {
+        goto intersection;
+    }
+    if (absNy > 16383/*32767 * 0.5*/) {
+        if (BgCheck_PointNearLine2D(&p, &polyVerts[1], dXij[0], dZij[0], chkDistSq)) {
+            goto intersection;
+        }
+        if (BgCheck_PointNearLine2D(&p, &polyVerts[2], dXij[1], dZij[1], chkDistSq)) {
+            goto intersection;
+        }
+        dXij[2] = polyVerts[1].x - polyVerts[0].x;
+        dZij[2] = polyVerts[1].z - polyVerts[0].z;
+        if (BgCheck_PointNearLine2D(&p, &polyVerts[0], dXij[2], dZij[2], chkDistSq)) {
+            goto intersection;
+        }
+    }
+#endif
+#endif
+    return false;
+intersection:
+    // Did intersect, get y intersection
+    *yIntersect = -(32767.0f * poly->dist + poly->normal.x * x + poly->normal.z * z) / poly->normal.y;
+    return true;
+}
+
+#if 0
 /**
  * Checks if point (`x`,`z`) is within `chkDist` of `poly`, computing `yIntersect` if true
  * Determinant max 0.0f (checks if on or within poly)
@@ -375,6 +498,7 @@ s32 CollisionPoly_CheckYIntersect(CollisionPoly* poly, Vec3s* vtxList, f32 x, f3
     return Math3D_TriChkPointParaYIntersectInsideTri(&polyVerts[0], &polyVerts[1], &polyVerts[2], nx, ny, nz,
                                                      poly->dist, z, x, yIntersect, chkDist);
 }
+#endif
 
 /**
  * Checks if point (`x`,`z`) is within 1.0f of `poly`, computing `yIntersect` if true
