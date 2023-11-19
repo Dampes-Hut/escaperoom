@@ -808,6 +808,7 @@ Gfx sSetupDL[SETUPDL_MAX][6] = {
     },
 };
 
+#if 0
 Gfx sFillSetupDL[] = {
     gsDPPipeSync(),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF),
@@ -821,6 +822,7 @@ Gfx sFillSetupDL[] = {
     gsSPClipRatio(FRUSTRATIO_2),
     gsSPEndDisplayList(),
 };
+#endif
 
 // unused?
 Gfx D_80127030[] = {
@@ -1438,6 +1440,7 @@ Gfx* Gfx_EnvColor(GraphicsContext* gfxCtx, s32 r, s32 g, s32 b, s32 a) {
     return displayList;
 }
 
+#if 0
 /**
  * Sets up the frame for drawing.
  * Initializes the scissor region to full screen.
@@ -1558,3 +1561,4 @@ void func_80095974(GraphicsContext* gfxCtx) {
 
     CLOSE_DISPS(gfxCtx, "../z_rcp.c", 2513);
 }
+#endif

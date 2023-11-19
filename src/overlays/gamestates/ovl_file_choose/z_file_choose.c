@@ -66,6 +66,9 @@ void FileSelect_InitModeUpdate(GameState* thisx) {
 }
 
 void FileSelect_InitModeDraw(GameState* thisx) {
+    FileSelectState* this = (FileSelectState*)thisx;
+
+    Gfx_SetupFrame(this->state.gfxCtx, true, 0, 0, 0);
 }
 
 /**
@@ -1126,7 +1129,12 @@ void FileSelect_ConfigModeDraw(GameState* thisx) {
     eyeZ = 1000.0f * Math_SinS(ZREG(11)) + 1000.0f * Math_CosS(ZREG(11));
 
     FileSelect_SetView(this, eyeX, eyeY, eyeZ);
+    Gfx_SetupFrame(this->state.gfxCtx, false, 0, 0, 0);
+#if 0
     Skybox_Draw(&this->skyboxCtx, this->state.gfxCtx, 1, this->envCtx.skyboxBlend, eyeX, eyeY, eyeZ);
+#endif
+    Skybox_Draw(&this->skyboxCtx, this->state.gfxCtx, NULL, SKYBOX_NORMAL_SKY, this->envCtx.skyboxBlend, eyeX, eyeY,
+                eyeZ);
     gDPSetTextureLUT(POLY_OPA_DISP++, G_TT_NONE);
     ZREG(11) += ZREG(10);
     Environment_UpdateSkybox(SKYBOX_NORMAL_SKY, &this->envCtx, &this->skyboxCtx);
@@ -1541,7 +1549,12 @@ void FileSelect_SelectModeDraw(GameState* thisx) {
     eyeZ = 1000.0f * Math_SinS(ZREG(11)) + 1000.0f * Math_CosS(ZREG(11));
 
     FileSelect_SetView(this, eyeX, eyeY, eyeZ);
+    Gfx_SetupFrame(this->state.gfxCtx, false, 0, 0, 0);
+#if 0
     Skybox_Draw(&this->skyboxCtx, this->state.gfxCtx, 1, this->envCtx.skyboxBlend, eyeX, eyeY, eyeZ);
+#endif
+    Skybox_Draw(&this->skyboxCtx, this->state.gfxCtx, NULL, SKYBOX_NORMAL_SKY, this->envCtx.skyboxBlend, eyeX, eyeY,
+                eyeZ);
     gDPSetTextureLUT(POLY_OPA_DISP++, G_TT_NONE);
     ZREG(11) += ZREG(10);
     Environment_UpdateSkybox(SKYBOX_NORMAL_SKY, &this->envCtx, &this->skyboxCtx);
@@ -1607,7 +1620,9 @@ void FileSelect_Main(GameState* thisx) {
     gSPSegment(POLY_OPA_DISP++, 0x01, this->staticSegment);
     gSPSegment(POLY_OPA_DISP++, 0x02, this->parameterSegment);
 
+#if 0
     Gfx_SetupFrame(this->state.gfxCtx, 0, 0, 0);
+#endif
 
     this->stickAdjX = input->rel.stick_x;
     this->stickAdjY = input->rel.stick_y;

@@ -1,4 +1,3 @@
-#if 0
 #include "global.h"
 #include "ultra64.h"
 #include "terminal.h"
@@ -1430,6 +1429,7 @@ void Environment_DrawSunAndMoon(PlayState* play) {
         Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, "../z_kankyo.c", 2364), G_MTX_LOAD);
         Gfx_SetupDL_54Opa(play->state.gfxCtx);
+        gDPSetRenderMode(POLY_OPA_DISP++, G_RM_FOG_PRIM_A, G_RM_XLU_SURF2);
         gSPDisplayList(POLY_OPA_DISP++, gSunDL);
 
         Matrix_Translate(play->view.eye.x - play->envCtx.sunPos.x, play->view.eye.y - play->envCtx.sunPos.y,
@@ -1446,7 +1446,7 @@ void Environment_DrawSunAndMoon(PlayState* play) {
 
         alpha = temp * 255.0f;
 
-        if (alpha > 0.0f) {
+        if (alpha >= 8.0f) {
             gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx, "../z_kankyo.c", 2406), G_MTX_LOAD);
             Gfx_SetupDL_51Opa(play->state.gfxCtx);
             gDPPipeSync(POLY_OPA_DISP++);
@@ -1666,12 +1666,14 @@ void Environment_DrawLensFlare(PlayState* play, EnvironmentContext* envCtx, View
                     Math_SmoothStepToF(&envCtx->glareAlpha, 0.0f, 0.5f, 50.0f, 0.1f);
                 }
 
-                temp = colorIntensity / 120.0f;
-                temp = CLAMP_MIN(temp, 0.0f);
+                if (envCtx->glareAlpha >= 8.0f) {
+                    temp = colorIntensity / 120.0f;
+                    temp = CLAMP_MIN(temp, 0.0f);
 
-                gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, (u8)(temp * 75.0f) + 180, (u8)(temp * 155.0f) + 100,
-                                (u8)envCtx->glareAlpha);
-                gDPFillRectangle(POLY_XLU_DISP++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
+                    gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, (u8)(temp * 75.0f) + 180, (u8)(temp * 155.0f) + 100,
+                                    (u8)envCtx->glareAlpha);
+                    gDPFillRectangle(POLY_XLU_DISP++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
+                }
             } else {
                 envCtx->glareAlpha = 0.0f;
             }
@@ -1818,30 +1820,6 @@ void Environment_ChangeLightSetting(PlayState* play, u32 lightSetting) {
  * An example usage of a filter is to dim the skybox in cloudy conditions.
  */
 void Environment_DrawSkyboxFilters(PlayState* play) {
-    if (((play->skyboxId != SKYBOX_NONE) && (play->lightCtx.fogNear < 980)) || (play->skyboxId == SKYBOX_UNSET_1D)) {
-        f32 alpha;
-
-        OPEN_DISPS(play->state.gfxCtx, "../z_kankyo.c", 3032);
-
-        Gfx_SetupDL_57Opa(play->state.gfxCtx);
-
-        alpha = (1000 - play->lightCtx.fogNear) * 0.02f;
-
-        if (play->skyboxId == SKYBOX_UNSET_1D) {
-            alpha = 1.0f;
-        }
-
-        if (alpha > 1.0f) {
-            alpha = 1.0f;
-        }
-
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, play->lightCtx.fogColor[0], play->lightCtx.fogColor[1],
-                        play->lightCtx.fogColor[2], 255.0f * alpha);
-        gDPFillRectangle(POLY_OPA_DISP++, 0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
-
-        CLOSE_DISPS(play->state.gfxCtx, "../z_kankyo.c", 3043);
-    }
-
     if (play->envCtx.customSkyboxFilter) {
         OPEN_DISPS(play->state.gfxCtx, "../z_kankyo.c", 3048);
 
@@ -2316,7 +2294,8 @@ void Environment_UpdateRain(PlayState* play) {
 }
 
 void Environment_FillScreen(GraphicsContext* gfxCtx, u8 red, u8 green, u8 blue, u8 alpha, u8 drawFlags) {
-    if (alpha != 0) {
+    if (alpha >= 8) { // The blender operates only with the 5 most significant bits of alpha, so we better have at least
+                      // one bit set in that range to bother doing this
         OPEN_DISPS(gfxCtx, "../z_kankyo.c", 3835);
 
         if (drawFlags & FILL_SCREEN_OPA) {
@@ -2622,4 +2601,3 @@ void Environment_WarpSongLeave(PlayState* play) {
             break;
     }
 }
-#endif
