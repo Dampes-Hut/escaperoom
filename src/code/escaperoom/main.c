@@ -44,6 +44,27 @@ void Main(void* arg) {
     PreNmiBuff_Init(gAppNmiBufferPtr);
     Fault_Init();
 
+    /**
+     * Memory map:
+     * 
+     * ---------------------------- 0x80000000
+     * Code/Heap
+     * ----------------------------
+     * Code/Heap
+     * ----------------------------
+     * Code/Heap
+     * ----------------------------
+     * Code/Heap
+     * ----------------------------
+     * Code/Heap
+     * ---------------------------- 0x80500000
+     * ZB
+     * ----------------------------
+     * FB0
+     * ----------------------------
+     * FB1
+     * ---------------------------- 0x80800000
+     */
     assert(osMemSize >= 0x800000); // TODO display an error message if this is not the case
 
     systemHeapStart = (uintptr_t)_buffersSegmentEnd;
