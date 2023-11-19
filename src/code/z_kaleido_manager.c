@@ -55,8 +55,6 @@ void KaleidoManager_LoadOvl(KaleidoMgrOverlay* ovl) {
 
     ovl->offset = (uintptr_t)ovl->loadedRamAddr - (uintptr_t)ovl->vramStart;
     gKaleidoMgrCurOvl = ovl;
-
-    Fault_AddAddrConvClient(&sKaleidoAddrConvClient, KaleidoManager_FaultAddrConv, NULL);
 }
 
 void KaleidoManager_ClearOvl(KaleidoMgrOverlay* ovl) {
@@ -92,6 +90,8 @@ void KaleidoManager_Init(PlayState* play) {
     osSyncPrintf(VT_RST);
 
     gKaleidoMgrCurOvl = NULL;
+
+    Fault_AddAddrConvClient(&sKaleidoAddrConvClient, KaleidoManager_FaultAddrConv, NULL);
 }
 
 void KaleidoManager_Destroy(void) {
@@ -101,6 +101,8 @@ void KaleidoManager_Destroy(void) {
     }
 
     sKaleidoAreaPtr = NULL;
+
+    Fault_RemoveAddrConvClient(&sKaleidoAddrConvClient);
 }
 
 // NOTE: this function looks messed up and probably doesn't work how it was intended to

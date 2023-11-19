@@ -213,7 +213,7 @@ void Fault_AddClient(FaultClient* client, void* callback, void* arg0, void* arg1
 end:
     osSetIntMask(mask);
     if (alreadyExists) {
-        rmonPrintf(VT_COL(RED, WHITE) "fault_AddClient: %08x は既にリスト中にある\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddClient: %08x is already registered!\n" VT_RST, client);
     }
 }
 
@@ -249,7 +249,7 @@ void Fault_RemoveClient(FaultClient* client) {
     osSetIntMask(mask);
 
     if (listIsEmpty) {
-        rmonPrintf(VT_COL(RED, WHITE) "fault_RemoveClient: %08x リスト不整合です\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_RemoveClient: %08x is not registered!\n" VT_RST, client);
     }
 }
 
@@ -291,7 +291,7 @@ void Fault_AddAddrConvClient(FaultAddrConvClient* client, void* callback, void* 
 end:
     osSetIntMask(mask);
     if (alreadyExists) {
-        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterAddClient: %08x は既にリスト中にある\n" VT_RST, client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterAddClient: %08x is already registered!\n" VT_RST, client);
     }
 }
 
@@ -325,8 +325,7 @@ void Fault_RemoveAddrConvClient(FaultAddrConvClient* client) {
     osSetIntMask(mask);
 
     if (listIsEmpty) {
-        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterRemoveClient: %08x は既にリスト中にある\n" VT_RST,
-                     client);
+        rmonPrintf(VT_COL(RED, WHITE) "fault_AddressConverterRemoveClient: %08x is not registered!\n" VT_RST, client);
     }
 }
 
@@ -1296,17 +1295,17 @@ void Fault_ThreadEntry(void* arg) {
 
             if (msg == FAULT_MSG_CPU_BREAK) {
                 sFaultInstance->msgId = (u32)FAULT_MSG_CPU_BREAK;
-                rmonPrintf("フォルトマネージャ:OS_EVENT_CPU_BREAKを受信しました\n");
+                rmonPrintf("OS_EVENT_CPU_BREAK\n");
             } else if (msg == FAULT_MSG_FAULT) {
                 sFaultInstance->msgId = (u32)FAULT_MSG_FAULT;
-                rmonPrintf("フォルトマネージャ:OS_EVENT_FAULTを受信しました\n");
+                rmonPrintf("OS_EVENT_FAULT\n");
             } else if (msg == FAULT_MSG_UNK) {
                 Fault_UpdatePad();
                 faultedThread = NULL;
                 continue;
             } else {
                 sFaultInstance->msgId = (u32)FAULT_MSG_UNK;
-                rmonPrintf("フォルトマネージャ:不明なメッセージを受信しました\n");
+                rmonPrintf("[fault.c] UNKNOWN message! (%u)\n", (u32)msg);
             }
 
             faultedThread = __osGetCurrFaultedThread();

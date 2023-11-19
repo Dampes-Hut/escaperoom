@@ -115,5 +115,6 @@ void ActorOverlayTable_Init(void) {
 
 void ActorOverlayTable_Cleanup(void) {
     Fault_RemoveClient(&sFaultClient);
+    Fault_RemoveAddrConvClient(&sFaultAddrConvClient);
     gMaxActorId = 0;
 }

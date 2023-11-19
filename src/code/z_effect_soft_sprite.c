@@ -83,6 +83,8 @@ void EffectSs_ClearAll(PlayState* play) {
         overlay->loadedRamAddr = NULL;
         overlay++;
     }
+
+    Fault_RemoveAddrConvClient(&sEffectSsAddrConvClient);
 }
 
 void EffectSs_Delete(EffectSs* effectSs) {
