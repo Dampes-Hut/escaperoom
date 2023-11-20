@@ -8,4 +8,7 @@ void Gfx_SetupFrame(GraphicsContext* gfxCtx, s32 clearFB, u8 r, u8 g, u8 b);
 void Skybox_Draw(SkyboxContext* skyboxCtx, GraphicsContext* gfxCtx, LightContext* lightCtx, s16 skyboxId, s16 blend,
                  f32 x, f32 y, f32 z);
 
+void __assert_soft(const char* assertion, const char* file, int line);
+void Fault_AddHungupAndCrashRestartable(const char* exp1, const char* exp2);
+
 #endif

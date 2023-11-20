@@ -24,6 +24,7 @@ docs/doxygen/
 *.v64
 *.map
 *.dump
+*.pdb
 out.txt
 
 # Tool artifacts

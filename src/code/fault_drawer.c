@@ -27,7 +27,7 @@ typedef struct {
     /* 0x20 */ u16 printColors[10];
     /* 0x34 */ u8 escCode; // bool
     /* 0x35 */ u8 osSyncPrintfEnabled;
-    /* 0x38 */ void (*inputCallback)(void);
+    /* 0x38 */ s32 (*inputCallback)(void);
 } FaultDrawer; // size = 0x3C
 
 const u32 sFaultDrawerFont[] = {
@@ -333,7 +333,7 @@ void FaultDrawer_SetDrawerFB(void* fb, u16 w, u16 h) {
     sFaultDrawer.h = h;
 }
 
-void FaultDrawer_SetInputCallback(void (*callback)(void)) {
+void FaultDrawer_SetInputCallback(s32 (*callback)(void)) {
     sFaultDrawer.inputCallback = callback;
 }
 

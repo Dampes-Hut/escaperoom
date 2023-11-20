@@ -31,13 +31,16 @@ UCodeInfo D_8012D248[3] = {
     { UCODE_S2DEX, gspS2DEX2d_fifoTextStart },
 };
 
-void Graph_FaultClient(void) {
+s32 Graph_FaultClient(UNUSED void* a0, UNUSED void* a1) {
     void* nextFb = osViGetNextFramebuffer();
     void* newFb = (SysCfb_GetFbPtr(0) != nextFb) ? SysCfb_GetFbPtr(0) : SysCfb_GetFbPtr(1);
 
     osViSwapBuffer(newFb);
-    Fault_WaitForInput();
+    if (Fault_WaitForInput()) {
+        return true;
+    }
     osViSwapBuffer(nextFb);
+    return false;
 }
 
 // TODO: merge Gfx and GfxMod to make this function's arguments consistent
@@ -88,7 +91,7 @@ void Graph_DisassembleUCode(Gfx* workBuf) {
 // that are readable on console.. cool emulator
 // #define PJ64
 
-void Graph_UCodeFaultClient(Gfx** workBufP) {
+s32 Graph_UCodeFaultClient(void* arg0, UNUSED void* arg1) {
 #define REG_ENTRY(r) \
     { #r, r }
     static struct {
@@ -115,6 +118,8 @@ void Graph_UCodeFaultClient(Gfx** workBufP) {
     char insn[30];
     u32 spPc;
 
+    Gfx** workBufP = (Gfx**)arg0;
+
     FaultDrawer_SetCharPad(-2, 0);
     FaultDrawer_Printf("WORK_DISP %08x\n", *workBufP);
 
@@ -140,17 +145,7 @@ void Graph_UCodeFaultClient(Gfx** workBufP) {
     for (i = 0; i < ARRAY_COUNT(sDPRegs); i++) {
         FaultDrawer_Printf("%s: %08x\n", sDPRegs[i].name, IO_READ(sDPRegs[i].addr));
     }
-
-    /*
-    UCodeDisas disassembler;
-
-    UCodeDisas_Init(&disassembler);
-    disassembler.enableLog = true;
-    UCodeDisas_RegisterUCode(&disassembler, ARRAY_COUNT(D_8012D248), D_8012D248);
-    UCodeDisas_SetCurUCode(&disassembler, gspF3DZEX2_NoN_PosLight_fifoTextStart);
-    UCodeDisas_Disassemble(&disassembler, workBuf);
-    UCodeDisas_Destroy(&disassembler);
-    */
+    return false;
 }
 
 void Graph_InitTHGA(GraphicsContext* gfxCtx) {

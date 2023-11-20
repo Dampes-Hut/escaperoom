@@ -221,6 +221,11 @@ void Play_Destroy(GameState* thisx) {
     Fault_RemoveClient(&D_801614B8);
 }
 
+s32 Play_ZeldaArenaFaultClient(UNUSED void* a0, UNUSED void* a1) {
+    ZeldaArena_Display();
+    return false;
+}
+
 void Play_Init(GameState* thisx) {
     PlayState* this = (PlayState*)thisx;
     GraphicsContext* gfxCtx = this->state.gfxCtx;
@@ -410,7 +415,7 @@ void Play_Init(GameState* thisx) {
     osSyncPrintf("ゼルダヒープ %08x-%08x\n", zAllocAligned,
                  (u8*)zAllocAligned + zAllocSize - (s32)(zAllocAligned - zAlloc));
 
-    Fault_AddClient(&D_801614B8, ZeldaArena_Display, NULL, NULL);
+    Fault_AddClient(&D_801614B8, Play_ZeldaArenaFaultClient, NULL, NULL);
     Actor_InitContext(this, &this->actorCtx, this->playerEntry);
 
     while (!func_800973FC(this, &this->roomCtx)) {

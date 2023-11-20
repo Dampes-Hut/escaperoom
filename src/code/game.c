@@ -9,7 +9,7 @@ ViMode sViMode;
 FaultClient sGameFaultClient;
 u16 sLastButtonPressed;
 
-void GameState_FaultPrint(void) {
+s32 GameState_FaultPrint(void* a0, void* a1) {
     static char sBtnChars[] = "ABZSuldr*+LRudlr";
     s32 i;
 
@@ -20,6 +20,7 @@ void GameState_FaultPrint(void) {
             FaultDrawer_DrawText((i * 8) + 120, 190, "%c", sBtnChars[i]);
         }
     }
+    return false;
 }
 
 void GameState_SetFBFilter(Gfx** gfxP) {

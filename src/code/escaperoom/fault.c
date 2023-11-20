@@ -51,7 +51,7 @@ void FaultDrawer_Init(void);
 void FaultDrawer_SetOsSyncPrintfEnabled(u32 enabled);
 void FaultDrawer_DrawRecImpl(s32 xStart, s32 yStart, s32 xEnd, s32 yEnd, u16 color);
 void FaultDrawer_FillScreen(void);
-void FaultDrawer_SetInputCallback(void (*callback)(void));
+void FaultDrawer_SetInputCallback(s32 (*callback)(void));
 void FaultDrawer_SetDrawerFB(void* fb, u16 w, u16 h);
 
 const char* sExceptionNames[] = {
@@ -80,6 +80,7 @@ const char* sFpExceptionNames[] = {
 };
 
 u8 sIsHungup = false;
+u8 sRestartable = false;
 
 FaultMgr* sFaultInstance;
 u8 sFaultAwaitingInput;
@@ -103,77 +104,13 @@ void Fault_SleepImpl(u32 msec) {
     Sleep_Cycles(cycles);
 }
 
-void Fault_ClientProcessThread(void* arg) {
+void Fault_ClientRunTask(void* arg) {
     FaultClientTask* task = (FaultClientTask*)arg;
 
     // Run the callback
     if (task->callback != NULL) {
         task->ret = task->callback(task->arg0, task->arg1);
     }
-
-    // Send completion notification
-    if (task->queue != NULL) {
-        osSendMesg(task->queue, task->msg, OS_MESG_BLOCK);
-    }
-}
-
-void Fault_ClientRunTask(FaultClientTask* task) {
-    OSMesgQueue queue;
-    OSMesg msg;
-    OSMesg recMsg;
-    OSThread* thread = NULL;
-    OSTimer timer;
-    u32 timerMsgVal = 666;
-
-    osCreateMesgQueue(&queue, &msg, 1);
-    task->queue = &queue;
-    task->msg = NULL;
-
-    if (sFaultInstance->clientThreadSp != NULL) {
-        // Run the fault client callback on a separate thread
-        thread = alloca(sizeof(OSThread));
-
-        osCreateThread(thread, THREAD_ID_FAULT, Fault_ClientProcessThread, task, sFaultInstance->clientThreadSp,
-                       THREAD_PRI_FAULT_CLIENT);
-        osStartThread(thread);
-    } else {
-        // Run the fault client callback on this thread
-        Fault_ClientProcessThread(task);
-    }
-
-    // Await done
-    while (true) {
-        osSetTimer(&timer, OS_SEC_TO_CYCLES(1), 0, &queue, (OSMesg)timerMsgVal);
-        osRecvMesg(&queue, &recMsg, OS_MESG_BLOCK);
-
-        if (recMsg != (OSMesg)666) {
-            break;
-        }
-
-        if (!sFaultAwaitingInput) {
-            task->ret = -1;
-            break;
-        }
-    }
-
-    osStopTimer(&timer);
-
-    // Destroy thread if a thread was used
-    if (thread != NULL) {
-        osStopThread(thread);
-        osDestroyThread(thread);
-    }
-}
-
-s32 Fault_ProcessClient(void* callback, void* arg0, void* arg1) {
-    FaultClientTask task;
-
-    task.callback = callback;
-    task.arg0 = arg0;
-    task.arg1 = arg1;
-    task.ret = 0;
-    Fault_ClientRunTask(&task);
-    return task.ret;
 }
 
 /**
@@ -183,9 +120,9 @@ s32 Fault_ProcessClient(void* callback, void* arg0, void* arg1) {
  * Arguments are passed on to the callback through `arg0` and `arg1`.
  *
  * The callback is intended to be
- * `void (*callback)(void* arg0, void* arg1)`
+ * `s32 (*callback)(void* arg0, void* arg1)`
  */
-void Fault_AddClient(FaultClient* client, void* callback, void* arg0, void* arg1) {
+void Fault_AddClient(FaultClient* client, s32 (*callback)(void*, void*), void* arg0, void* arg1) {
     OSIntMask mask;
     s32 alreadyExists = false;
 
@@ -264,7 +201,7 @@ void Fault_RemoveClient(FaultClient* client) {
  * The callback may return 0 if it could not convert the address
  * The callback may return -1 to be unregistered
  */
-void Fault_AddAddrConvClient(FaultAddrConvClient* client, void* callback, void* arg) {
+void Fault_AddAddrConvClient(FaultAddrConvClient* client, uintptr_t (*callback)(uintptr_t, void*), void* arg) {
     OSIntMask mask;
     s32 alreadyExists = false;
 
@@ -334,22 +271,21 @@ void Fault_RemoveAddrConvClient(FaultAddrConvClient* client) {
  * address converter clients
  */
 uintptr_t Fault_ConvertAddress(uintptr_t addr) {
-    s32 ret;
-    FaultAddrConvClient* client = sFaultInstance->addrConvClients;
+    FaultAddrConvClient* client;
 
-    while (client != NULL) {
-        if (client->callback != NULL) {
-            ret = Fault_ProcessClient(client->callback, (void*)addr, client->arg);
-            if (ret == -1) {
-                Fault_RemoveAddrConvClient(client);
-            } else if (ret != 0) {
-                return (uintptr_t)ret;
-            }
+    for (client = sFaultInstance->addrConvClients; client != NULL; client = client->next) {
+        if (client->callback == NULL) {
+            continue;
         }
-        client = client->next;
-    }
 
-    return 0;
+        uintptr_t ret = client->callback(addr, client->arg);
+        if (ret == (uintptr_t)(-1)) {
+            Fault_RemoveAddrConvClient(client);
+        } else if (ret != 0) {
+            return ret;
+        }
+    }
+    return (uintptr_t)NULL;
 }
 
 void Fault_Sleep(u32 msec) {
@@ -373,7 +309,7 @@ void Fault_UpdatePadImpl(void) {
  * A and DPad-Right continues and returns true
  * DPad-Left continues and returns false
  */
-u32 Fault_WaitForInputImpl(void) {
+s32 Fault_WaitForInputImpl(void) {
     Input* input = &sFaultInstance->inputs[0];
     s32 count = 600;
     u32 pressedBtn;
@@ -393,12 +329,11 @@ u32 Fault_WaitForInputImpl(void) {
                 return false;
             }
         } else {
-            if (pressedBtn == BTN_A || pressedBtn == BTN_DRIGHT) {
+            if (pressedBtn == BTN_A) {
                 return false;
             }
-
-            if (pressedBtn == BTN_DLEFT) {
-                return true;
+            if (pressedBtn == BTN_START) {
+                return sRestartable;
             }
 
             if (pressedBtn == BTN_DUP) {
@@ -412,10 +347,11 @@ u32 Fault_WaitForInputImpl(void) {
     }
 }
 
-void Fault_WaitForInput(void) {
+s32 Fault_WaitForInput(void) {
     sFaultAwaitingInput = true;
-    Fault_WaitForInputImpl();
+    s32 restart = Fault_WaitForInputImpl();
     sFaultAwaitingInput = false;
+    return restart;
 }
 
 void Fault_DrawRec(s32 x, s32 y, s32 w, s32 h, u16 color) {
@@ -843,7 +779,7 @@ void Fault_DrawDisassemblyContents(u32 addr, u32 crashPc) {
     FaultDrawer_SetCharPad(0, 0);
 }
 
-void Fault_DrawDisassembly(u32 pc, u32 ra) {
+s32 Fault_DrawDisassembly(u32 pc, u32 ra) {
     Input* input = &sFaultInstance->inputs[0];
     u32 addr = pc - 8;
     s32 count;
@@ -862,7 +798,7 @@ void Fault_DrawDisassembly(u32 pc, u32 ra) {
 
         while (sFaultInstance->autoScroll) {
             if (count == 0) {
-                return;
+                return false;
             }
 
             count--;
@@ -878,8 +814,11 @@ void Fault_DrawDisassembly(u32 pc, u32 ra) {
             Fault_UpdatePadImpl();
         } while (input->press.button == 0);
 
-        if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->cur.button, BTN_A)) {
-            return;
+        if (CHECK_BTN_ALL(input->cur.button, BTN_A)) {
+            return false;
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_START)) {
+            return sRestartable;
         }
 
         off = 4; // jump 1 instruction
@@ -909,6 +848,7 @@ void Fault_DrawDisassembly(u32 pc, u32 ra) {
     } while (!CHECK_BTN_ALL(input->press.button, BTN_L));
 
     sFaultInstance->autoScroll = true;
+    return false;
 }
 
 void Fault_DrawMemDumpContents(const char* title, uintptr_t addr, u32 arg2) {
@@ -968,7 +908,7 @@ void Fault_DrawMemDumpContents(const char* title, uintptr_t addr, u32 arg2) {
  * @param cLeftJump Unused parameter, pressing C-Left jumps to this address
  * @param cRightJump Unused parameter, pressing C-Right jumps to this address
  */
-void Fault_DrawMemDump(uintptr_t pc, uintptr_t sp, uintptr_t cLeftJump, uintptr_t cRightJump) {
+s32 Fault_DrawMemDump(uintptr_t pc, uintptr_t sp, uintptr_t cLeftJump, uintptr_t cRightJump) {
     Input* input = &sFaultInstance->inputs[0];
     uintptr_t addr = pc;
     s32 scrollCountdown;
@@ -993,7 +933,7 @@ void Fault_DrawMemDump(uintptr_t pc, uintptr_t sp, uintptr_t cLeftJump, uintptr_
         while (sFaultInstance->autoScroll) {
             // Count down until it's time to move on to the next page
             if (scrollCountdown == 0) {
-                return;
+                return false;
             }
 
             scrollCountdown--;
@@ -1012,8 +952,11 @@ void Fault_DrawMemDump(uintptr_t pc, uintptr_t sp, uintptr_t cLeftJump, uintptr_
         } while (input->press.button == 0);
 
         // Move to next page
-        if (CHECK_BTN_ALL(input->press.button, BTN_START) || CHECK_BTN_ALL(input->cur.button, BTN_A)) {
-            return;
+        if (CHECK_BTN_ALL(input->cur.button, BTN_A)) {
+            return false;
+        }
+        if (CHECK_BTN_ALL(input->press.button, BTN_START)) {
+            return sRestartable;
         }
 
         // Memory dump controls
@@ -1049,181 +992,358 @@ void Fault_DrawMemDump(uintptr_t pc, uintptr_t sp, uintptr_t cLeftJump, uintptr_
 
     // Resume auto-scroll and move to next page
     sFaultInstance->autoScroll = true;
+    return false;
 }
+
+extern u8 _RomEnd[];
+
+typedef struct {
+    uintptr_t start;
+    uintptr_t end;
+    size_t nameOffset;
+} SymInfo;
+
+typedef struct {
+    u32 numSyms;
+    const SymInfo* syms;
+    const char* strTab;
+} FaultPDB;
+#define PDB_MAX_NAME_LEN 60
+
+static u32 sPrevPICfg[4];
+
+static void Fault_PIGetAccess(void) {
+    // Get exclusive access to the PI
+    __osPiGetAccess();
+
+    // Await any current DMA/IO completion
+    u32 piStatus = IO_READ(PI_STATUS_REG);
+    while (piStatus & (PI_STATUS_DMA_BUSY | PI_STATUS_IO_BUSY)) {
+        piStatus = IO_READ(PI_STATUS_REG);
+    }
+
+    // Save previous Domain 1 configuration
+    sPrevPICfg[0] = IO_READ(PI_BSD_DOM1_LAT_REG);
+    sPrevPICfg[1] = IO_READ(PI_BSD_DOM1_PWD_REG);
+    sPrevPICfg[2] = IO_READ(PI_BSD_DOM1_PGS_REG);
+    sPrevPICfg[3] = IO_READ(PI_BSD_DOM1_RLS_REG);
+
+    // Set cartridge access timings
+    IO_WRITE(PI_BSD_DOM1_LAT_REG, gCartHandle->latency);
+    IO_WRITE(PI_BSD_DOM1_PWD_REG, gCartHandle->pulse);
+    IO_WRITE(PI_BSD_DOM1_PGS_REG, gCartHandle->pageSize);
+    IO_WRITE(PI_BSD_DOM1_RLS_REG, gCartHandle->relDuration);
+}
+
+static void Fault_PIRelAccess(void) {
+    // Restore previous Domain 1 configuration
+    IO_WRITE(PI_BSD_DOM1_LAT_REG, sPrevPICfg[0]);
+    IO_WRITE(PI_BSD_DOM1_PWD_REG, sPrevPICfg[1]);
+    IO_WRITE(PI_BSD_DOM1_PGS_REG, sPrevPICfg[2]);
+    IO_WRITE(PI_BSD_DOM1_RLS_REG, sPrevPICfg[3]);
+
+    // Release PI
+    __osPiRelAccess();
+}
+
+static s32 Fault_GetPDB(FaultPDB* out) {
+    uintptr_t alignedRomEnd = (((uintptr_t)_RomEnd) + 0x100000-1) & ~(0x100000-1);
+    uintptr_t pdbStart = PHYS_TO_K1(osRomBase | alignedRomEnd);
+
+    // Lock PI
+    Fault_PIGetAccess();
+
+    // Read the magic number for the pdb to know if it's present
+    u32 magic = *(u32*)(pdbStart + 0); // PIO
+    if (magic != 0xFFFF5A5A) {
+        // No pdb, no stack trace
+
+        // Release the PI before printing
+        Fault_PIRelAccess();
+        rmonPrintf("[fault.c] NO PDB *(%08X)=%08X\n", pdbStart, magic);
+        return false;
+    }
+
+    out->numSyms = *(u32*)(pdbStart + 4); // PIO
+    out->syms = (SymInfo*)(pdbStart + 8);
+    out->strTab = (const char*)(pdbStart + 8 + out->numSyms * sizeof(SymInfo));
+
+    // Release PI
+    Fault_PIRelAccess();
+    return true;
+}
+
+#define IS_LW_RA_SP(insn)       ((insn##Hi) == 0x8FBF)  // lw $ra, <imm>($sp)
+#define IS_ADDIU_SP_SP(insn)    ((insn##Hi) == 0x27BD)  // addiu $sp, $sp, <imm>
+#define IS_SW_RA_SP(insn)       ((insn##Hi) == 0xAFBF)  // sw $ra, <imm>($sp)
+#define IS_JR_RA(insn)          ((insn) == 0x03E00008)  // jr $ra
 
 /**
  * Searches a single function's stack frame for the function it was called from.
- * There are two cases that must be covered: Leaf and non-leaf functions.
  *
- * A leaf function is one that does not call any other function, in this case the
- * return address need not be saved to the stack. Since a leaf function does not
- * call other functions, only the function the stack trace begins in could possibly
- * be a leaf function, in which case the return address is in the thread context's
- * $ra already, as it never left.
+ * Since we use GCC and would prefer to debug with optimizations on to better reflect the state at release, there are
+ * some codegen patterns involving reordered basic blocks that break heuristics that try to backtrace from current PC.
  *
- * The procedure is therefore
- *  - Iterate instructions
- *  - Once jr $ra is found, set pc to $ra
- *  - Done after delay slot
+ * This method of backtracing requires the presence of a "pdb" appended to the end of the ROM file after build,
+ * containing:
+ *  - A 32-bit magic number identifier. 0xFFFF5A5A was chosen as it cannot be confused for a PI open bus read.
+ *  - A 32-bit number of symbol entries.
+ *  - An array of function symbol entries sorted by start address, containing:
+ *     - 32-bit vaddr start
+ *     - 32-bit vaddr end
+ *     - 32-bit name offset
+ *  - A blob of function name strings, aligned to 4 bytes.
  *
- * A non-leaf function calls other functions, it is necessary for the return address
- * to be saved to the stack. In these functions, it is important to keep track of the
- * stack frame size of each function.
- *
- * The procedure is therefore
- *  - Iterate instructions
- *  - If lw $ra <imm>($sp) is found, fetch the saved $ra from stack memory
- *  - If addiu $sp, $sp, <imm> is found, modify $sp by the immediate value
- *  - If jr $ra is found, set pc to $ra
- *  - Done after delay slot
- *
- * Note that searching for one jr $ra is sufficient, as only leaf functions can have
- * multiple jr $ra in the same function.
- *
- * There is also additional handling for eret and j. Neither of these instructions
- * appear in IDO compiled C, however do show up in the exception handler. It is not
- * possible to backtrace through an eret as an interrupt can occur at any time, so
- * there is no choice but to give up here. For j instructions, they can be followed
- * and the backtrace may continue as normal.
+ * To find the frame of the previous function, we first look up the current function in the pdb to find the function
+ * bounds (and also record the name to display in the stack trace). Afterwards, we start at the beginning of the
+ * function and work downwards searching for stack modifications, return address load/store and returns. Once everything
+ * we need has been found we can move on to the next function.
  */
-void Fault_WalkStack(uintptr_t* spPtr, uintptr_t* pcPtr, uintptr_t* raPtr) {
+s32 Fault_WalkStack(FaultPDB* restrict pdb, char* nameOut, uintptr_t* spPtr, uintptr_t* pcPtr, uintptr_t* raPtr,
+                    uintptr_t vpc) {
     uintptr_t sp = *spPtr;
     uintptr_t pc = *pcPtr;
     uintptr_t ra = *raPtr;
-    s32 count = 0x10000; // maximum number of instructions to search through
-    u32 lastInsn;
-    u32 insn;
-    u16 insnHi;
-    s16 insnLo;
-    u32 imm;
-    s32 gotRA = false;
 
-    // ensure $sp and $ra are aligned and valid pointers, if they aren't a stack
-    // trace cannot be generated
-    if (sp % 4 != 0 || !IS_KSEG0(sp) || ra % 4 != 0 || !IS_KSEG0(ra)) {
-        *raPtr = *pcPtr = *spPtr = 0;
-        return;
+    // Lock PI
+    Fault_PIGetAccess();
+
+    // Find our function in the pdb using vpc.
+    // The pdb entries are sorted and non-overlapping so we can binary search it.
+
+    size_t low = 0;
+    size_t high = pdb->numSyms - 1;
+
+    if (pdb->syms[low].start > vpc || pdb->syms[high].end <= vpc) { // PIO
+        // vpc is not in the pdb, abort
+        Fault_PIRelAccess();
+        rmonPrintf("VPC OUT OF BOUNDS FAIL\n");
+        return false;
     }
 
-    // ensure pc is aligned and a valid pointer, if not a stack trace cannot
-    // be generated
-    if (pc % 4 != 0 || !IS_KSEG0(pc)) {
-        *pcPtr = ra;
-        return;
+    uintptr_t start;
+    uintptr_t end;
+    uintptr_t nameOffset = 0xFFFFFFFF;
+
+    while (low <= high) {
+        size_t mid = low + (high - low) / 2;
+
+        const SymInfo* entry = &pdb->syms[mid];
+        start = entry->start; // PIO
+        end = entry->end; // PIO
+
+        if (vpc >= start && vpc < end) {
+            nameOffset = entry->nameOffset; // PIO
+            break;
+        } else if (vpc >= end) {
+            low = mid + 1;
+        } else { // if (vrom < entry->vromStart)
+            high = mid - 1;
+        }
+    }
+    if (nameOffset == 0xFFFFFFFF) {
+        // failed to find entry
+        Fault_PIRelAccess();
+        rmonPrintf("PDB BSEARCH FAIL\n");
+        return false;
     }
 
-    lastInsn = 0;
-    while (true) {
-        insn = *(u32*)K0_TO_K1(pc);
-        insnHi = insn >> 16;
-        insnLo = insn & 0xFFFF;
-        imm = insnLo;
+    // We found an entry, read the function name for later
 
-        if (insnHi == 0x8FBF) {
-            // lw $ra, <imm>($sp)
-            // read return address saved on the stack
-            if (!gotRA) {
-                ra = *(uintptr_t*)K0_TO_K1(sp + imm);
-            }
-        } else if (insnHi == 0xAFBF) {
-            // sw $ra, <imm>($sp)
-            // error occurred before return address was saved on the stack,
-            // so it's still in the register
-            gotRA = true;
-        } else if (insnHi == 0x27BD) {
-            // addiu $sp, $sp, <imm>
-            // stack pointer increment or decrement
-            sp += imm;
-        } else if (insn == 0x42000018) {
-            // eret
-            // cannot backtrace through an eret, give up
-            ra = pc = sp = 0;
-            goto done;
-        }
-        if (lastInsn == 0x03E00008) {
-            // jr $ra
-            // return to previous function
-            pc = ra;
-            goto done;
-        } else if (lastInsn >> 26 == 2) {
-            // j <target>
-            // extract jump target
-            pc = pc >> 28 << 28 | lastInsn << 6 >> 4;
-            goto done;
-        } else if (lastInsn >> 16 == 0x1000) {
-            // b <offset>
-            // follow unconditional branch
-            pc += (s16)((lastInsn & 0xFFFF) << 2);
-        }
+    // Need to do 32-bit reads for PIO to work properly. Make sure gcc uses lw by using a volatile pointer.
+    const volatile u32* nameData = (const volatile u32*)&pdb->strTab[nameOffset];
 
-        lastInsn = insn;
-        pc += sizeof(u32);
-        if (count == 0) {
+    char* nameCur = nameOut;
+    size_t nameWords = 0;
+    while (nameWords < PDB_MAX_NAME_LEN/sizeof(u32)) {
+        u32 dat = nameData[nameWords++]; // PIO
+        *nameCur++ = (dat >> 24) & 0xFF;
+        *nameCur++ = (dat >> 16) & 0xFF;
+        *nameCur++ = (dat >>  8) & 0xFF;
+        *nameCur++ = (dat >>  0) & 0xFF;
+        if ((dat & 0x000000FF) == 0) {
+            // We aligned strings to 4 bytes in the pdb so we need only check the last
+            // byte in a word to know when to stop reading.
             break;
         }
-        count--;
     }
-    // Hit the maximum number of instructions to search, give up
-    ra = pc = sp = 0;
+
+    // No further need for PI access, release it.
+    Fault_PIRelAccess();
+
+    // rmonPrintf("[fault.c] FOUND PDB ENTRY [%08X %08X] : %08X %u \"%s\"\n",
+    //            start, end,
+    //            (uintptr_t)nameData, nameWords * 4, name);
+
+    // Now that we have the function bounds and name we can search the stack frame for next pc/ra/sp
+
+    u32 nextPC = pc;
+    u32 nextRA = ra;
+    u32 nextSP = sp;
+    s32 gotRA = false;
+    s32 gotSP = false;
+    u32 lastInsn = 0x00000000;
+    uintptr_t startRelocated = start + pc - vpc;
+    uintptr_t endRelocated   = end + pc - vpc;
+    uintptr_t tempPC;
+
+    // rmonPrintf("BACKTRACE @ [pc=%08X sp=%08X ra=%08X] [%08X %08X]->[%08X %08X]\n",
+    //            pc, sp, ra,
+    //            start, end,
+    //            startRelocated, endRelocated);
+
+    // Has been executed already
+    for (tempPC = startRelocated; tempPC < pc; tempPC += 4) {
+        u32 insn = *(u32*)tempPC;
+        u16 insnHi = insn >> 16;
+        u16 insnLo = insn & 0xFFFF;
+        s16 simm = insnLo;
+
+        // char insnS[40];
+        // MipsDecodeCPUInsn(insnS, sizeof(insnS), insn, tempPC);
+        // rmonPrintf("    [%08X] %s\n", tempPC, insnS);
+
+        if (IS_ADDIU_SP_SP(insn)) {
+            // Stack pointer increment or decrement.
+            // This has already executed so $sp has already been modified. Revert the modification
+            nextSP = sp - simm;
+            gotSP = true;
+        } else if (IS_LW_RA_SP(insn)) {
+            // Loading $ra from the stack.
+            // This has already executed, meaning $ra is in the register already.
+            nextPC = ra;
+            gotRA = true;
+        } else if (IS_SW_RA_SP(insn)) {
+            // Saving $ra to the stack.
+            // This has already executed, read $ra from the stack.
+            nextPC = *(uintptr_t*)K0_TO_K1(sp + simm);
+            gotRA = true;
+        }
+
+        // We ignore jr $ra if it comes before the PC so that we can descend into basic blocks reordered past the
+        // nominal end of the function.
+
+        if ((gotRA && gotSP)) {
+            goto done;
+        }
+        lastInsn = insn;
+    }
+
+    // rmonPrintf("  ================\n");
+
+    // Not yet executed
+    for (tempPC = pc; tempPC < endRelocated; tempPC += 4) {
+        u32 insn = *(u32*)tempPC;
+        u16 insnHi = insn >> 16;
+        u16 insnLo = insn & 0xFFFF;
+        s16 simm = insnLo;
+
+        // char insnS[40];
+        // MipsDecodeCPUInsn(insnS, sizeof(insnS), insn, tempPC);
+        // rmonPrintf("    [%08X] %s\n", tempPC, insnS);
+
+        if (IS_ADDIU_SP_SP(insn)) {
+            // Stack pointer increment or decrement.
+            if (!gotSP) {
+                // If we didn't already have SP we can use this to compute what SP would be upon return.
+                nextSP = sp + simm;
+            }
+            gotSP = true;
+        } else if (IS_LW_RA_SP(insn)) {
+            // Loading $ra from the stack.
+            // This has not yet executed, $ra is on the stack. Retrieve it if we don't already have it.
+            if (!gotRA) {
+                nextPC = *(uintptr_t*)K0_TO_K1(sp + simm);
+            }
+            gotRA = true;
+        } else if (IS_SW_RA_SP(insn)) {
+            // Saving $ra to the stack.
+            // This has not yet executed, $ra is in the register. Retrieve it if we don't already have it.
+            if (!gotRA) {
+                nextPC = ra;
+            }
+            gotRA = true;
+        }
+
+        if (IS_JR_RA(lastInsn)) {
+            // Found a jr $ra. Set PC to RA, we're done. (XXX do we have to set gotRA and wait for gotSP?)
+            nextPC = ra;
+            goto done;
+        }
+
+        if ((gotRA && gotSP)) {
+            goto done;
+        }
+        lastInsn = insn;
+    }
 
 done:
-    *spPtr = sp;
-    *pcPtr = pc;
-    *raPtr = ra;
+    *pcPtr = nextPC;
+    *raPtr = nextRA;
+    *spPtr = nextSP;
+    return true;
 }
 
 /**
  * Draws the stack trace page contents for the specified thread
  */
-void Fault_DrawStackTrace(OSThread* thread, s32 x, s32 y, s32 height) {
-    s32 line;
+void Fault_DrawStackTrace(OSThread* thread, s32 x, s32 y, u32 height, u32 printfHeight) {
+    char name[PDB_MAX_NAME_LEN];
+    FaultPDB pdb;
+
+    if (!Fault_GetPDB(&pdb)) {
+        FaultDrawer_DrawText(x, y, "STACK TRACE UNAVAILABLE (NO PDB)");
+        rmonPrintf("STACK TRACE UNAVAILABLE (NO PDB)\n");
+        return;
+    }
+
     uintptr_t sp = thread->context.sp;
     uintptr_t ra = thread->context.ra;
     uintptr_t pc = thread->context.pc;
-    uintptr_t addr;
+    u32 maxHeight = MAX(height, printfHeight);
 
     FaultDrawer_DrawText(x, y, "SP       PC       (VPC)");
+    rmonPrintf("STACK TRACE\nSP       PC       (VPC)\n");
 
     // Backtrace from the current function to the start of the thread
-    for (line = 1; line < height && (ra != 0 || sp != 0) && pc != (uintptr_t)__osCleanupThread; line++) {
-        FaultDrawer_DrawText(x, y + line * 8, "%08x %08x", sp, pc);
+    for (u32 line = 1; line < maxHeight && (ra != 0 || sp != 0) && pc != (uintptr_t)__osCleanupThread; line++) {
         // Convert relocated address to virtual address if applicable
-        addr = Fault_ConvertAddress(pc);
-        if (addr != 0) {
-            FaultDrawer_Printf(" -> %08x", addr);
-        }
-        // Search one function for the previous function
-        Fault_WalkStack(&sp, &pc, &ra);
-    }
-}
+        uintptr_t vpc = Fault_ConvertAddress(pc);
 
-void Fault_LogStackTrace(OSThread* thread, s32 height) {
-    s32 line;
-    uintptr_t sp = thread->context.sp;
-    uintptr_t ra = thread->context.ra;
-    uintptr_t pc = thread->context.pc;
-    uintptr_t addr;
-    s32 pad;
+        // Save current function pc/sp for printing later
+        uintptr_t curPC = pc;
+        uintptr_t curSP = sp;
 
-    rmonPrintf("STACK TRACE\nSP       PC       (VPC)\n");
-    for (line = 1; line < height && (ra != 0 || sp != 0) && pc != (uintptr_t)__osCleanupThread; line++) {
-        rmonPrintf("%08x %08x", sp, pc);
-        addr = Fault_ConvertAddress(pc);
-        if (addr != 0) {
-            rmonPrintf(" -> %08x", addr);
+        // Search current function for the previous function
+        s32 success = Fault_WalkStack(&pdb, name, &sp, &pc, &ra, (vpc == 0) ? pc : vpc);
+        if (!success) {
+            rmonPrintf("ERROR in stack trace, aborting\n");
+            break;
         }
-        rmonPrintf("\n");
-        Fault_WalkStack(&sp, &pc, &ra);
+
+        // Print info on current function, we do this after stack walking as we do not have the function name before
+        if (line < height) {
+            // TODO cram function name in somewhere?
+            FaultDrawer_DrawText(x, y + line * 8, "%08x %08x", curSP, curPC);
+            if (vpc != 0) {
+                FaultDrawer_Printf(" -> %08x", vpc);
+            }
+        }
+        if (line < printfHeight) {
+            rmonPrintf("%08x %08x", curSP, curPC);
+            if (vpc != 0) {
+                rmonPrintf(" -> %08x %s\n", vpc, name);
+            } else {
+                rmonPrintf(" ->          %s\n", name);
+            }
+        }
     }
 }
 
 void Fault_ResumeThread(OSThread* thread) {
     thread->context.cause = 0;
-    thread->context.fpcsr = 0;
-    thread->context.pc += sizeof(u32);
-    *((u32*)thread->context.pc) = 0x0000000D; // write in a break instruction
-    osWritebackDCache((void*)thread->context.pc, 4);
-    osInvalICache((void*)thread->context.pc, 4);
+    thread->context.fpcsr = FPCSR_FS | FPCSR_EV;
+    thread->context.pc += 2*sizeof(u32);
     osStartThread(thread);
 }
 
@@ -1232,7 +1352,7 @@ void Fault_DisplayFrameBuffer(void) {
 
     osViSetYScale(1.0f);
     osViSetMode(&osViModeNtscLan1);
-    osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DITHER_FILTER_ON);
+    osViSetSpecialFeatures(OS_VI_GAMMA_OFF | OS_VI_DIVOT_OFF | OS_VI_DITHER_FILTER_ON);
     osViBlack(false);
 
     if (sFaultInstance->fb != NULL) {
@@ -1252,23 +1372,31 @@ void Fault_DisplayFrameBuffer(void) {
  * Runs all registered fault clients. Each fault client displays a page
  * on the crash screen.
  */
-void Fault_ProcessClients(void) {
-    FaultClient* client = sFaultInstance->clients;
+s32 Fault_ProcessClients(void) {
+    FaultClient* client;
     s32 idx = 0;
 
-    while (client != NULL) {
-        if (client->callback != NULL) {
-            Fault_FillScreenBlack();
-            FaultDrawer_SetCharPad(-2, 0);
-            FaultDrawer_Printf(FAULT_COLOR(DARK_GRAY) "CallBack (%d) %08x %08x %08x\n" FAULT_COLOR(WHITE), idx++,
-                               client, client->arg0, client->arg1);
-            FaultDrawer_SetCharPad(0, 0);
-            Fault_ProcessClient(client->callback, client->arg0, client->arg1);
-            Fault_WaitForInput();
-            Fault_DisplayFrameBuffer();
+    for (client = sFaultInstance->clients; client != NULL; client = client->next) {
+        if (client->callback == NULL) {
+            continue;
         }
-        client = client->next;
+        Fault_FillScreenBlack();
+
+        FaultDrawer_SetCharPad(-2, 0);
+        FaultDrawer_Printf(FAULT_COLOR(DARK_GRAY) "CallBack (%d) %08x %08x %08x\n" FAULT_COLOR(WHITE), idx++,
+                            client, client->arg0, client->arg1);
+        FaultDrawer_SetCharPad(0, 0);
+
+        if (client->callback(client->arg0, client->arg1)) {
+            return true;
+        }
+        if (Fault_WaitForInput()) {
+            return true;
+        }
+
+        Fault_DisplayFrameBuffer();
     }
+    return false;
 }
 
 void Fault_UpdatePad(void) {
@@ -1278,6 +1406,37 @@ void Fault_UpdatePad(void) {
 #define FAULT_MSG_CPU_BREAK ((OSMesg)1)
 #define FAULT_MSG_FAULT ((OSMesg)2)
 #define FAULT_MSG_UNK ((OSMesg)3)
+
+s32 Fault_ThreadContext(void) {
+    Fault_PrintThreadContext(sFaultInstance->faultedThread);
+    Fault_LogThreadContext(sFaultInstance->faultedThread);
+    return Fault_WaitForInput();
+}
+
+s32 Fault_StackTrace(void) {
+    Fault_FillScreenBlack();
+    FaultDrawer_DrawText(120, 16, "STACK TRACE");
+    Fault_DrawStackTrace(sFaultInstance->faultedThread, 36, 24, 22, 50);
+    return Fault_WaitForInput();
+}
+
+s32 Fault_Disassembly(void) {
+    return Fault_DrawDisassembly(sFaultInstance->faultedThread->context.pc, sFaultInstance->faultedThread->context.ra);
+}
+
+s32 Fault_MemDump(void) {
+    return Fault_DrawMemDump(sFaultInstance->faultedThread->context.pc - 0x100,
+                             (uintptr_t)sFaultInstance->faultedThread->context.sp, 0, 0);
+}
+
+s32 Fault_EndPage(void) {
+    Fault_FillScreenRed();
+    FaultDrawer_DrawText(64, 80, "    CONGRATURATIONS!    ");
+    FaultDrawer_DrawText(64, 90, "All Pages are displayed.");
+    FaultDrawer_DrawText(64, 100, "       THANK YOU!       ");
+    FaultDrawer_DrawText(64, 110, " You are great debugger!");
+    return Fault_WaitForInput();
+}
 
 void Fault_ThreadEntry(void* arg) {
     OSMesg msg;
@@ -1320,6 +1479,7 @@ void Fault_ThreadEntry(void* arg) {
         // Disable floating-point related exceptions
         __osSetFpcCsr(__osGetFpcCsr() & ~(FPCSR_EV | FPCSR_EZ | FPCSR_EO | FPCSR_EU | FPCSR_EI));
         sFaultInstance->faultedThread = faultedThread;
+        sFaultInstance->exit = false;
 
         while (!sFaultInstance->faultHandlerEnabled) {
             Fault_Sleep(1000);
@@ -1341,41 +1501,33 @@ void Fault_ThreadEntry(void* arg) {
         FaultDrawer_SetForeColor(GPACK_RGBA5551(255, 255, 255, 1));
         FaultDrawer_SetBackColor(GPACK_RGBA5551(0, 0, 0, 0));
 
+        size_t initPage = 0;
         if (sIsHungup) {
             // The rationale for this is you want to see the hungup message as the very first thing
-            goto showClients;
+            initPage = 2;
         }
 
         // Draw pages
         do {
-            // Thread context page
-            Fault_PrintThreadContext(faultedThread);
-            Fault_LogThreadContext(faultedThread);
-            Fault_WaitForInput();
-            // Stack trace page
-            Fault_FillScreenBlack();
-            FaultDrawer_DrawText(120, 16, "STACK TRACE");
-            Fault_DrawStackTrace(faultedThread, 36, 24, 22);
-            Fault_LogStackTrace(faultedThread, 50);
-            Fault_WaitForInput();
-        showClients:
-            // Client pages
-            Fault_ProcessClients();
-            // Disassembly page
-            Fault_DrawDisassembly(faultedThread->context.pc, faultedThread->context.ra);
-            // Memory dump page
-            Fault_DrawMemDump(faultedThread->context.pc - 0x100, (uintptr_t)faultedThread->context.sp, 0, 0);
-            // End page
-            Fault_FillScreenRed();
-            FaultDrawer_DrawText(64, 80, "    CONGRATURATIONS!    ");
-            FaultDrawer_DrawText(64, 90, "All Pages are displayed.");
-            FaultDrawer_DrawText(64, 100, "       THANK YOU!       ");
-            FaultDrawer_DrawText(64, 110, " You are great debugger!");
-            Fault_WaitForInput();
+            static s32 (*const handlers[])(void) = {
+                Fault_ThreadContext,
+                Fault_StackTrace,
+                Fault_ProcessClients,
+                Fault_Disassembly,
+                Fault_MemDump,
+                Fault_EndPage,
+            };
+            for (size_t i = initPage; i < ARRAY_COUNT(handlers); i++) {
+                if (handlers[i]()) {
+                    sFaultInstance->exit = true;
+                    break;
+                }
+            }
+            initPage = 0;
         } while (!sFaultInstance->exit);
 
-        while (!sFaultInstance->exit) {}
-
+        sRestartable = false;
+        sIsHungup = false;
         Fault_ResumeThread(faultedThread);
     }
 }
@@ -1409,13 +1561,17 @@ void Fault_Init(void) {
  * Fault page for Hungup crashes. Displays the thread id and two messages
  * specified in arguments to `Fault_AddHungupAndCrashImpl`.
  */
-void Fault_HungupFaultClient(const char* exp1, const char* exp2) {
+s32 Fault_HungupFaultClient(void* arg0, void* arg1) {
+    const char* exp1 = (const char*)arg0;
+    const char* exp2 = (const char*)arg1;
+
     rmonPrintf("HungUp on Thread %d\n", osGetThreadId(NULL));
     rmonPrintf("%s\n", exp1 != NULL ? exp1 : "(NULL)");
     rmonPrintf("%s\n", exp2 != NULL ? exp2 : "(NULL)");
     FaultDrawer_Printf("HungUp on Thread %d\n", osGetThreadId(NULL));
     FaultDrawer_Printf("%s\n", exp1 != NULL ? exp1 : "(NULL)");
     FaultDrawer_Printf("%s\n", exp2 != NULL ? exp2 : "(NULL)");
+    return false;
 }
 
 /**
@@ -1436,6 +1592,20 @@ NORETURN void Fault_AddHungupAndCrashImpl(const char* exp1, const char* exp2) {
 #ifdef __GNUC__
     __builtin_unreachable();
 #endif
+}
+
+void Fault_AddHungupAndCrashRestartable(const char* exp1, const char* exp2) {
+    FaultClient client;
+    s32 pad;
+
+    Fault_AddClient(&client, Fault_HungupFaultClient, (void*)exp1, (void*)exp2);
+    sIsHungup = true;
+    sRestartable = true;
+    *(u32*)0x11111111 = 0; // trigger an exception via unaligned memory access
+
+    // Unlike `Fault_AddHungupAndCrashImpl` this may return; make provisions for that:
+    __asm__ volatile ("nop");       // gate the above out of the branch delay slot
+    Fault_RemoveClient(&client);    // remove the hungup client
 }
 
 #undef Fault_AddHungupAndCrash

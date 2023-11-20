@@ -63,6 +63,8 @@ void Main(void* arg) {
      * FB0
      * ----------------------------
      * FB1
+     *
+     * Fault FB
      * ---------------------------- 0x80800000
      */
     assert(osMemSize >= 0x800000); // TODO display an error message if this is not the case

@@ -26,14 +26,14 @@
 
 typedef struct FaultClient {
     /* 0x00 */ struct FaultClient* next;
-    /* 0x04 */ void* callback;
+    /* 0x04 */ s32 (*callback)(void*, void*);
     /* 0x08 */ void* arg0;
     /* 0x0C */ void* arg1;
 } FaultClient; // size = 0x10
 
 typedef struct FaultAddrConvClient {
     /* 0x00 */ struct FaultAddrConvClient* next;
-    /* 0x04 */ void* callback;
+    /* 0x04 */ uintptr_t (*callback)(uintptr_t, void*);
     /* 0x08 */ void* arg;
 } FaultAddrConvClient; // size = 0xC
 
@@ -48,15 +48,15 @@ NORETURN void Fault_AddHungupAndCrash(const char* file, int line);
 
 // Client Registration
 
-void Fault_AddClient(FaultClient* client, void* callback, void* arg0, void* arg1);
+void Fault_AddClient(FaultClient* client, s32 (*callback)(void*, void*), void* arg0, void* arg1);
 void Fault_RemoveClient(FaultClient* client);
 
-void Fault_AddAddrConvClient(FaultAddrConvClient* client, void* callback, void* arg);
+void Fault_AddAddrConvClient(FaultAddrConvClient* client, uintptr_t (*callback)(uintptr_t, void*), void* arg);
 void Fault_RemoveAddrConvClient(FaultAddrConvClient* client);
 
 // For use in Fault Client callbacks
 
-void Fault_WaitForInput(void);
+s32 Fault_WaitForInput(void);
 void Fault_FillScreenBlack(void);
 void Fault_SetFrameBuffer(void* fb, u16 w, u16 h);
 

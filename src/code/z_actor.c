@@ -2249,7 +2249,9 @@ void Actor_UpdateAll(PlayState* play, ActorContext* actorCtx) {
     DynaPoly_UpdateBgActorTransforms(play, &play->colCtx.dyna);
 }
 
-void Actor_FaultPrint(Actor* actor, char* command) {
+s32 Actor_FaultPrint(void* arg0, void* arg1) {
+    Actor* actor = (Actor*)arg0;
+    char* command = (char*)arg1;
     ActorOverlay* overlayEntry;
     char* name;
 
@@ -2269,6 +2271,7 @@ void Actor_FaultPrint(Actor* actor, char* command) {
 
     FaultDrawer_SetCursor(48, 24);
     FaultDrawer_Printf("ACTOR NAME %08x:%s", actor, name);
+    return false;
 }
 
 void Actor_Draw(PlayState* play, Actor* actor) {

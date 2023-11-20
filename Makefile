@@ -57,11 +57,11 @@ $(shell touch src/boot/build.c)
 
 # Set prefix to mips binutils binaries (mips-linux-gnu-ld => 'mips-linux-gnu-') - Change at your own risk!
 # In nearly all cases, not having 'mips-linux-gnu-*' binaries on the PATH is indicative of missing dependencies
-ifneq ($(wildcard /opt/n64/bin/mips64-ultra-elf-gcc),)
-MIPS_BINUTILS_PREFIX ?= /opt/n64/bin/mips64-ultra-elf-
-else
+#ifneq ($(wildcard /opt/n64/bin/mips64-ultra-elf-gcc),)
+#MIPS_BINUTILS_PREFIX ?= /opt/n64/bin/mips64-ultra-elf-
+#else
 MIPS_BINUTILS_PREFIX ?= mips-linux-gnu-
-endif
+#endif
 
 ifeq ($(NON_MATCHING),1)
   CFLAGS += -DNON_MATCHING -DAVOID_UB
@@ -194,6 +194,7 @@ OBJDUMP_FLAGS := -drz -Mreg-names=n32
 # ROM image
 ROM := escaperoom.z64
 ELF := $(ROM:.z64=.elf)
+PDB := $(ROM:.z64=.pdb)
 # description of ROM segments
 SPEC := spec
 
@@ -329,8 +330,12 @@ endif
 
 #### Various Recipes ####
 
-$(ROM): $(ELF)
+$(ROM): $(ELF) $(PDB)
 	$(ELF2ROM) -cic 6105 $< $@
+	cat $(PDB) >> $@
+
+$(PDB): $(ELF)
+	python3 tools/mkpdb.py $< $@
 
 $(ELF): $(TEXTURE_FILES_OUT) $(ASSET_FILES_OUT) $(O_FILES) $(OVL_RELOC_FILES) build/ldscript.txt build/undefined_syms.txt
 	$(LD) --oformat $(LD_OUTPUT_FORMAT) -T build/undefined_syms.txt -T build/ldscript.txt --no-check-sections --accept-unknown-input-arch --emit-relocs -Map build/z64.map -o $@

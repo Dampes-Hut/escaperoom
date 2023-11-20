@@ -1312,7 +1312,9 @@ void AudioMgr_HandlePreNMI(AudioMgr* audioMgr);
 void AudioMgr_ThreadEntry(void* arg0);
 void AudioMgr_Unlock(AudioMgr* audioMgr);
 void AudioMgr_Init(AudioMgr* audioMgr, void* stack, OSPri pri, OSId id, Scheduler* sched, IrqMgr* irqMgr);
+#if 0
 void GameState_FaultPrint(void);
+#endif
 void GameState_SetFBFilter(Gfx** gfxP);
 void GameState_DrawInputDisplay(u16 input, Gfx** gfxP);
 void GameState_Draw(GameState* gameState, GraphicsContext* gfxCtx);
@@ -1332,7 +1334,9 @@ void* GameAlloc_Malloc(GameAlloc* this, u32 size);
 void GameAlloc_Free(GameAlloc* this, void* data);
 void GameAlloc_Cleanup(GameAlloc* this);
 void GameAlloc_Init(GameAlloc* this);
+#if 0
 void Graph_FaultClient(void);
+#endif
 void Graph_DisassembleUCode(Gfx* workBuf);
 #if 0
 void Graph_UCodeFaultClient(Gfx* workBuf);

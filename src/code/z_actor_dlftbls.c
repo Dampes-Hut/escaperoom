@@ -66,7 +66,7 @@ void ActorOverlayTable_LogPrint(void) {
     }
 }
 
-void ActorOverlayTable_FaultPrint(void* arg0, void* arg1) {
+s32 ActorOverlayTable_FaultPrint(void* arg0, void* arg1) {
     ActorOverlay* overlayEntry;
     u32 overlaySize;
     s32 i;
@@ -84,6 +84,7 @@ void ActorOverlayTable_FaultPrint(void* arg0, void* arg1) {
                                overlayEntry->name != NULL ? overlayEntry->name : "");
         }
     }
+    return false;
 }
 
 uintptr_t ActorOverlayTable_FaultAddrConv(uintptr_t addr, void* param) {
