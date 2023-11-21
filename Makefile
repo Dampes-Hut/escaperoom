@@ -204,7 +204,7 @@ else
 SRC_DIRS := $(shell find src -type d)
 endif
 
-ASSET_BIN_DIRS := $(shell find assets/* -type d -not -path "assets/xml*" -not -path "assets/text")
+ASSET_BIN_DIRS := $(shell find assets_ours_kkomrade -type d) $(shell find assets/* -type d -not -path "assets/xml*" -not -path "assets/text")
 ASSET_FILES_XML := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.xml))
 ASSET_FILES_BIN := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.bin))
 ASSET_FILES_OUT := $(foreach f,$(ASSET_FILES_XML:.xml=.c),$f) \
@@ -378,7 +378,7 @@ build/assets/text/nes_message_data_static.o: build/assets/text/message_data.enc.
 build/assets/text/staff_message_data_static.o: build/assets/text/message_data_staff.enc.h
 build/src/code/z_message_PAL.o: build/assets/text/message_data.enc.h build/assets/text/message_data_staff.enc.h
 
-build/assets/%.o: assets/%.c
+build/assets%.o: assets%.c
 	$(CC) -c $(CFLAGS) $(MIPS_VERSION) $(OPTFLAGS) -o $@ $<
 	$(OBJCOPY) -O binary $@ $@.bin
 

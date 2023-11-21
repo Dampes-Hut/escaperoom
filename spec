@@ -10412,6 +10412,22 @@ beginseg
 endseg
 
 beginseg
+    name "bed_scene"
+    include "build/assets_ours_kkomrade/maps/bed/bed_scene_main.o"
+    include "build/assets_ours_kkomrade/maps/bed/bed_scene_col.o"
+    include "build/assets_ours_kkomrade/maps/bed/bed_scene_cs_0.o"
+    number 2
+endseg
+
+beginseg
+    name "bed_room_0"
+    include "build/assets_ours_kkomrade/maps/bed/bed_room_0_main.o"
+    include "build/assets_ours_kkomrade/maps/bed/bed_room_0_model.o"
+    include "build/assets_ours_kkomrade/maps/bed/bed_room_0_model_info.o"
+    number 3
+endseg
+
+beginseg
     name "bump_texture_static"
     romalign 0x1000
     include "build/baserom/bump_texture_static.o"
