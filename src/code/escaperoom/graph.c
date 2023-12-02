@@ -320,6 +320,8 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     Sched_Notify(&gScheduler);
 }
 
+void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx);
+
 void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     u32 problem;
 
@@ -337,6 +339,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     GameState_ReqPadData(gameState);
     GameState_Update(gameState);
+    Profiler_UpdateAndDraw(gfxCtx);
 
     OPEN_DISPS(gfxCtx, "../graph.c", 987);
 
