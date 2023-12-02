@@ -256,8 +256,14 @@ typedef struct {
     /* 0x05 */ u8   lensMode;
     /* 0x08 */ RoomShape* roomShape; // original name: "ground_shape"
     /* 0x0C */ void* segment;
+#if 0
     /* 0x10 */ char unk_10[0x4];
 } Room; // size = 0x14
+#endif
+    LightNode* lightList;
+    u32 numLights;
+    u8 usePointLights;
+} Room;
 
 typedef struct {
     /* 0x00 */ Room  curRoom;

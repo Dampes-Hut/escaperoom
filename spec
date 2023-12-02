@@ -334,7 +334,7 @@ beginseg
     include "build/src/code/escaperoom/z_kankyo.o"
     include "build/src/code/z_lib.o"
     include "build/src/code/z_lifemeter.o"
-    include "build/src/code/z_lights.o"
+    include "build/src/code/escaperoom/z_lights.o"
     include "build/src/code/escaperoom/z_malloc.o"
     include "build/src/code/z_map_mark.o"
     include "build/src/code/z_moji.o"

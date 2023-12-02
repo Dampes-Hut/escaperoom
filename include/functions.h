@@ -881,6 +881,7 @@ void Lights_PointSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b,
 void Lights_PointNoGlowSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, s16 radius);
 void Lights_PointGlowSetInfo(LightInfo* info, s16 x, s16 y, s16 z, u8 r, u8 g, u8 b, s16 radius);
 void Lights_PointSetColorAndRadius(LightInfo* info, u8 r, u8 g, u8 b, s16 radius);
+void Lights_PointSetPosition(LightInfo* info, s16 x, s16 y, s16 z);
 void Lights_DirectionalSetInfo(LightInfo* info, s8 x, s8 y, s8 z, u8 r, u8 g, u8 b);
 void Lights_Reset(Lights* lights, u8 ambentR, u8 ambentG, u8 ambentB);
 void Lights_Draw(Lights* lights, GraphicsContext* gfxCtx);
@@ -892,10 +893,16 @@ Lights* LightContext_NewLights(LightContext* lightCtx, GraphicsContext* gfxCtx);
 void LightContext_InitList(PlayState* play, LightContext* lightCtx);
 void LightContext_DestroyList(PlayState* play, LightContext* lightCtx);
 LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, LightInfo* info);
+#if 0
 void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode* node);
 Lights* Lights_NewAndDraw(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambientB, u8 numLights, u8 r, u8 g,
                           u8 b, s8 x, s8 y, s8 z);
 Lights* Lights_New(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambientB);
+#endif
+void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode* light);
+LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* lightList, u32* numLights);
+void LightContext_RemoveLightList(PlayState* play, LightContext* lightCtx, LightNode* firstLight, u32 numLights);
+Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights);
 void Lights_GlowCheck(PlayState* play);
 void Lights_DrawGlow(PlayState* play);
 #if 0

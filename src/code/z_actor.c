@@ -2282,10 +2282,15 @@ void Actor_Draw(PlayState* play, Actor* actor) {
 
     OPEN_DISPS(play->state.gfxCtx, "../z_actor.c", 6035);
 
+#if 0
     lights = LightContext_NewLights(&play->lightCtx, play->state.gfxCtx);
 
     Lights_BindAll(lights, play->lightCtx.listHead, (actor->flags & ACTOR_FLAG_22) ? NULL : &actor->world.pos);
     Lights_Draw(lights, play->state.gfxCtx);
+#endif
+
+    // TODO lighting: toggle real point lights for certain actors?
+    lights = Lights_BindAndDraw(play, (actor->flags & ACTOR_FLAG_22) ? NULL : &actor->world.pos, false);
 
     if (actor->flags & ACTOR_FLAG_IGNORE_QUAKE) {
         Matrix_SetTranslateRotateYXZ(actor->world.pos.x + play->mainCamera.quakeOffset.x,

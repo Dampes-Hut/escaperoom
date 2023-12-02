@@ -32,10 +32,21 @@ typedef struct {
     /* 0x2 */ LightParams params;
 } LightInfo; // size = 0xE
 
+#if 0
 typedef struct Lights {
     /* 0x00 */ u8 numLights;
     /* 0x08 */ Lightsn l;
 } Lights; // size = 0x80
+#endif
+
+// Maximum number of lights supported by the microcode.
+#define MAX_LIGHTS 7
+
+typedef struct Lights {
+    u8 numLights;
+    f32 distances[MAX_LIGHTS];
+    Lightsn l;
+} Lights;
 
 typedef struct LightNode {
     /* 0x0 */ LightInfo* info;
@@ -60,6 +71,11 @@ typedef enum {
     /* 0x02 */ LIGHT_POINT_GLOW
 } LightType;
 
+#if 0
 typedef void (*LightsBindFunc)(Lights* lights, LightParams* params, Vec3f* vec);
+#endif
+
+struct PlayState;
+typedef void (*LightsBindFunc)(Lights* lights, LightParams* params, Vec3f* objPos, struct PlayState* play);
 
 #endif
