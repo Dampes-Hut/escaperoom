@@ -9,7 +9,7 @@ u32 gProfilerEnabled = false;
 static void Profiler_RingBufferUpdate(Profiler* profiler) {
     u32 cur = profiler->bufferIndex;
 
-    profiler->buffer[cur] = profiler->end;
+    profiler->buffer[cur] = profiler->time;
 
     u32 next = cur + 1;
     if (next >= PROF_RINGBUFFER_LEN) {
@@ -24,7 +24,7 @@ static f32 Profiler_CalcFPS(Profiler* profiler) {
         avg += (f32)(u32)profiler->buffer[i];
     }
     // <OSTime[PROF_RINGBUFFER_LEN]> to 1/sec
-    return (93750000 * 0.5f * PROF_RINGBUFFER_LEN) / avg;
+    return (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN) / avg;
 }
 
 static f32 Profiler_CalcUsec(Profiler* profiler) {
@@ -33,7 +33,7 @@ static f32 Profiler_CalcUsec(Profiler* profiler) {
         avg += (f32)(u32)profiler->buffer[i];
     }
     // <OSTime[PROF_RINGBUFFER_LEN]> to usec
-    return 1000000 * (2 * avg) / (93750000 * PROF_RINGBUFFER_LEN);
+    return (1000000 * avg) / (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN);
 }
 
 #define RCP_CYCLES_TO_USEC(c)   (((u64)(c) * (1000000LL / 15625LL)) / (OS_CLOCK_RATE / 15625LL))
@@ -63,7 +63,7 @@ void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx) {
     static Profiler cpuGraphThreadTime;
     static Profiler cpuGraphPeriod;
 
-    static Profiler* sProfilers[] = {
+    static Profiler* sMiscProfilers[] = {
         // FPS
         &fpsProfiler,
 
@@ -75,29 +75,21 @@ void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx) {
         &cpuAudioThreadTime,
         &cpuGraphThreadTime,
         &cpuGraphPeriod,
-
-#define CPU_PROFILERS_START 7
-        // CPU
-        &gPlayUpdateProfiler,
-        //&gCollisionCheckProfiler,
-        &gActorProfiler,
-        //&gEnvironmentProfiler,
-        //&gCameraUpdateProfiler,
-        &gPlayDrawProfiler,
-        //&gSceneRoomDrawProfiler,
-        &gActorDrawProfiler,
-        //&gOverlayElementsDrawProfiler,
     };
-    static const char* sCPUProfilerNames[] = {
-        "Play_Update",
-        //"Collision Check",
-        "Actor_UpdateAll",
-        //"Environment_Update",
-        //"Camera Updates",
-        "Play_Draw",
-        //"Scene/Room Draw",
-        "Actor Drawing",
-        //"Overlay Elements",
+
+    static struct {
+        Profiler* prof;
+        const char* name;
+    } sCpuProfilers[] = {
+        { &gPlayUpdateProfiler, "Play_Update"},
+        // { &gCollisionCheckProfiler, "Collision Check"},
+        { &gActorProfiler, "Actor_UpdateAll"},
+        // { &gEnvironmentProfiler, "Environment_Update"},
+        // { &gCameraUpdateProfiler, "Camera Updates"},
+        { &gPlayDrawProfiler, "Play_Draw"},
+        // { &gSceneRoomDrawProfiler, "Scene/Room Draw"},
+        { &gActorDrawProfiler, "Actor Drawing"},
+        // { &gOverlayElementsDrawProfiler, "Overlay Elements"},
     };
 
     // FPS times
@@ -105,18 +97,21 @@ void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx) {
     Profiler_Start(&fpsProfiler);
 
     // Scheduler times
-    rspGfxProfiler.end = gRSPGfxTimeTotal;
-    rspAudioProfiler.end = gRSPAudioTimeTotal;
-    rdpTotalProfiler.end = gRDPTimeTotal;
+    rspGfxProfiler.time = gRSPGfxTimeTotal;
+    rspAudioProfiler.time = gRSPAudioTimeTotal;
+    rdpTotalProfiler.time = gRDPTimeTotal;
 
     // Thread times
-    cpuAudioThreadTime.end = gAudioThreadUpdateTimeTotalPerGfxTask;
-    cpuGraphThreadTime.end = gGfxTaskSentToNextReadyMinusAudioThreadUpdateTime;
-    cpuGraphPeriod.end = gGraphUpdatePeriod;
+    cpuAudioThreadTime.time = gAudioThreadUpdateTimeTotalPerGfxTask;
+    cpuGraphThreadTime.time = gGfxTaskSentToNextReadyMinusAudioThreadUpdateTime;
+    cpuGraphPeriod.time = gGraphUpdatePeriod;
 
     // Update ringbuffers
-    for (u32 i = 0; i < ARRAY_COUNT(sProfilers); i++) {
-        Profiler_RingBufferUpdate(sProfilers[i]);
+    for (u32 i = 0; i < ARRAY_COUNT(sMiscProfilers); i++) {
+        Profiler_RingBufferUpdate(sMiscProfilers[i]);
+    }
+    for (u32 i = 0; i < ARRAY_COUNT(sCpuProfilers); i++) {
+        Profiler_RingBufferUpdate(sCpuProfilers[i].prof);
     }
 
     // Present
@@ -149,9 +144,9 @@ void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx) {
                     Profiler_CalcUsec(&cpuGraphThreadTime),
                     Profiler_CalcUsec(&cpuGraphPeriod));
 
-    for (u32 i = CPU_PROFILERS_START; i < ARRAY_COUNT(sProfilers); i++) {
+    for (u32 i = 0; i < ARRAY_COUNT(sCpuProfilers); i++) {
         GfxPrint_Printf(&gfxP, "    %s = %.2fus\n",
-                        sCPUProfilerNames[i - CPU_PROFILERS_START], Profiler_CalcUsec(sProfilers[i]));
+                        sCpuProfilers[i].name, Profiler_CalcUsec(sCpuProfilers[i].prof));
     }
 
     GfxPrint_Printf(&gfxP, "\n"

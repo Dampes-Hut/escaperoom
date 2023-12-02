@@ -339,7 +339,9 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     GameState_ReqPadData(gameState);
     GameState_Update(gameState);
+#ifndef NDEBUG
     Profiler_UpdateAndDraw(gfxCtx);
+#endif
 
     OPEN_DISPS(gfxCtx, "../graph.c", 987);
 
