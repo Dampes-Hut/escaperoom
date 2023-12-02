@@ -912,9 +912,9 @@ void Play_Update(PlayState* this) {
                     PLAY_LOG(3637);
 
                     if (!this->haltAllActors) {
-                        Profiler_Start(&gActorProfiler);
+                        Profiler_Start(&gActorUpdateProfiler);
                         Actor_UpdateAll(this, &this->actorCtx);
-                        Profiler_End(&gActorProfiler);
+                        Profiler_End(&gActorUpdateProfiler);
                     }
 
                     PLAY_LOG(3643);

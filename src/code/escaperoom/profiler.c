@@ -19,21 +19,21 @@ static void Profiler_RingBufferUpdate(Profiler* profiler) {
 }
 
 static f32 Profiler_CalcFPS(Profiler* profiler) {
-    f32 avg = 0.0f;
+    f32 sum = 0.0f;
     for (u32 i = 0; i < PROF_RINGBUFFER_LEN; i++) {
-        avg += (f32)(u32)profiler->buffer[i];
+        sum += (f32)(u32)profiler->buffer[i];
     }
     // <OSTime[PROF_RINGBUFFER_LEN]> to 1/sec
-    return (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN) / avg;
+    return (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN) / sum;
 }
 
 static f32 Profiler_CalcUsec(Profiler* profiler) {
-    f32 avg = 0.0f;
+    f32 sum = 0.0f;
     for (u32 i = 0; i < PROF_RINGBUFFER_LEN; i++) {
-        avg += (f32)(u32)profiler->buffer[i];
+        sum += (f32)(u32)profiler->buffer[i];
     }
     // <OSTime[PROF_RINGBUFFER_LEN]> to usec
-    return (1000000 * avg) / (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN);
+    return (1000000 * sum) / (OS_CPU_COUNTER * PROF_RINGBUFFER_LEN);
 }
 
 #define RCP_CYCLES_TO_USEC(c)   (((u64)(c) * (1000000LL / 15625LL)) / (OS_CLOCK_RATE / 15625LL))
@@ -41,7 +41,7 @@ static f32 Profiler_CalcUsec(Profiler* profiler) {
 Profiler gPlayUpdateProfiler;
 
 Profiler gCollisionCheckProfiler;
-Profiler gActorProfiler;
+Profiler gActorUpdateProfiler;
 Profiler gEnvironmentProfiler;
 Profiler gCameraUpdateProfiler;
 
@@ -83,7 +83,7 @@ void Profiler_UpdateAndDraw(GraphicsContext* gfxCtx) {
     } sCpuProfilers[] = {
         { &gPlayUpdateProfiler, "Play_Update"},
         // { &gCollisionCheckProfiler, "Collision Check"},
-        { &gActorProfiler, "Actor_UpdateAll"},
+        { &gActorUpdateProfiler, "Actor_UpdateAll"},
         // { &gEnvironmentProfiler, "Environment_Update"},
         // { &gCameraUpdateProfiler, "Camera Updates"},
         { &gPlayDrawProfiler, "Play_Draw"},

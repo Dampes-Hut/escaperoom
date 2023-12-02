@@ -16,7 +16,7 @@ extern u32 gProfilerEnabled;
 
 extern Profiler gPlayUpdateProfiler;
 extern Profiler gCollisionCheckProfiler;
-extern Profiler gActorProfiler;
+extern Profiler gActorUpdateProfiler;
 extern Profiler gEnvironmentProfiler;
 extern Profiler gCameraUpdateProfiler;
 
