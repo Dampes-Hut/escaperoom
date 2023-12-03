@@ -8,5 +8,6 @@
 #include "escaperoom/malloc.h"
 #include "escaperoom/functions2.h"
 #include "escaperoom/common.h"
+#include "escaperoom/profiler.h"
 
 #endif

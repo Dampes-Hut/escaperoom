@@ -52,6 +52,10 @@ OSTime sRSPAudioTimeStart;
 OSTime sRSPOtherTimeStart;
 OSTime sRDPTimeStart;
 
+u32 gRDPPipeTime;
+u32 gRDPBufTime;
+u32 gRDPTMEMTime;
+
 /**
  * Set the current framebuffer to the swapbuffer pointed to by the provided cfb
  */
@@ -398,6 +402,8 @@ void Sched_RunTask(Scheduler* sc, OSScTask* spTask, OSScTask* dpTask) {
             sRSPAudioTimeStart = osGetTime();
         } else if (spTask->list.t.type == M_GFXTASK) {
             sRSPGfxTimeStart = osGetTime();
+            // Reset RDP timers
+            IO_WRITE(DPC_STATUS_REG, DPC_CLR_CLOCK_CTR | DPC_CLR_PIPE_CTR | DPC_CLR_CMD_CTR | DPC_CLR_TMEM_CTR);
         } else {
             sRSPOtherTimeStart = osGetTime();
         }
@@ -570,6 +576,10 @@ void Sched_HandleRDPDone(Scheduler* sc) {
 
     // Task profiling
     gRDPTimeAcc = osGetTime() - sRDPTimeStart;
+
+    gRDPPipeTime = IO_READ(DPC_PIPEBUSY_REG);
+    gRDPBufTime = IO_READ(DPC_BUFBUSY_REG);
+    gRDPTMEMTime = IO_READ(DPC_TMEM_REG);
 
     // Sanity check
     ASSERT(sc->curRDPTask != NULL, "sc->curRDPTask", "../sched.c", 878);

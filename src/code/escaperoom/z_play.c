@@ -893,6 +893,8 @@ void Play_Update(PlayState* this) {
                     PLAY_LOG(3606);
                     func_800973FC(this, &this->roomCtx);
 
+                    Profiler_Start(&gCollisionCheckProfiler);
+
                     PLAY_LOG(3612);
                     CollisionCheck_AT(this, &this->colChkCtx);
 
@@ -905,10 +907,14 @@ void Play_Update(PlayState* this) {
                     PLAY_LOG(3631);
                     CollisionCheck_ClearContext(this, &this->colChkCtx);
 
+                    Profiler_End(&gCollisionCheckProfiler);
+
                     PLAY_LOG(3637);
 
                     if (!this->haltAllActors) {
+                        Profiler_Start(&gActorUpdateProfiler);
                         Actor_UpdateAll(this, &this->actorCtx);
+                        Profiler_End(&gActorUpdateProfiler);
                     }
 
                     PLAY_LOG(3643);
@@ -1008,6 +1014,8 @@ skip:
 
         PLAY_LOG(3806);
 
+        Profiler_Start(&gCameraUpdateProfiler);
+
         for (i = 0; i < NUM_CAMS; i++) {
             if ((i != this->nextCamId) && (this->cameraPtrs[i] != NULL)) {
                 PLAY_LOG(3809);
@@ -1017,12 +1025,17 @@ skip:
 
         Camera_Update(this->cameraPtrs[this->nextCamId]);
 
+        Profiler_End(&gCameraUpdateProfiler);
+
         PLAY_LOG(3814);
     }
 
     PLAY_LOG(3816);
+
+    Profiler_Start(&gEnvironmentProfiler);
     Environment_Update(this, &this->envCtx, &this->lightCtx, &this->pauseCtx, &this->msgCtx, &this->gameOverCtx,
                        this->state.gfxCtx);
+    Profiler_End(&gEnvironmentProfiler);
 }
 
 void Play_DrawOverlayElements(PlayState* this) {
@@ -1200,6 +1213,8 @@ void Play_Draw(PlayState* this) {
             Environment_DrawLightning(this, 0);
         }
 
+        Profiler_Start(&gSceneRoomDrawProfiler);
+
         if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
             sp228 = LightContext_NewLights(&this->lightCtx, gfxCtx);
             Lights_BindAll(sp228, this->lightCtx.listHead, NULL);
@@ -1221,6 +1236,8 @@ void Play_Draw(PlayState* this) {
             }
         }
 
+        Profiler_End(&gSceneRoomDrawProfiler);
+
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_SKYBOX) {
             if ((this->skyboxCtx.drawType != SKYBOX_DRAW_128) &&
                 (GET_ACTIVE_CAM(this)->setting != CAM_SET_PREREND_FIXED)) {
@@ -1240,9 +1257,13 @@ void Play_Draw(PlayState* this) {
             Environment_FillScreen(gfxCtx, 0, 0, 0, this->bgCoverAlpha, FILL_SCREEN_OPA);
         }
 
+        Profiler_Start(&gActorDrawProfiler);
+
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_ACTORS) {
             func_800315AC(this, &this->actorCtx);
         }
+
+        Profiler_End(&gActorDrawProfiler);
 
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_LENS_FLARES) {
             if (!this->envCtx.sunMoonDisabled) {
@@ -1305,7 +1326,9 @@ void Play_Draw(PlayState* this) {
 
     Play_Draw_DrawOverlayElements:
         if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_DRAW_OVERLAY_ELEMENTS) {
+            Profiler_Start(&gOverlayElementsDrawProfiler);
             Play_DrawOverlayElements(this);
+            Profiler_End(&gOverlayElementsDrawProfiler);
         }
     }
 
@@ -1353,12 +1376,16 @@ void Play_Main(GameState* thisx) {
     }
 
     if ((R_HREG_MODE != HREG_MODE_PLAY) || R_PLAY_RUN_UPDATE) {
+        Profiler_Start(&gPlayUpdateProfiler);
         Play_Update(this);
+        Profiler_End(&gPlayUpdateProfiler);
     }
 
     PLAY_LOG(4583);
 
+    Profiler_Start(&gPlayDrawProfiler);
     Play_Draw(this);
+    Profiler_End(&gPlayDrawProfiler);
 
     PLAY_LOG(4587);
 }
