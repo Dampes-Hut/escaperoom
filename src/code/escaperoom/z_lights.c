@@ -268,10 +268,16 @@ STATIC Light* Lights_FindSlot(Lights* lights, f32 objDist) {
     return &lights->l.l[furthestI];
 }
 
-STATIC void Lights_BindPointWithReference(Lights* lights, LightParams* params, Vec3f* objPos, PlayState* play) {
+STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* restrict params, Vec3f* objPos,
+                                          UNUSED PlayState* play) {
     if (params->point.radius <= 0) {
         return;
     }
+    // Ignore (0,0,0)-colored lights
+    if ((params->point.color[0] | params->point.color[1] | params->point.color[2]) == 0) {
+        return;
+    }
+    f32 radiusF = params->point.radius;
 
     Vec3f posF;
     posF.x = params->point.x;
@@ -284,7 +290,7 @@ STATIC void Lights_BindPointWithReference(Lights* lights, LightParams* params, V
     refDiff.z = posF.z - objPos->z;
 
     f32 refDistSq = SQ(refDiff.x) + SQ(refDiff.y) + SQ(refDiff.z);
-    if (SQ(params->point.radius) <= refDistSq) {
+    if (SQ(radiusF) <= refDistSq) {
         return;
     }
 
@@ -300,7 +306,7 @@ STATIC void Lights_BindPointWithReference(Lights* lights, LightParams* params, V
 
     // Success, build the light structure
 
-    f32 scale = refDist / params->point.radius;
+    f32 scale = refDist / radiusF;
 
     scale = 1 - SQ(scale);
 
@@ -317,11 +323,15 @@ STATIC void Lights_BindPointWithReference(Lights* lights, LightParams* params, V
     light->l.pad1 = 0; // not a point light
 }
 
-STATIC void Lights_BindPoint(Lights* lights, LightParams* params, Vec3f* objPos, PlayState* play) {
-    f32 radiusF = params->point.radius;
-    if (radiusF <= 0) {
+STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict params, Vec3f* objPos, PlayState* play) {
+    if (params->point.radius <= 0) {
         return;
     }
+    // Ignore (0,0,0)-colored lights
+    if ((params->point.color[0] | params->point.color[1] | params->point.color[2]) == 0) {
+        return;
+    }
+    f32 radiusF = params->point.radius;
 
     Vec3f posF;
     posF.x = params->point.x;
@@ -376,8 +386,14 @@ STATIC void Lights_BindPoint(Lights* lights, LightParams* params, Vec3f* objPos,
     light->p.qa = (s32)radiusF;
 }
 
-STATIC void Lights_BindDirectional(Lights* lights, LightParams* params, UNUSED Vec3f* objPos, UNUSED PlayState* play) {
+STATIC void Lights_BindDirectional(Lights* restrict lights, LightParams* restrict params, UNUSED Vec3f* objPos,
+                                   UNUSED PlayState* play) {
     // objPos is ignored for directional lights
+
+    // Ignore (0,0,0)-colored lights
+    if ((params->dir.color[0] | params->dir.color[1] | params->dir.color[2]) == 0) {
+        return;
+    }
 
     // Treat directional lights as being as close as possible to the camera eye so they are always considered
     // (except in the case where there are too many directional lights)
