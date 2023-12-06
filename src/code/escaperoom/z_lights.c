@@ -12,13 +12,14 @@
 
 // Maximum number of lights that can be registered with the system, the 7 (+1 ambient) closest lights to an object's
 // position are then selected from these registered lights to be used in drawing that object.
+// Note this is fixed to 32 unless the occupiedBitSet also changes size.
 #define LIGHTS_BUFFER_SIZE 32
 
-STATIC struct {
-    s32 numOccupied;
-    LightNode* free;
+typedef struct {
+    u32 occupiedBitSet;
     LightNode lights[LIGHTS_BUFFER_SIZE];
-} sLightsBuffer;
+} LightsBuffer;
+STATIC LightsBuffer sLightsBuffer;
 
 #define FOR_EACH_LIGHTNODE(cur, head) \
     for (LightNode* (cur) = (head); (cur) != NULL; (cur) = (cur)->next)
@@ -77,8 +78,7 @@ void LightContext_Init(PlayState* play, LightContext* lightCtx) {
     lightCtx->fogNear = 996;
     lightCtx->zFar = 12800;
 
-    sLightsBuffer.numOccupied = 0;
-    sLightsBuffer.free = &sLightsBuffer.lights[0];
+    sLightsBuffer.occupiedBitSet = 0;
     bzero(&sLightsBuffer.lights, sizeof(sLightsBuffer.lights));
 }
 
@@ -98,34 +98,28 @@ void LightContext_DestroyList(PlayState* play, LightContext* lightCtx) {
  * it's too large a change currently to completely redo this.
  */
 STATIC LightNode* Lights_FindBufSlot(void) {
-    if (sLightsBuffer.numOccupied >= LIGHTS_BUFFER_SIZE) {
+    static_assert(LIGHTS_BUFFER_SIZE == 32, "Bitset handling assumes the light buffer is 32 entries large.");
+
+    u32 bitset = sLightsBuffer.occupiedBitSet;
+
+    if (bitset == 0xFFFFFFFF) {
         // No free slots
         return NULL;
     }
 
-    // Guaranteed to be free (tm) if the buffer is not full
-    LightNode* light = sLightsBuffer.free;
+    // Find the first zero
+    u32 i = 0;
+    while (bitset & 1) {
+        bitset >>= 1;
+        i++;
+    }
+
+    // Get the light, should be free
+    LightNode* light = &sLightsBuffer.lights[i];
     assert(light->info == NULL);
 
-    sLightsBuffer.numOccupied++;
-
-    // If we search for a free slot in a full buffer we'd get an infinite loop, the downside is this leaves the free
-    // pointer dangling until a slot becomes free. Should be fine since we check if the buffer is full earlier..
-    if (sLightsBuffer.numOccupied < LIGHTS_BUFFER_SIZE) {
-        // Search the buffer for the next free slot (that is not the slot we are about to return)
-        // The wrapping behavior may be concerning, as we might wrap back to the slot we are about to return, however
-        // there exists at least one other empty slot that will be found before then, as the buffer is not full.
-        do {
-            sLightsBuffer.free++;
-            if (sLightsBuffer.free >= &sLightsBuffer.lights[LIGHTS_BUFFER_SIZE]) {
-                // Overran the buffer, return to the start of the buffer and keep searching
-                sLightsBuffer.free = &sLightsBuffer.lights[0];
-            }
-            // Continue until we find the next empty slot
-        } while (sLightsBuffer.free->info != NULL);
-
-        assert(sLightsBuffer.free->info == NULL);
-    }
+    // Mark it as occupied
+    sLightsBuffer.occupiedBitSet |= 1 << i;
     return light;
 }
 
@@ -166,6 +160,9 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
         return;
     }
 
+    // The light pointer must be in the lights buffer
+    assert(light >= &sLightsBuffer.lights[0] && light < &sLightsBuffer.lights[LIGHTS_BUFFER_SIZE]);
+
     // Unlink
     if (light->prev != NULL) {
         light->prev->next = light->next;
@@ -179,12 +176,9 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
     // Unbind light info
     light->info = NULL;
 
-    // Update lights buffer
-    sLightsBuffer.numOccupied--;
-    // Move the free pointer to the most recently removed light, this kind-of wastes some of the effort we go through
-    // when inserting a light to set the free pointer however it is expected that lights are added in bulk and removed
-    // in bulk rather than additions and removals being interleaved repeatedly.
-    sLightsBuffer.free = light;
+    // Mark not occupied
+    u32 i = light - &sLightsBuffer.lights[0];
+    sLightsBuffer.occupiedBitSet &= ~(1 << i);
 }
 
 /**
