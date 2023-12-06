@@ -162,6 +162,11 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 
     // The light pointer must be in the lights buffer
     assert(light >= &sLightsBuffer.lights[0] && light < &sLightsBuffer.lights[LIGHTS_BUFFER_SIZE]);
+    // Index in the light buffer
+    u32 i = light - &sLightsBuffer.lights[0];
+
+    // Check for double free
+    assert(light->info != NULL && (sLightsBuffer.occupiedBitSet & (1 << i)));
 
     // Unlink
     if (light->prev != NULL) {
@@ -175,9 +180,7 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 
     // Unbind light info
     light->info = NULL;
-
     // Mark not occupied
-    u32 i = light - &sLightsBuffer.lights[0];
     sLightsBuffer.occupiedBitSet &= ~(1 << i);
 }
 
