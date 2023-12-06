@@ -2289,9 +2289,6 @@ void Actor_Draw(PlayState* play, Actor* actor) {
     Lights_Draw(lights, play->state.gfxCtx);
 #endif
 
-    // TODO lighting: toggle real point lights for certain actors?
-    lights = Lights_BindAndDraw(play, (actor->flags & ACTOR_FLAG_22) ? NULL : &actor->world.pos, false);
-
     if (actor->flags & ACTOR_FLAG_IGNORE_QUAKE) {
         Matrix_SetTranslateRotateYXZ(actor->world.pos.x + play->mainCamera.quakeOffset.x,
                                      actor->world.pos.y +
@@ -2307,6 +2304,9 @@ void Actor_Draw(PlayState* play, Actor* actor) {
 
     gSPSegment(POLY_OPA_DISP++, 0x06, play->objectCtx.slots[actor->objectSlot].segment);
     gSPSegment(POLY_XLU_DISP++, 0x06, play->objectCtx.slots[actor->objectSlot].segment);
+
+    // TODO lighting: toggle real point lights for certain actors?
+    lights = Lights_BindAndDraw(play, (actor->flags & ACTOR_FLAG_22) ? NULL : &actor->world.pos, false);
 
     if (actor->colorFilterTimer != 0) {
         Color_RGBA8 color = { 0, 0, 0, 255 };
@@ -2339,6 +2339,8 @@ void Actor_Draw(PlayState* play, Actor* actor) {
     if (actor->shape.shadowDraw != NULL) {
         actor->shape.shadowDraw(actor, lights, play);
     }
+
+    Lights_Pop(play);
 
     CLOSE_DISPS(play->state.gfxCtx, "../z_actor.c", 6119);
 

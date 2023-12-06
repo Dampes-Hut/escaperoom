@@ -903,6 +903,7 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* lightList, u32* numLights);
 void LightContext_RemoveLightList(PlayState* play, LightContext* lightCtx, LightNode* firstLight, u32 numLights);
 Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights);
+void Lights_Pop(PlayState* play);
 void Lights_GlowCheck(PlayState* play);
 void Lights_DrawGlow(PlayState* play);
 #if 0

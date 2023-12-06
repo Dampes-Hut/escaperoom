@@ -355,6 +355,8 @@ void EffectSs_DrawAll(PlayState* play) {
             }
         }
     }
+
+    Lights_Pop(play);
 }
 
 /**

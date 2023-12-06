@@ -541,6 +541,45 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
     return lights;
 }
 
+STATIC void Lights_PopOne(Gfx* dl) {
+#define GBI_IS_NOOP(gW0)        (((gW0) >> 24) == G_NOOP)
+#define GBI_IS_LIGHTS(gW0)      (((gW0) & 0xFFFF00FF) == (((Gfx)gsSPLight(0,0)).words.w0 & 0xFFFF00FF))
+#define GBI_IS_NUMLIGHTS(gW0)   ((gW0) == ((Gfx)gsSPNumLights(0)).words.w0)
+
+    dl--;
+    u32 gW0 = dl->words.w0;
+
+    if (GBI_IS_NOOP(gW0)) {
+        // gsDPNoOpCloseDisp
+        // ignore
+        dl--;
+        gW0 = dl->words.w0;
+    }
+
+    while (GBI_IS_LIGHTS(gW0)) {
+        // gsSPLight
+        // replace with no-op
+        gDPNoOpHere(dl, __FILE__, __LINE__);
+
+        dl--;
+        gW0 = dl->words.w0;
+    }
+
+    if (GBI_IS_NUMLIGHTS(gW0)) {
+        // gsSPNumLights
+        // replace with no-op
+        gDPNoOpHere(dl, __FILE__, __LINE__);
+    }
+}
+
+/**
+ * Deletes lights assignments that were not used from the previous Lights_BindAndDraw call
+ */
+void Lights_Pop(PlayState* play) {
+    Lights_PopOne(play->state.gfxCtx->polyOpa.p);
+    Lights_PopOne(play->state.gfxCtx->polyXlu.p);
+}
+
 void Lights_GlowCheck(PlayState* play) {
     FOR_EACH_LIGHTNODE(lightNode, play->lightCtx.listHead) {
         if (lightNode->info->type != LIGHT_POINT_GLOW) {

@@ -1238,11 +1238,16 @@ void Play_Draw(PlayState* this) {
                     // Need to re-bind lights if one room has point lights and the other doesn't
 
                     if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
+                        Lights_Pop(this);
                         Lights_BindAndDraw(this, NULL, this->roomCtx.prevRoom.usePointLights);
                     }
                 }
 
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
+
+                if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
+                    Lights_Pop(this);
+                }
             }
         }
 
