@@ -2145,8 +2145,342 @@ s32 Math3D_YZInSphere(Sphere16* sphere, f32 y, f32 z) {
     return false;
 }
 
-void Math3D_DrawSphere(PlayState* play, Sphere16* sph) {
+#include "alloca.h"
+
+Gfx gPolySetupDL[] = {
+    gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_LIGHTING),
+    gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_OFF),
+    gsDPPipeSync(),
+    gsDPSetOtherMode(G_AD_PATTERN | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_NONE | G_TL_TILE |
+                        G_TD_CLAMP | G_TP_PERSP | G_CYC_1CYCLE | G_PM_NPRIMITIVE,
+                     G_AC_NONE | G_ZS_PIXEL | G_RM_ZB_XLU_SURF | G_RM_ZB_XLU_SURF2),
+    gsDPSetCombineLERP(PRIMITIVE, 0, SHADE, 0, 0, 0, 0, PRIMITIVE,
+                       PRIMITIVE, 0, SHADE, 0, 0, 0, 0, PRIMITIVE),
+    gsSPEndDisplayList(),
+};
+
+#define gdSPDefVtxN(x, y, z, s, t, nx, ny, nz, ca)  \
+    ((Vtx){ .n = {                                  \
+        .ob = { (x), (y), (z) },                    \
+        .tc = { (s) * 32, (t) * 32 },               \
+        .n = { (nx), (ny), (nz) },                  \
+        .a = (ca),                                  \
+    }})
+
+void Math3D_IcoSphSubdivideEdge(Vec3f* r, Vec3f* a, Vec3f* b) {
+    Math_Vec3f_Sum(a, b, r);
+    Math_Vec3f_Scale(r, 1.0f / Math3D_Vec3fMagnitude(r));
 }
 
-void Math3D_DrawCylinder(PlayState* play, Cylinder16* cyl) {
+void Math3D_DrawSphere(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Sphere16* sph) {
+    static Vtx sphVtx[42];
+    static Gfx sphGfx[45];
+    static u8 init = false;
+
+    if (!init) {
+        // Build Vertices
+
+        Vec3f* vtx = alloca(sizeof(Vec3f[ARRAY_COUNT(sphVtx)]));
+
+        s32 r0n = 1,  r0m = r0n / 5, r0i = 0    + 0;
+        s32 r1n = 5,  r1m = r1n / 5, r1i = r0i + r0n;
+        s32 r2n = 10, r2m = r2n / 5, r2i = r1i + r1n;
+        s32 r3n = 10, r3m = r3n / 5, r3i = r2i + r2n;
+        s32 r4n = 10, r4m = r4n / 5, r4i = r3i + r3n;
+        s32 r5n = 5,  r5m = r5n / 5, r5i = r4i + r4n;
+        s32 r6n = 1,  r6m = r6n / 5, r6i = r5i + r5n;
+
+        vtx[r0i + (0 * r0m + 0) % r0n] = (Vec3f){0.0f, 1.0f, 0.0f};
+        vtx[r6i + (0 * r6m + 0) % r6n] = (Vec3f){0.0f, -1.0f, 0.0f};
+        for (s32 i = 0; i < 5; ++i) {
+            f32 aXZ = 2.0f * M_PI / 10.0f;
+            f32 aY = 0.463647609f; // Math_FAtanF(1.0f / 2.0f);
+            f32 caY = cosf(aY);
+            f32 saY = sinf(aY);
+
+            s32 j;
+
+            j = r2i + (i * r2m + 0) % r2n;
+            vtx[j].x = cosf(aXZ * (i * r2m + 0)) * caY;
+            vtx[j].y = saY;
+            vtx[j].z = -sinf(aXZ * (i * r2m + 0)) * caY;
+
+            j = r4i + (i * r4m + 0) % r4n;
+            vtx[j].x = cosf(aXZ * (i * r4m + 1)) * caY;
+            vtx[j].y = -saY;
+            vtx[j].z = -sinf(aXZ * (i * r4m + 1)) * caY;
+        }
+
+        for (s32 i = 0; i < 5; ++i) {
+            Math3D_IcoSphSubdivideEdge(&vtx[r1i + (i * r1m + 0) % r1n],
+                                       &vtx[r0i + (i * r0m + 0) % r0n],
+                                       &vtx[r2i + (i * r2m + 0) % r2n]);
+            Math3D_IcoSphSubdivideEdge(&vtx[r2i + (i * r2m + 1) % r2n],
+                                       &vtx[r2i + (i * r2m + 0) % r2n],
+                                       &vtx[r2i + (i * r2m + 2) % r2n]);
+            Math3D_IcoSphSubdivideEdge(&vtx[r3i + (i * r3m + 0) % r3n],
+                                       &vtx[r2i + (i * r2m + 0) % r2n],
+                                       &vtx[r4i + (i * r4m + 0) % r4n]);
+            Math3D_IcoSphSubdivideEdge(&vtx[r3i + (i * r3m + 1) % r3n],
+                                       &vtx[r4i + (i * r4m + 0) % r4n],
+                                       &vtx[r2i + (i * r2m + 2) % r2n]);
+            Math3D_IcoSphSubdivideEdge(&vtx[r4i + (i * r4m + 1) % r4n],
+                                       &vtx[r4i + (i * r4m + 0) % r4n],
+                                       &vtx[r4i + (i * r4m + 2) % r4n]);
+            Math3D_IcoSphSubdivideEdge(&vtx[r5i + (i * r5m + 0) % r5n],
+                                       &vtx[r4i + (i * r4m + 0) % r4n],
+                                       &vtx[r6i + (i * r6m + 0) % r6n]);
+        }
+
+        for (s32 i = 0; i < ARRAY_COUNT(sphVtx); i++) {
+            sphVtx[i].n.ob[0] = Math_FFloorF(0.5f + vtx[i].x * 128.0f);
+            sphVtx[i].n.ob[1] = Math_FFloorF(0.5f + vtx[i].y * 128.0f);
+            sphVtx[i].n.ob[2] = Math_FFloorF(0.5f + vtx[i].z * 128.0f);
+            sphVtx[i].n.flag = 0;
+            sphVtx[i].n.tc[0] = 0;
+            sphVtx[i].n.tc[1] = 0;
+            sphVtx[i].n.n[0] = vtx[i].x * 127.0f;
+            sphVtx[i].n.n[1] = vtx[i].y * 127.0f;
+            sphVtx[i].n.n[2] = vtx[i].z * 127.0f;
+            sphVtx[i].n.a = 0xFF;
+        }
+
+        // Build Display List
+
+        Gfx* sphGfxP = sphGfx;
+
+        gSPSetGeometryMode(sphGfxP++, G_CULL_BACK | G_SHADING_SMOOTH);
+
+        gSPVertex(sphGfxP++, &sphVtx[r0i], r0n + r1n + r2n + r3n, r0i - r0i);
+        r3i -= r0i;
+        r2i -= r0i;
+        r1i -= r0i;
+        r0i -= r0i;
+        for (s32 i = 0; i < 5; ++i) {
+            s32 v[24] = {
+                r0i + (i * r0m + 0) % r0n,
+                r1i + (i * r1m + 0) % r1n,
+                r1i + (i * r1m + 1) % r1n,
+
+                r1i + (i * r1m + 0) % r1n,
+                r2i + (i * r2m + 0) % r2n,
+                r2i + (i * r2m + 1) % r2n,
+
+                r1i + (i * r1m + 0) % r1n,
+                r2i + (i * r2m + 1) % r2n,
+                r1i + (i * r1m + 1) % r1n,
+
+                r1i + (i * r1m + 1) % r1n,
+                r2i + (i * r2m + 1) % r2n,
+                r2i + (i * r2m + 2) % r2n,
+
+                r2i + (i * r2m + 0) % r2n,
+                r3i + (i * r3m + 0) % r3n,
+                r2i + (i * r2m + 1) % r2n,
+
+                r2i + (i * r2m + 1) % r2n,
+                r3i + (i * r3m + 0) % r3n,
+                r3i + (i * r3m + 1) % r3n,
+
+                r2i + (i * r2m + 1) % r2n,
+                r3i + (i * r3m + 1) % r3n,
+                r2i + (i * r2m + 2) % r2n,
+
+                r2i + (i * r2m + 2) % r2n,
+                r3i + (i * r3m + 1) % r3n,
+                r3i + (i * r3m + 2) % r3n,
+            };
+            gSP2Triangles(sphGfxP++, v[0],  v[1],  v[2],  0,
+                                     v[3],  v[4],  v[5],  0);
+            gSP2Triangles(sphGfxP++, v[6],  v[7],  v[8],  0,
+                                     v[9],  v[10], v[11], 0);
+            gSP2Triangles(sphGfxP++, v[12], v[13], v[14], 0,
+                                     v[15], v[16], v[17], 0);
+            gSP2Triangles(sphGfxP++, v[18], v[19], v[20], 0,
+                                     v[21], v[22], v[23], 0);
+        }
+
+        gSPVertex(sphGfxP++, &sphVtx[r4i], r4n + r5n + r6n, r4i - r4i);
+        r6i -= r4i;
+        r5i -= r4i;
+        r4i -= r4i;
+        for (s32 i = 0; i < 5; ++i) {
+            s32 v[24] = {
+                r3i + (i * r3m + 1) % r3n,
+                r4i + (i * r4m + 0) % r4n,
+                r4i + (i * r4m + 1) % r4n,
+
+                r3i + (i * r3m + 1) % r3n,
+                r4i + (i * r4m + 1) % r4n,
+                r3i + (i * r3m + 2) % r3n,
+
+                r3i + (i * r3m + 2) % r3n,
+                r4i + (i * r4m + 1) % r4n,
+                r4i + (i * r4m + 2) % r4n,
+
+                r3i + (i * r3m + 2) % r3n,
+                r4i + (i * r4m + 2) % r4n,
+                r3i + (i * r3m + 3) % r3n,
+
+                r4i + (i * r4m + 0) % r4n,
+                r5i + (i * r5m + 0) % r5n,
+                r4i + (i * r4m + 1) % r4n,
+
+                r4i + (i * r4m + 1) % r4n,
+                r5i + (i * r5m + 0) % r5n,
+                r5i + (i * r5m + 1) % r5n,
+
+                r4i + (i * r4m + 1) % r4n,
+                r5i + (i * r5m + 1) % r5n,
+                r4i + (i * r4m + 2) % r4n,
+
+                r5i + (i * r5m + 0) % r5n,
+                r6i + (i * r6m + 0) % r6n,
+                r5i + (i * r5m + 1) % r5n,
+            };
+            gSP2Triangles(sphGfxP++, v[0],  v[1],  v[2],  0,
+                                     v[3],  v[4],  v[5],  0);
+            gSP2Triangles(sphGfxP++, v[6],  v[7],  v[8],  0,
+                                     v[9],  v[10], v[11], 0);
+            gSP2Triangles(sphGfxP++, v[12], v[13], v[14], 0,
+                                     v[15], v[16], v[17], 0);
+            gSP2Triangles(sphGfxP++, v[18], v[19], v[20], 0,
+                                     v[21], v[22], v[23], 0);
+        }
+        gSPClearGeometryMode(sphGfxP++, G_CULL_BACK | G_SHADING_SMOOTH);
+        gSPEndDisplayList(sphGfxP++);
+
+        init = true;
+    }
+
+    f32 radius = sph->radius / 128.0f;
+    if (sph->radius == 0) {
+        // make zero-radius spheres tiny
+        radius = 0.75f / 128.0f;
+    }
+
+    Matrix_Translate(sph->center.x, sph->center.y, sph->center.z, MTXMODE_NEW);
+    Matrix_Scale(radius, radius, radius, MTXMODE_APPLY);
+
+    gSPMatrix((*gfxP)++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPDisplayList((*gfxP)++, sphGfx);
+}
+
+void Math3D_DrawCylinder(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Cylinder16* cyl) {
+#define CYL_DIVS 12
+    static Gfx cylGfx[5 + CYL_DIVS * 2];
+    static Vtx cylVtx[2 + CYL_DIVS * 2];
+    static u8 init = false;
+
+    if (!init) {
+        // Build Vertices
+
+        cylVtx[0] = gdSPDefVtxN(0, 0,   0, 0, 0, 0, -127, 0, 255);
+        cylVtx[1] = gdSPDefVtxN(0, 128, 0, 0, 0, 0, 127,  0, 255);
+        for (s32 i = 0; i < CYL_DIVS; i++) {
+            f32 cos = cosf(2.0f * M_PI * i / CYL_DIVS);
+            f32 sin = sinf(2.0f * M_PI * i / CYL_DIVS);
+
+            s32 vtx_x = floorf(0.5f + cos * 128.0f);
+            s32 vtx_z = floorf(0.5f - sin * 128.0f);
+            s32 norm_x = cos * 127.0f;
+            s32 norm_z = -sin * 127.0f;
+            cylVtx[2 + i * 2 + 0] = gdSPDefVtxN(vtx_x, 0,   vtx_z, 0, 0, norm_x, 0, norm_z, 255);
+            cylVtx[2 + i * 2 + 1] = gdSPDefVtxN(vtx_x, 128, vtx_z, 0, 0, norm_x, 0, norm_z, 255);
+        }
+
+        // Build Display List
+
+        Gfx* cylGfxP = cylGfx;
+
+        gSPSetGeometryMode(cylGfxP++, G_CULL_BACK | G_SHADING_SMOOTH);
+        gSPVertex(cylGfxP++, cylVtx, 2 + CYL_DIVS * 2, 0);
+        for (s32 i = 0; i < CYL_DIVS; i++) {
+            s32 p = (i + CYL_DIVS - 1) % CYL_DIVS;
+            s32 v[4] = {
+                2 + p * 2 + 0,
+                2 + i * 2 + 0,
+                2 + i * 2 + 1,
+                2 + p * 2 + 1,
+            };
+            gSP2Triangles(cylGfxP++, v[0], v[1], v[2], 0, v[0], v[2], v[3], 0);
+        }
+        gSPClearGeometryMode(cylGfxP++, G_SHADING_SMOOTH);
+        for (s32 i = 0; i < CYL_DIVS; i++) {
+            s32 p = (i + CYL_DIVS - 1) % CYL_DIVS;
+            s32 v[4] = {
+                2 + p * 2 + 0,
+                2 + i * 2 + 0,
+                2 + i * 2 + 1,
+                2 + p * 2 + 1,
+            };
+            gSP2Triangles(cylGfxP++, 0, v[1], v[0], 0, 1, v[3], v[2], 0);
+        }
+        gSPClearGeometryMode(cylGfxP++, G_CULL_BACK);
+        gSPEndDisplayList(cylGfxP++);
+
+        init = true;
+    }
+#undef CYL_DIVS
+
+    f32 radius = cyl->radius / 128.0f;
+    if (cyl->radius == 0) {
+        // make zero-radius cylinders tiny
+        radius = 0.75f / 128.0f;
+    }
+
+    f32 height = cyl->height / 128.0f;
+    if (cyl->height == 0) {
+        // make zero-height cylinders tiny
+        height = 0.75f / 128.0f;
+    }
+
+    Matrix_Translate(cyl->pos.x, cyl->pos.y + cyl->yShift, cyl->pos.z, MTXMODE_NEW);
+    Matrix_Scale(radius, height, radius, MTXMODE_APPLY);
+
+    gSPMatrix((*gfxP)++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPDisplayList((*gfxP)++, cylGfx);
+}
+
+void Math3D_DrawTri(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, TriNorm* tri) {
+    Vtx* vtx = Graph_Alloc(gfxCtx, 3 * sizeof(Vtx));
+
+    s16 nx = tri->plane.normal.x * 127.0f;
+    s16 ny = tri->plane.normal.y * 127.0f;
+    s16 nz = tri->plane.normal.z * 127.0f;
+
+    for (u32 i = 0; i < 3; i++) {
+        vtx[i] = gdSPDefVtxN(tri->vtx[i].x, tri->vtx[i].y, tri->vtx[i].z, 0,0, nx, ny, nz, 0xFF);
+    }
+
+    gSPMatrix((*gfxP)++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPVertex((*gfxP)++, vtx, 3, 0);
+    gSP1Triangle((*gfxP)++, 0, 1, 2, 0);
+}
+
+void Math3D_DrawQuad(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Vec3f quad[4]) {
+    Vtx* vtx = Graph_Alloc(gfxCtx, 4 * sizeof(Vtx));
+
+    Vec3f normal;
+    Math3D_SurfaceNorm(&quad[0], &quad[1], &quad[3], &normal);
+
+    s16 nx = 0;
+    s16 ny = 0;
+    s16 nz = 0;
+
+    f32 magSq = SQ(normal.x) + SQ(normal.y) + SQ(normal.z);
+    if (!IS_ZERO(magSq)) {
+        f32 invMag = 127.0f / sqrtf(magSq);
+        nx = normal.x * invMag;
+        ny = normal.y * invMag;
+        nz = normal.z * invMag;
+    }
+
+    for (u32 i = 0; i < 4; i++) {
+        vtx[i] = gdSPDefVtxN(quad[i].x, quad[i].y, quad[i].z, 0,0, nx, ny, nz, 0xFF);
+    }
+
+    gSPMatrix((*gfxP)++, &gMtxClear, G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gSPVertex((*gfxP)++, vtx, 4, 0);
+    gSP2Triangles((*gfxP)++, 0, 1, 2, 0, 1, 3, 2, 0);
 }

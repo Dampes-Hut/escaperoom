@@ -1197,41 +1197,47 @@ void CollisionCheck_DisableSAC(PlayState* play, CollisionCheckContext* colChkCtx
  * Draws a collider of any shape.
  * Math3D_DrawSphere and Math3D_DrawCylinder are noops, so JntSph and Cylinder are not drawn.
  */
-void Collider_Draw(PlayState* play, Collider* collider) {
+void Collider_Draw(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Collider* collider) {
     ColliderJntSph* jntSph;
     ColliderCylinder* cylinder;
     ColliderTris* tris;
     ColliderQuad* quad;
+    ColliderSphere* sphere;
     s32 i;
 
     if (collider == NULL) {
         return;
     }
+
     switch (collider->shape) {
         case COLSHAPE_JNTSPH:
             jntSph = (ColliderJntSph*)collider;
             for (i = 0; i < jntSph->count; i++) {
-                Math3D_DrawSphere(play, &jntSph->elements[i].dim.worldSphere);
+                Math3D_DrawSphere(gfxCtx, gfxP, &jntSph->elements[i].dim.worldSphere);
             }
             break;
         case COLSHAPE_CYLINDER:
             cylinder = (ColliderCylinder*)collider;
-            Math3D_DrawCylinder(play, &cylinder->dim);
+            Math3D_DrawCylinder(gfxCtx, gfxP, &cylinder->dim);
             break;
         case COLSHAPE_TRIS:
             tris = (ColliderTris*)collider;
             for (i = 0; i < tris->count; i++) {
-                Collider_DrawRedPoly(play->state.gfxCtx, &tris->elements[i].dim.vtx[0], &tris->elements[i].dim.vtx[1],
-                                     &tris->elements[i].dim.vtx[2]);
+                Math3D_DrawTri(gfxCtx, gfxP, &tris->elements[i].dim);
             }
             break;
         case COLSHAPE_QUAD:
             quad = (ColliderQuad*)collider;
-            Collider_DrawRedPoly(play->state.gfxCtx, &quad->dim.quad[2], &quad->dim.quad[3], &quad->dim.quad[1]);
-            Collider_DrawRedPoly(play->state.gfxCtx, &quad->dim.quad[1], &quad->dim.quad[0], &quad->dim.quad[2]);
+            Math3D_DrawQuad(gfxCtx, gfxP, quad->dim.quad);
+            break;
+        case COLSHAPE_SPHERE:
+            sphere = (ColliderSphere*)collider;
+            Math3D_DrawSphere(gfxCtx, gfxP, &sphere->dim.worldSphere);
             break;
     }
 }
+
+extern Gfx gPolySetupDL[];
 
 /**
  * Draws collision if AREG(15) and other AREGs are set. AREG(21) draws AT colliders, AREG(22) draws AC colliders,
@@ -1242,30 +1248,46 @@ void CollisionCheck_DrawCollision(PlayState* play, CollisionCheckContext* colChk
     s32 i;
 
     if (AREG(15)) {
-        if (AREG(21)) {
-            for (i = 0; i < colChkCtx->colATCount; i++) {
-                Collider_Draw(play, colChkCtx->colAT[i]);
-            }
-        }
-        if (AREG(22)) {
-            for (i = 0; i < colChkCtx->colACCount; i++) {
-                Collider_Draw(play, colChkCtx->colAC[i]);
-            }
-        }
+        OPEN_DISPS(play->state.gfxCtx);
+
+        gSPDisplayList(POLY_XLU_DISP++, gPolySetupDL);
+
         if (AREG(23)) {
+            gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 255, 255, 128);
+
             for (i = 0; i < colChkCtx->colOCCount; i++) {
                 collider = colChkCtx->colOC[i];
                 if (collider->ocFlags1 & OC1_ON) {
-                    Collider_Draw(play, collider);
+                    Collider_Draw(play->state.gfxCtx, &POLY_XLU_DISP, collider);
                 }
             }
         }
+
+        if (AREG(22)) {
+            gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 0, 0, 255, 128);
+
+            for (i = 0; i < colChkCtx->colACCount; i++) {
+                Collider_Draw(play->state.gfxCtx, &POLY_XLU_DISP, colChkCtx->colAC[i]);
+            }
+        }
+
+        if (AREG(21)) {
+            gDPSetPrimColor(POLY_XLU_DISP++, 0, 0, 255, 0, 0, 128);
+
+            for (i = 0; i < colChkCtx->colATCount; i++) {
+                Collider_Draw(play->state.gfxCtx, &POLY_XLU_DISP, colChkCtx->colAT[i]);
+            }
+        }
+
         if (AREG(24)) {
             BgCheck_DrawDynaCollision(play, &play->colCtx);
         }
+
         if (AREG(25)) {
             BgCheck_DrawStaticCollision(play, &play->colCtx);
         }
+
+        CLOSE_DISPS(play->state.gfxCtx);
     }
 }
 
