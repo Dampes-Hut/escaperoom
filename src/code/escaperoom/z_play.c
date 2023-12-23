@@ -1215,12 +1215,6 @@ void Play_Draw(PlayState* this) {
 
         Profiler_Start(&gSceneRoomDrawProfiler);
 
-        if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
-            sp228 = LightContext_NewLights(&this->lightCtx, gfxCtx);
-            Lights_BindAll(sp228, this->lightCtx.listHead, NULL);
-            Lights_Draw(sp228, gfxCtx);
-        }
-
         if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ROOM_FLAGS != 0)) {
             if (VREG(94) == 0) {
                 s32 roomDrawFlags;
@@ -1231,8 +1225,29 @@ void Play_Draw(PlayState* this) {
                     roomDrawFlags = R_PLAY_DRAW_ROOM_FLAGS;
                 }
                 Scene_Draw(this);
+
+                if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
+                    Lights_BindAndDraw(this, NULL, this->roomCtx.curRoom.usePointLights);
+                }
+
                 Room_Draw(this, &this->roomCtx.curRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
+
+                if (this->roomCtx.curRoom.usePointLights != this->roomCtx.prevRoom.usePointLights &&
+                    this->roomCtx.prevRoom.segment != NULL) {
+
+                    // Need to re-bind lights if one room has point lights and the other doesn't
+
+                    if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
+                        Lights_Pop(this);
+                        Lights_BindAndDraw(this, NULL, this->roomCtx.prevRoom.usePointLights);
+                    }
+                }
+
                 Room_Draw(this, &this->roomCtx.prevRoom, roomDrawFlags & (ROOM_DRAW_OPA | ROOM_DRAW_XLU));
+
+                if ((R_HREG_MODE != HREG_MODE_PLAY) || (R_PLAY_DRAW_ENV_FLAGS & PLAY_ENV_DRAW_LIGHTS)) {
+                    Lights_Pop(this);
+                }
             }
         }
 

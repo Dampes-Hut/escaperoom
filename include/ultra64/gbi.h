@@ -12,6 +12,7 @@
 
 #ifndef F3DEX_GBI
  #define F3DEX_GBI_2
+ #define F3DEX_GBI_PL   /* Point Lights */
 #endif
 
 #ifdef    F3DEX_GBI_2
@@ -290,6 +291,9 @@
 #define G_TEXTURE_GEN           0x00040000
 #define G_TEXTURE_GEN_LINEAR    0x00080000
 #define G_LOD                   0x00100000  /* NOT IMPLEMENTED */
+#ifdef F3DEX_GBI_PL
+# define G_LIGHTING_POSITIONAL  0x00400000
+#endif
 #if (defined(F3DEX_GBI) || defined(F3DLP_GBI))
 # define G_CLIPPING             0x00800000
 #else
@@ -302,6 +306,9 @@
 #define G_TEXTURE_GEN_H         (G_TEXTURE_GEN/0x10000)
 #define G_TEXTURE_GEN_LINEAR_H  (G_TEXTURE_GEN_LINEAR/0x10000)
 #define G_LOD_H                 (G_LOD/0x10000) /* NOT IMPLEMENTED */
+#ifdef F3DEX_GBI_PL
+# define G_LIGHTING_POSITIONAL_H    (G_LIGHTING_POSITIONAL/0x10000)
+#endif
 # if (defined(F3DEX_GBI) || defined(F3DLP_GBI))
 #  define G_CLIPPING_H          (G_CLIPPING/0x10000)
 # endif
@@ -1324,9 +1331,23 @@ typedef struct {
     int y2;
 } Hilite_t;
 
+#ifdef F3DEX_GBI_PL
+typedef struct {
+    unsigned char   col[3];     /* diffuse light value (rgba) */
+    unsigned char   ca;         /* constant attenuation */
+    unsigned char   colc[3];    /* copy of diffuse light value (rgba) */
+    unsigned char   la;         /* linear attenuation */
+    signed short    pos[3];     /* position of light */
+    unsigned char   qa;         /* quadratic attenuation */
+} PointLight_t;
+#endif
+
 typedef union {
-    Light_t l;
-    long long int force_structure_alignment[2];
+    Light_t         l;
+#ifdef F3DEX_GBI_PL
+    PointLight_t    p;
+#endif
+    long long int   force_structure_alignment[2];
 } Light;
 
 typedef union {

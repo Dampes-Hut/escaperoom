@@ -1,3 +1,4 @@
+#if 0
 #include "global.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 
@@ -398,3 +399,4 @@ void Lights_DrawGlow(PlayState* play) {
 
     CLOSE_DISPS(play->state.gfxCtx, "../z_lights.c", 927);
 }
+#endif
