@@ -467,7 +467,7 @@ s32 Collider_InitAndSetJntSph(PlayState* play, ColliderJntSph* sphereGroup, Acto
                               ColliderJntSphElement* elements) {
     Collider_InitJntSph(play, sphereGroup);
     Collider_SetJntSph(play, sphereGroup, actor, src, elements);
-    return 0;
+    return 1;
 }
 
 /**
@@ -821,7 +821,7 @@ s32 Collider_InitAndSetTris(PlayState* play, ColliderTris* tris, Actor* actor, C
                             ColliderTrisElement* elements) {
     Collider_InitTris(play, tris);
     Collider_SetTris(play, tris, actor, src, elements);
-    return 0;
+    return 1;
 }
 
 /**
@@ -951,7 +951,7 @@ s32 Collider_SetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, Coll
 s32 Collider_InitAndSetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, ColliderQuadInit* src) {
     Collider_InitQuad(play, collider);
     Collider_SetQuad(play, collider, actor, src);
-    return 0;
+    return 1;
 }
 
 /**
@@ -1050,7 +1050,7 @@ s32 Collider_SetSphere(PlayState* play, ColliderSphere* collider, Actor* actor, 
 s32 Collider_InitAndSetSphere(PlayState* play, ColliderSphere* collider, Actor* actor, ColliderSphereInit* src) {
     Collider_InitSphere(play, collider);
     Collider_SetSphere(play, collider, actor, src);
-    return 0;
+    return 1;
 }
 
 /**

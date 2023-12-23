@@ -2350,6 +2350,8 @@ void Math3D_DrawSphere(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Sphere16* sp
         gSPClearGeometryMode(sphGfxP++, G_CULL_BACK | G_SHADING_SMOOTH);
         gSPEndDisplayList(sphGfxP++);
 
+        assert(sphGfxP <= &sphGfx[ARRAY_COUNT(sphGfx)]);
+
         init = true;
     }
 
@@ -2418,6 +2420,8 @@ void Math3D_DrawCylinder(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Cylinder16
         }
         gSPClearGeometryMode(cylGfxP++, G_CULL_BACK);
         gSPEndDisplayList(cylGfxP++);
+
+        assert(cylGfxP <= &cylGfx[ARRAY_COUNT(cylGfx)]);
 
         init = true;
     }
