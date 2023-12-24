@@ -354,6 +354,7 @@ $(O_FILES): | asset_files
 
 build/$(SPEC): $(SPEC)
 	$(CPP) $(CPPFLAGS) $< > $@
+build/$(SPEC): specd/maps.txt
 
 build/ldscript.txt: build/$(SPEC)
 	$(MKLDSCRIPT) $< $@
@@ -403,7 +404,7 @@ build/src/code/z_actor.o: include/tables/actor_table.h # so uses of ACTOR_ID_MAX
 build/src/code/z_actor_dlftbls.o: include/tables/actor_table.h
 build/src/code/z_effect_soft_sprite_dlftbls.o: include/tables/effect_ss_table.h
 build/src/code/z_game_dlftbls.o: include/tables/gamestate_table.h
-build/src/code/z_scene_table.o: include/tables/scene_table.h include/tables/entrance_table.h
+build/src/code/z_scene_table.o: include/tables/scene_table.h include/escaperoom/tables/scene_table.h include/tables/entrance_table.h include/escaperoom/tables/entrance_table.h
 
 build/src/%.o: src/%.c
 	$(CC_CHECK) $<

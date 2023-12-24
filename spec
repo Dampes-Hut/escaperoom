@@ -10412,6 +10412,8 @@ beginseg
     number 3
 endseg
 
+#include "specd/maps.txt"
+
 beginseg
     name "bump_texture_static"
     romalign 0x1000
