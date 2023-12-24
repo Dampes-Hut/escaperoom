@@ -7,6 +7,6 @@
 
 #define DEFINE_MESSAGE_FFFC
 
-#include "assets/text/message_data.enc.h"
+#include "assets_mod/text/message_data.enc.h"
 
 #undef DEFINE_MESSAGE_FFFC
