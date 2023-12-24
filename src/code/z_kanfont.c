@@ -44,9 +44,8 @@ void Font_LoadOrderedFont(Font* font) {
 
     DmaMgr_RequestSyncDebug(font->msgBuf, (uintptr_t)_nes_message_data_staticSegmentRomStart + font->msgOffset, len,
                             "../z_kanfont.c", 122);
-    osSyncPrintf("msg_data=%x,  msg_data0=%x   jj=%x\n", font->msgOffset, font->msgLength, jj = len);
+    osSyncPrintf("msg_data=%x,  msg_data0=%x   jj=%x\n", font->msgOffset, font->msgLength, len);
 
-    len = jj;
     for (fontBufIndex = 0, codePointIndex = 0; font->msgBuf[codePointIndex] != MESSAGE_END; codePointIndex++) {
         if (codePointIndex > len) {
             osSyncPrintf("ＥＲＲＯＲ！！  エラー！！！  error───！！！！\n");

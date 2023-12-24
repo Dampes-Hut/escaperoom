@@ -204,17 +204,17 @@ else
 SRC_DIRS := $(shell find src -type d)
 endif
 
-ASSET_BIN_DIRS := $(shell find assets/* -type d -not -path "assets/xml*" -not -path "assets/text")
-ASSET_FILES_XML := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.xml))
-ASSET_FILES_BIN := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.bin))
-ASSET_FILES_OUT := $(foreach f,$(ASSET_FILES_XML:.xml=.c),$f) \
-				   $(foreach f,$(ASSET_FILES_BIN:.bin=.bin.inc.c),build/$f) \
-				   $(foreach f,$(wildcard assets/text/*.c),build/$(f:.c=.o))
+ASSET_BIN_DIRS     := $(shell find assets/* -type d -not -path "assets/xml*" -not -path "assets/text")
+ASSET_MOD_BIN_DIRS := $(shell find assets_mod/* -type d)
+
+ASSET_FILES_BIN := $(foreach dir,$(ASSET_BIN_DIRS) $(ASSET_MOD_BIN_DIRS),$(wildcard $(dir)/*.bin))
+ASSET_FILES_OUT := $(foreach f,$(ASSET_FILES_BIN:.bin=.bin.inc.c),build/$f) \
+                   $(foreach f,$(wildcard assets/text/*.c),build/$(f:.c=.o))
 
 UNDECOMPILED_DATA_DIRS := $(shell find data -type d)
 
 # source files
-C_FILES       := $(filter-out %.inc.c,$(foreach dir,$(SRC_DIRS) $(ASSET_BIN_DIRS),$(wildcard $(dir)/*.c)))
+C_FILES       := $(filter-out %.inc.c,$(foreach dir,$(SRC_DIRS) $(ASSET_BIN_DIRS) $(ASSET_MOD_BIN_DIRS),$(wildcard $(dir)/*.c)))
 S_FILES       := $(foreach dir,$(SRC_DIRS) $(UNDECOMPILED_DATA_DIRS),$(wildcard $(dir)/*.s))
 O_FILES       := $(foreach f,$(S_FILES:.s=.o),build/$f) \
                  $(foreach f,$(C_FILES:.c=.o),build/$f) \
@@ -227,13 +227,13 @@ OVL_RELOC_FILES := $(shell $(CPP) $(CPPFLAGS) $(SPEC) | grep -o '[^"]*_reloc.o' 
 DEP_FILES := $(O_FILES:.o=.asmproc.d) $(OVL_RELOC_FILES:.o=.d)
 
 
-TEXTURE_FILES_PNG := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.png))
-TEXTURE_FILES_JPG := $(foreach dir,$(ASSET_BIN_DIRS),$(wildcard $(dir)/*.jpg))
+TEXTURE_FILES_PNG := $(foreach dir,$(ASSET_BIN_DIRS) $(ASSET_MOD_BIN_DIRS),$(wildcard $(dir)/*.png))
+TEXTURE_FILES_JPG := $(foreach dir,$(ASSET_BIN_DIRS) $(ASSET_MOD_BIN_DIRS),$(wildcard $(dir)/*.jpg))
 TEXTURE_FILES_OUT := $(foreach f,$(TEXTURE_FILES_PNG:.png=.inc.c),build/$f) \
-					 $(foreach f,$(TEXTURE_FILES_JPG:.jpg=.jpg.inc.c),build/$f) \
+					 $(foreach f,$(TEXTURE_FILES_JPG:.jpg=.jpg.inc.c),build/$f)
 
 # create build directories
-$(shell mkdir -p build/baserom build/assets/text $(foreach dir,$(SRC_DIRS) $(UNDECOMPILED_DATA_DIRS) $(ASSET_BIN_DIRS),build/$(dir)))
+$(shell mkdir -p build/baserom build/assets/text $(foreach dir,$(SRC_DIRS) $(UNDECOMPILED_DATA_DIRS) $(ASSET_BIN_DIRS) $(ASSET_MOD_BIN_DIRS),build/$(dir)))
 
 ifeq ($(COMPILER),ido)
 build/src/code/fault.o: CFLAGS += -trapuv
@@ -370,15 +370,18 @@ build/data/%.o: data/%.s
 build/assets/text/%.enc.h: assets/text/%.h assets/text/charmap.txt
 	python3 tools/msgenc.py assets/text/charmap.txt $< $@
 
+build/assets_mod/text/%.enc.h: assets_mod/text/%.h assets/text/charmap.txt
+	python3 tools/msgenc.py assets/text/charmap.txt $< $@
+
 # Dependencies for files including message data headers
 # TODO remove when full header dependencies are used.
-build/assets/text/fra_message_data_static.o: build/assets/text/message_data.enc.h
-build/assets/text/ger_message_data_static.o: build/assets/text/message_data.enc.h
-build/assets/text/nes_message_data_static.o: build/assets/text/message_data.enc.h
-build/assets/text/staff_message_data_static.o: build/assets/text/message_data_staff.enc.h
-build/src/code/z_message_PAL.o: build/assets/text/message_data.enc.h build/assets/text/message_data_staff.enc.h
+build/assets/text/fra_message_data_static.o: build/assets_mod/text/message_data.enc.h
+build/assets/text/ger_message_data_static.o: build/assets_mod/text/message_data.enc.h
+build/assets/text/nes_message_data_static.o: build/assets_mod/text/message_data.enc.h
+build/assets/text/staff_message_data_static.o: build/assets_mod/text/message_data_staff.enc.h
+build/src/code/z_message_PAL.o: build/assets_mod/text/message_data.enc.h build/assets_mod/text/message_data_staff.enc.h
 
-build/assets/%.o: assets/%.c
+build/assets%.o: assets%.c
 	$(CC) -c $(CFLAGS) $(MIPS_VERSION) $(OPTFLAGS) -o $@ $<
 	$(OBJCOPY) -O binary $@ $@.bin
 
@@ -430,10 +433,10 @@ build/src/overlays/%_reloc.o: build/$(SPEC)
 build/%.inc.c: %.png
 	$(ZAPD) btex -eh -tt $(subst .,,$(suffix $*)) -i $< -o $@
 
-build/assets/%.bin.inc.c: assets/%.bin
+build/assets%.bin.inc.c: assets%.bin
 	$(ZAPD) bblb -eh -i $< -o $@
 
-build/assets/%.jpg.inc.c: assets/%.jpg
+build/assets%.jpg.inc.c: assets%.jpg
 	$(ZAPD) bren -eh -i $< -o $@
 
 -include $(DEP_FILES)

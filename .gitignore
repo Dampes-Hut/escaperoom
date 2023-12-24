@@ -40,14 +40,13 @@ tools/*dSYM/
 graphs/
 
 # Assets
-*.png
-*.jpg
-*.mdli
-*.anmi
-*.obj
-*.mtl
-*.fbx
-!*_custom*
+assets/**/*.png
+assets/**/*.jpg
+assets/**/*.mdli
+assets/**/*.anmi
+assets/**/*.obj
+assets/**/*.mtl
+assets/**/*.fbx
 .extracted-assets.json
 
 # Docs
