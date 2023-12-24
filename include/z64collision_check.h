@@ -225,6 +225,18 @@ typedef struct {
 } ColliderQuadInitType1; // size = 0x50
 
 typedef struct {
+    /* 0x00 */ Collider base;
+    /* 0x18 */ ColliderInfo info;
+    /* 0x40 */ ColliderJntSphElementDim dim;
+} ColliderSphere; // size = 0x58
+
+typedef struct {
+    /* 0x00 */ ColliderInit base;
+    /* 0x08 */ ColliderInfoInit info;
+    /* 0x20 */ ColliderJntSphElementDimInit dim;
+} ColliderSphereInit; // size = 0x2C
+
+typedef struct {
     /* 0x00 */ Linef line;
     /* 0x18 */ u16 ocFlags;
 } OcLine; // size = 0x1C
@@ -251,7 +263,8 @@ typedef enum {
     /* 1 */ COLSHAPE_CYLINDER,
     /* 2 */ COLSHAPE_TRIS,
     /* 3 */ COLSHAPE_QUAD,
-    /* 4 */ COLSHAPE_MAX
+    /* 4 */ COLSHAPE_SPHERE,
+    /* 5 */ COLSHAPE_MAX
 } ColliderShape;
 
 /**

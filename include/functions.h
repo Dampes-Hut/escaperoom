@@ -673,6 +673,8 @@ s32 Collider_SetJntSphAllocType1(PlayState* play, ColliderJntSph* dest, Actor* a
 s32 Collider_SetJntSphAlloc(PlayState* play, ColliderJntSph* dest, Actor* actor, ColliderJntSphInit* src);
 s32 Collider_SetJntSph(PlayState* play, ColliderJntSph* dest, Actor* actor, ColliderJntSphInit* src,
                        ColliderJntSphElement* elements);
+s32 Collider_InitAndSetJntSph(PlayState* play, ColliderJntSph* sphereGroup, Actor* actor, ColliderJntSphInit* src,
+                              ColliderJntSphElement* elements);
 s32 Collider_ResetJntSphAT(PlayState* play, Collider* collider);
 s32 Collider_ResetJntSphAC(PlayState* play, Collider* collider);
 s32 Collider_ResetJntSphOC(PlayState* play, Collider* collider);
@@ -682,6 +684,7 @@ s32 Collider_SetCylinderToActor(PlayState* play, ColliderCylinder* collider, Col
 s32 Collider_SetCylinderType1(PlayState* play, ColliderCylinder* collider, Actor* actor,
                               ColliderCylinderInitType1* src);
 s32 Collider_SetCylinder(PlayState* play, ColliderCylinder* collider, Actor* actor, ColliderCylinderInit* src);
+s32 Collider_InitAndSetCylinder(PlayState* play, ColliderCylinder* collider, Actor* actor, ColliderCylinderInit* src);
 s32 Collider_ResetCylinderAT(PlayState* play, Collider* collider);
 s32 Collider_ResetCylinderAC(PlayState* play, Collider* collider);
 s32 Collider_ResetCylinderOC(PlayState* play, Collider* collider);
@@ -692,6 +695,8 @@ s32 Collider_SetTrisAllocType1(PlayState* play, ColliderTris* dest, Actor* actor
 s32 Collider_SetTrisAlloc(PlayState* play, ColliderTris* dest, Actor* actor, ColliderTrisInit* src);
 s32 Collider_SetTris(PlayState* play, ColliderTris* dest, Actor* actor, ColliderTrisInit* src,
                      ColliderTrisElement* elements);
+s32 Collider_InitAndSetTris(PlayState* play, ColliderTris* tris, Actor* actor, ColliderTrisInit* src,
+                            ColliderTrisElement* elements);
 s32 Collider_ResetTrisAT(PlayState* play, Collider* collider);
 s32 Collider_ResetTrisAC(PlayState* play, Collider* collider);
 s32 Collider_ResetTrisOC(PlayState* play, Collider* collider);
@@ -699,9 +704,17 @@ s32 Collider_InitQuad(PlayState* play, ColliderQuad* collider);
 s32 Collider_DestroyQuad(PlayState* play, ColliderQuad* collider);
 s32 Collider_SetQuadType1(PlayState* play, ColliderQuad* collider, Actor* actor, ColliderQuadInitType1* src);
 s32 Collider_SetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, ColliderQuadInit* src);
+s32 Collider_InitAndSetQuad(PlayState* play, ColliderQuad* collider, Actor* actor, ColliderQuadInit* src);
 s32 Collider_ResetQuadAT(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadAC(PlayState* play, Collider* collider);
 s32 Collider_ResetQuadOC(PlayState* play, Collider* collider);
+s32 Collider_InitSphere(PlayState* play, ColliderSphere* collider);
+s32 Collider_DestroySphere(PlayState* play, ColliderSphere* collider);
+s32 Collider_SetSphere(PlayState* play, ColliderSphere* collider, Actor* actor, ColliderSphereInit* src);
+s32 Collider_InitAndSetSphere(PlayState* play, ColliderSphere* collider, Actor* actor, ColliderSphereInit* src);
+s32 Collider_ResetSphereAT(PlayState* play, Collider* collider);
+s32 Collider_ResetSphereAC(PlayState* play, Collider* collider);
+s32 Collider_ResetSphereOC(PlayState* play, Collider* collider);
 s32 Collider_InitLine(PlayState* play, OcLine* line);
 s32 Collider_DestroyLine(PlayState* play, OcLine* line);
 s32 Collider_SetLinePoints(PlayState* play, OcLine* ocLine, Vec3f* a, Vec3f* b);
@@ -712,7 +725,6 @@ void CollisionCheck_DestroyContext(PlayState* play, CollisionCheckContext* colCh
 void CollisionCheck_ClearContext(PlayState* play, CollisionCheckContext* colChkCtx);
 void CollisionCheck_EnableSAC(PlayState* play, CollisionCheckContext* colChkCtx);
 void CollisionCheck_DisableSAC(PlayState* play, CollisionCheckContext* colChkCtx);
-void Collider_Draw(PlayState* play, Collider* collider);
 void CollisionCheck_DrawCollision(PlayState* play, CollisionCheckContext* colChkCtx);
 s32 CollisionCheck_SetAT(PlayState* play, CollisionCheckContext* colChkCtx, Collider* collider);
 s32 CollisionCheck_SetAT_SAC(PlayState* play, CollisionCheckContext* colChkCtx, Collider* collider, s32 index);
@@ -1444,8 +1456,10 @@ s32 Math3D_TriVsTriIntersect(TriNorm* ta, TriNorm* tb, Vec3f* intersect);
 s32 Math3D_XZInSphere(Sphere16* sphere, f32 x, f32 z);
 s32 Math3D_XYInSphere(Sphere16* sphere, f32 x, f32 y);
 s32 Math3D_YZInSphere(Sphere16* sphere, f32 y, f32 z);
-void Math3D_DrawSphere(PlayState* play, Sphere16* sph);
-void Math3D_DrawCylinder(PlayState* play, Cylinder16* cyl);
+void Math3D_DrawSphere(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Sphere16* sph);
+void Math3D_DrawCylinder(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Cylinder16* cyl);
+void Math3D_DrawTri(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, TriNorm* tri);
+void Math3D_DrawQuad(GraphicsContext* gfxCtx, Gfx*restrict* gfxP, Vec3f quad[4]);
 s16 Math_Atan2S(f32 x, f32 y);
 f32 Math_Atan2F(f32 x, f32 y);
 void Matrix_Init(GameState* gameState);
