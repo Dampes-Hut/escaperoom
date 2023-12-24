@@ -1,0 +1,5 @@
+beginseg
+    name "ovl_InnPainting"
+    include "build/src/overlays/actors/ovl_InnPainting/inn_painting.o"
+    include "build/src/overlays/actors/ovl_InnPainting/ovl_InnPainting_reloc.o"
+endseg

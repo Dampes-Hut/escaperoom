@@ -17,6 +17,17 @@ SceneCmd inn_bedroom_room_0_header00[] = {
     SCENE_CMD_SKYBOX_DISABLES(false, false),
     SCENE_CMD_TIME_SETTINGS(0xFF, 0xFF, 10),
     SCENE_CMD_ROOM_SHAPE(&inn_bedroom_room_0_shapeHeader),
+    SCENE_CMD_ACTOR_LIST(LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST, inn_bedroom_room_0_header00_actorList),
     SCENE_CMD_END(),
+};
+
+ActorEntry inn_bedroom_room_0_header00_actorList[LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST] = {
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_INN_PAINTING,
+        /* Position   */ { -157, -53, -27 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(180.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
+    },
 };
 

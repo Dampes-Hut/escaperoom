@@ -354,7 +354,7 @@ $(O_FILES): | asset_files
 
 build/$(SPEC): $(SPEC)
 	$(CPP) $(CPPFLAGS) $< > $@
-build/$(SPEC): specd/maps.txt
+build/$(SPEC): specd/maps.txt specd/overlays.txt
 
 build/ldscript.txt: build/$(SPEC)
 	$(MKLDSCRIPT) $< $@

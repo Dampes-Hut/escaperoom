@@ -3394,6 +3394,8 @@ beginseg
     include "build/src/overlays/actors/ovl_Shot_Sun/ovl_Shot_Sun_reloc.o"
 endseg
 
+#include "specd/overlays.txt"
+
 beginseg
     name "gameplay_keep"
     romalign 0x1000
