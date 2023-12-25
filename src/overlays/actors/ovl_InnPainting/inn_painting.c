@@ -133,6 +133,7 @@ static Gfx sInnPaintingFlatPrimColorDL[] = {
     gsSPEndDisplayList(),
 };
 
+UNUSED
 static void ip_cpu_fill_rgba16_texture_gradientxy(u16* tex, size_t w, size_t h) {
     for (size_t y = 0; y < h; y++) {
         for (size_t x = 0; x < w; x++) {
@@ -234,89 +235,66 @@ static void ip_draw_to_rgba16_texture(Gfx** gfxP, GraphicsContext* gfxCtx, u16* 
     ip_rdp_fill_u16(&gfx, w, h, GPACK_RGBA5551(100, 100, 255, 1));
     gDPSetDepthImage(gfx++, zBuffer);
 
-    static Vp viewport = { 0, 0, G_MAXZ / 2, 0, 0, 0, G_MAXZ / 2, 0 };
-    viewport.vp.vscale[0] = (w / 2) << 2;
-    viewport.vp.vscale[1] = (h / 2) << 2;
-    viewport.vp.vtrans[0] = (w / 2) << 2;
-    viewport.vp.vtrans[1] = (h / 2) << 2;
-    gSPViewport(gfx++, &viewport);
+    Vp* viewport = Graph_Alloc(gfxCtx, sizeof(Vp));
+    viewport->vp.vscale[0] = (w / 2) << 2;
+    viewport->vp.vtrans[0] = (w / 2) << 2;
+    viewport->vp.vscale[1] = (h / 2) << 2;
+    viewport->vp.vtrans[1] = (h / 2) << 2;
+    viewport->vp.vscale[2] = G_MAXZ / 2;
+    viewport->vp.vtrans[2] = G_MAXZ / 2;
+    gSPViewport(gfx++, viewport);
 
-    {
-        if (0) {
-            gSPPerspNormalize(gfx++, 2);
-            gSPMatrix(gfx++, &gMtxClear, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-        }
+    Mtx* projMtx = (Mtx*)K0_TO_K1(Graph_Alloc(gfxCtx, sizeof(Mtx)));
+    Mtx* lookAtMtx = (Mtx*)K0_TO_K1(Graph_Alloc(gfxCtx, sizeof(Mtx)));
+    u16 perspNorm;
 
-        // if (0)
-        {
-            Mtx* projMtx = (Mtx*)K0_TO_K1(Graph_Alloc(gfxCtx, sizeof(Mtx)));
-            Mtx* lookAtMtx = (Mtx*)K0_TO_K1(Graph_Alloc(gfxCtx, sizeof(Mtx)));
-            u16 perspNorm;
-
-            guPerspective(projMtx, &perspNorm, 80.0f, (float)w / h, 0.1f, 10.0f, 1.0f);
-            // guOrtho(projMtx, -100, 100, 100, -100, 1, 1000, 1);
-            if (0) {
-                ip_print_mtx("InnPainting_Draw projMtx", projMtx);
-                rmonPrintf("perspNorm = %hu\n", perspNorm);
-            }
-
-            gSPPerspNormalize(gfx++, perspNorm);
-            gSPMatrix(gfx++, projMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-
-            guLookAt(lookAtMtx, 0, 0, 1, // eye
-                     0, 0, 0,            // at
-                     0.0f, 1.0f, 0.0f    // up
-            );
-
-            if (0) {
-                //
-                ip_print_mtx("InnPainting_Draw lookAtMtx", lookAtMtx);
-            }
-
-            gSPMatrix(gfx++, lookAtMtx, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
-
-            if (0) {
-                MtxF projMtxF;
-                MtxF lookAtMtxF;
-                Matrix_MtxToMtxF(projMtx, &projMtxF);
-                Matrix_MtxToMtxF(lookAtMtx, &lookAtMtxF);
-                Matrix_Mult(&projMtxF, MTXMODE_NEW);
-                Matrix_Mult(&lookAtMtxF, MTXMODE_APPLY);
-                Vec3f va = { 0, 0, 0 }, vb;
-                Matrix_MultVec3f(&va, &vb);
-                rmonPrintf("%f %f %f -> %f %f %f\n", va.x, va.y, va.z, vb.x, vb.y, vb.z);
-            }
-        }
-    }
-    // if (0)
-    {
-        gDPPipeSync(gfx++);
-        Matrix_Mult(&gMtxFClear, MTXMODE_NEW);
-        int framesPerTurnY = 30;
-        Matrix_RotateY(2 * M_PI / framesPerTurnY * (timer % framesPerTurnY), MTXMODE_APPLY);
-        // int framesPerTurnZ = 100;
-        // Matrix_RotateZ(2 * M_PI / framesPerTurnZ * (timer % framesPerTurnZ), MTXMODE_APPLY);
-        Matrix_Translate(0.0f, -0.5f, 0, MTXMODE_APPLY);
-        f32 f = 0.005f;
-        Matrix_Scale(f, f, f, MTXMODE_APPLY);
-        gSPDisplayList(gfx++, sInnPaintingSetupDL);
-        gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gDPSetPrimColor(gfx++, 0, 0, 255, 100, 100, 255);
-        gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
-        Matrix_RotateY(M_PI, MTXMODE_APPLY);
-        gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gDPSetPrimColor(gfx++, 0, 0, 100, 255, 100, 255);
-        gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
-    }
+    guPerspective(projMtx, &perspNorm, 80.0f, (float)w / h, 0.1f, 10.0f, 1.0f);
     if (0) {
-        Matrix_Mult(&gMtxFClear, MTXMODE_NEW);
-        Matrix_Translate(0, -10, 0, MTXMODE_APPLY);
-        Matrix_Scale(0.1f, 0.1f, 0.1f, MTXMODE_APPLY);
-        gSPDisplayList(gfx++, sInnPaintingSetupDL);
-        gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gSPSegment(gfx++, INNPAINTINGTEXSEGNUM, sInnPaintingTexRed);
-        gSPDisplayList(gfx++, sInnPaintingDL);
+        ip_print_mtx("InnPainting_Draw projMtx", projMtx);
+        rmonPrintf("perspNorm = %hu\n", perspNorm);
     }
+    gSPPerspNormalize(gfx++, perspNorm);
+    gSPMatrix(gfx++, projMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+
+    guLookAt(lookAtMtx, 0, 0, 1, // eye
+             0, 0, 0,            // at
+             0.0f, 1.0f, 0.0f    // up
+    );
+    if (0) {
+        //
+        ip_print_mtx("InnPainting_Draw lookAtMtx", lookAtMtx);
+    }
+    gSPMatrix(gfx++, lookAtMtx, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+
+    if (0) {
+        MtxF projMtxF;
+        MtxF lookAtMtxF;
+        Matrix_MtxToMtxF(projMtx, &projMtxF);
+        Matrix_MtxToMtxF(lookAtMtx, &lookAtMtxF);
+        Matrix_Mult(&projMtxF, MTXMODE_NEW);
+        Matrix_Mult(&lookAtMtxF, MTXMODE_APPLY);
+        Vec3f va = { 0, 0, 0 }, vb;
+        Matrix_MultVec3f(&va, &vb);
+        rmonPrintf("%f %f %f -> %f %f %f\n", va.x, va.y, va.z, vb.x, vb.y, vb.z);
+    }
+
+    gDPPipeSync(gfx++);
+    Matrix_Mult(&gMtxFClear, MTXMODE_NEW);
+    int framesPerTurnY = 30;
+    Matrix_RotateY(2 * M_PI / framesPerTurnY * (timer % framesPerTurnY), MTXMODE_APPLY);
+    // int framesPerTurnZ = 100;
+    // Matrix_RotateZ(2 * M_PI / framesPerTurnZ * (timer % framesPerTurnZ), MTXMODE_APPLY);
+    Matrix_Translate(0.0f, -0.5f, 0, MTXMODE_APPLY);
+    f32 f = 0.005f;
+    Matrix_Scale(f, f, f, MTXMODE_APPLY);
+    gSPDisplayList(gfx++, sInnPaintingSetupDL);
+    gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPSetPrimColor(gfx++, 0, 0, 255, 100, 100, 255);
+    gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
+    Matrix_RotateY(M_PI, MTXMODE_APPLY);
+    gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+    gDPSetPrimColor(gfx++, 0, 0, 100, 255, 100, 255);
+    gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
 
     *gfxP = gfx;
 }
@@ -326,10 +304,6 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
 
     this->bufI = (this->bufI + 1) % 2;
 
-    if (0) {
-        ip_cpu_fill_rgba16_texture_gradientxy(sInnPaintingTex[this->bufI], TEXW, TEXH);
-        osWritebackDCache(sInnPaintingTex[this->bufI], sizeof(u16[TEXW * TEXH]));
-    }
     ip_cpu_fill_rgba16_texture_solid(sInnPaintingTexRed, TEXW, TEXH, GPACK_RGBA5551(255, 0, 0, 1));
     osWritebackDCache(sInnPaintingTexRed, sizeof(u16[TEXW * TEXH]));
 
@@ -354,13 +328,6 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
     gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
     gSPSegment(POLY_OPA_DISP++, INNPAINTINGTEXSEGNUM, sInnPaintingTex[this->bufI]);
     gSPDisplayList(POLY_OPA_DISP++, sInnPaintingDL);
-
-    if (0) {
-        Matrix_Translate(50, 50, 50, MTXMODE_APPLY);
-        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-        gDPSetPrimColor(POLY_OPA_DISP++, 0, 0, 200, 200, 100, 255);
-        gSPDisplayList(POLY_OPA_DISP++, sInnPaintingFlatPrimColorDL);
-    }
 
     CLOSE_DISPS(play->state.gfxCtx);
 }
