@@ -225,6 +225,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     osStopTimer(&timer);
 
     if (msg == (OSMesg)666) {
+        rmonPrintf(VT_BGCOL(RED) "RDP hanging" VT_RST "\n");
         osSyncPrintf(VT_FGCOL(RED));
         osSyncPrintf("RCPが帰ってきませんでした。"); // "RCP did not return."
         osSyncPrintf(VT_RST);
