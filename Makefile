@@ -440,4 +440,6 @@ build/assets%.bin.inc.c: assets%.bin
 build/assets%.jpg.inc.c: assets%.jpg
 	$(ZAPD) bren -eh -i $< -o $@
 
+build/src/overlays/actors/ovl_InnPainting/inn_painting.o: CFLAGS += -Werror
+
 -include $(DEP_FILES)
