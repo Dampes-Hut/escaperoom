@@ -1,9 +1,12 @@
 #include "inn_painting.h"
 
+#include "assets/objects/object_poh/object_poh.h"
+
 #define FLAGS 0
 
 void InnPainting_Init(Actor* thisx, PlayState* play);
 void InnPainting_Destroy(Actor* thisx, PlayState* play);
+void InnPainting_WaitObjects(Actor* thisx, PlayState* play);
 void InnPainting_Update(Actor* thisx, PlayState* play);
 void InnPainting_Draw(Actor* thisx, PlayState* play);
 
@@ -18,12 +21,15 @@ ActorInit InnPainting_InitVars = {
     /**/ sizeof(InnPaintingActor),
     /**/ InnPainting_Init,
     /**/ InnPainting_Destroy,
-    /**/ InnPainting_Update,
-    /**/ InnPainting_Draw,
+    /**/ InnPainting_WaitObjects,
+    /**/ NULL,
 };
 
 void InnPainting_Init(Actor* thisx, PlayState* play) {
     InnPaintingActor* this = (InnPaintingActor*)thisx;
+
+    this->objectPohSlot = Object_GetSlot(&play->objectCtx, OBJECT_POH);
+    assert(this->objectPohSlot >= 0);
 
     Actor_SetScale(thisx, 0.1f);
     InnPainting_MallocBuffers();
@@ -33,14 +39,28 @@ void InnPainting_Destroy(Actor* thisx, PlayState* play) {
     InnPainting_FreeBuffers();
 }
 
+void InnPainting_WaitObjects(Actor* thisx, PlayState* play) {
+    InnPaintingActor* this = (InnPaintingActor*)thisx;
+
+    if (Object_IsLoaded(&play->objectCtx, this->objectPohSlot)) {
+        gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+        SkelAnime_Init(play, &this->poeSkelAnime, &gPoeSkel, NULL, NULL, NULL, 0);
+        Animation_Change(&this->poeSkelAnime, &gPoeAppearAnim, 0.0f, Animation_GetLastFrame(&gPoeAppearAnim),0,
+                         ANIMMODE_LOOP, 0.0f);
+
+        this->actor.update = InnPainting_Update;
+        this->actor.draw = InnPainting_Draw;
+    }
+}
+
 void InnPainting_Update(Actor* thisx, PlayState* play) {
     InnPaintingActor* this = (InnPaintingActor*)thisx;
 
     this->timer++;
-}
 
-#define TEXW 32
-#define TEXH 32
+    gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+    SkelAnime_Update(&this->poeSkelAnime);
+}
 
 /**
  *       ^s
@@ -60,51 +80,26 @@ void InnPainting_Update(Actor* thisx, PlayState* play) {
  *
  * 3: top-left, s,t=0,0
  * 1: bottom-right, s,t=texture corner opposite of 0,0
+ * 0: x,y=0,0
  */
-static Vtx sInnPaintingVtx[] = {
-    /* 0 */ VTX(-100, 0, 0, 0, 1 * TEXH * (1 << 6), 255, 255, 255, 255),
-    /* 1 */ VTX(100, 0, 0, 1 * TEXW * (1 << 6), 1 * TEXH * (1 << 6), 255, 255, 255, 255),
-    /* 2 */ VTX(100, 200, 0, 1 * TEXW * (1 << 6), 0, 255, 255, 255, 255),
-    /* 3 */ VTX(-100, 200, 0, 0, 0, 255, 255, 255, 255),
+#define IPQUAD_W 400
+#define IPQUAD_H 100
+#define IPQUAD_TEXW 64
+#define IPQUAD_TEXH 16
+static Vtx sIPQuadVtx[] = {
+    /* 0 */ VTX(0, 0, 0, 0, 1 * IPQUAD_TEXH * (1 << 6), 255, 255, 255, 255),
+    /* 1 */ VTX(IPQUAD_W, 0, 0, 1 * IPQUAD_TEXW * (1 << 6), 1 * IPQUAD_TEXH * (1 << 6), 255, 255, 255, 255),
+    /* 2 */ VTX(IPQUAD_W, IPQUAD_H, 0, 1 * IPQUAD_TEXW * (1 << 6), 0, 255, 255, 255, 255),
+    /* 3 */ VTX(0, IPQUAD_H, 0, 0, 0, 255, 255, 255, 255),
 };
 
-static u16* sInnPaintingTex[2];
+#define IPQUAD_TEX_SEGNUM 8
 
-static u16* sInnPaintingZBuffer;
-
-static u16* sInnPaintingTexRed;
-
-static void* sMallocPtr = NULL;
-void InnPainting_MallocBuffers(void) {
-    assert(sMallocPtr == NULL);
-    size_t sz = sizeof(u16[TEXW * TEXH]);
-    size_t align = 64;
-    sMallocPtr = ZeldaArena_MallocDebug(4 * sz + align);
-    assert(sMallocPtr != NULL);
-    uintptr_t p = (uintptr_t)sMallocPtr;
-    p = (p + align - 1) & ALIGN_MASK(align);
-    assert(sz % align == 0);
-    sInnPaintingTex[0] = (u16*)p;
-    p += sz;
-    sInnPaintingTex[1] = (u16*)p;
-    p += sz;
-    sInnPaintingZBuffer = (u16*)p;
-    p += sz;
-    sInnPaintingTexRed = (u16*)p;
-}
-void InnPainting_FreeBuffers(void) {
-    assert(sMallocPtr != NULL);
-    ZeldaArena_FreeDebug(sMallocPtr);
-    sMallocPtr = NULL;
-}
-
-#define INNPAINTINGTEXSEGNUM 8
-
-static Gfx sInnPaintingDL[] = {
+static Gfx sIPQuadDL[] = {
     gsDPPipeSync(),
     gsDPSetTextureLUT(G_TT_NONE),
     gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_ON),
-    gsDPLoadTextureBlock(SEGMENT_ADDR(INNPAINTINGTEXSEGNUM, 0), G_IM_FMT_RGBA, G_IM_SIZ_16b, TEXW, TEXH, 0,
+    gsDPLoadTextureBlock(SEGMENT_ADDR(IPQUAD_TEX_SEGNUM, 0), G_IM_FMT_RGBA, G_IM_SIZ_16b, IPQUAD_TEXW, IPQUAD_TEXH, 0,
                          G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK, G_TX_NOLOD,
                          G_TX_NOLOD),
     gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0,       //
@@ -115,10 +110,39 @@ static Gfx sInnPaintingDL[] = {
     gsSPClearGeometryMode(G_TEXTURE_GEN | G_TEXTURE_GEN_LINEAR),
     gsSPSetGeometryMode(G_CULL_BACK | G_FOG),
     gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
-    gsSPVertex(sInnPaintingVtx, 4, 0),
+    gsSPVertex(sIPQuadVtx, 4, 0),
     gsSP2Triangles(0, 1, 2, 0, 2, 3, 0, 0),
     gsSPEndDisplayList(),
 };
+
+#define IPFB_W 64
+#define IPFB_H 64
+
+static u16* sIPFBTex[2];
+
+static u16* sInnPaintingZBuffer;
+
+static void* sMallocPtr = NULL;
+void InnPainting_MallocBuffers(void) {
+    assert(sMallocPtr == NULL);
+    size_t sz = sizeof(u16[IPFB_W * IPFB_H]);
+    size_t align = 64;
+    sMallocPtr = ZeldaArena_MallocDebug(3 * sz + align);
+    assert(sMallocPtr != NULL);
+    uintptr_t p = (uintptr_t)sMallocPtr;
+    p = (p + align - 1) & ALIGN_MASK(align);
+    assert(sz % align == 0);
+    sIPFBTex[0] = (u16*)p;
+    p += sz;
+    sIPFBTex[1] = (u16*)p;
+    p += sz;
+    sInnPaintingZBuffer = (u16*)p;
+}
+void InnPainting_FreeBuffers(void) {
+    assert(sMallocPtr != NULL);
+    ZeldaArena_FreeDebug(sMallocPtr);
+    sMallocPtr = NULL;
+}
 
 static Gfx sInnPaintingFlatPrimColorDL[] = {
     gsDPPipeSync(),
@@ -128,27 +152,10 @@ static Gfx sInnPaintingFlatPrimColorDL[] = {
                        0, 0, 0, COMBINED,  //
                        0, 0, 0, COMBINED),
     gsDPSetRenderMode(G_RM_PASS, G_RM_ZB_OPA_SURF2),
-    gsSPVertex(sInnPaintingVtx, 4, 0),
+    gsSPVertex(sIPQuadVtx, 4, 0),
     gsSP2Triangles(0, 1, 2, 0, 2, 3, 0, 0),
     gsSPEndDisplayList(),
 };
-
-UNUSED
-static void ip_cpu_fill_rgba16_texture_gradientxy(u16* tex, size_t w, size_t h) {
-    for (size_t y = 0; y < h; y++) {
-        for (size_t x = 0; x < w; x++) {
-            tex[y * w + x] = GPACK_RGBA5551(x * 255 / (w - 1), y * 255 / (h - 1), 0, 1);
-        }
-    }
-}
-
-static void ip_cpu_fill_rgba16_texture_solid(u16* tex, size_t w, size_t h, u16 c) {
-    for (size_t y = 0; y < h; y++) {
-        for (size_t x = 0; x < w; x++) {
-            tex[y * w + x] = c;
-        }
-    }
-}
 
 static Gfx sInnPaintingSetupDL[] = {
     gsDPPipeSync(),
@@ -217,9 +224,11 @@ static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
     *gfxP = gfx;
 }
 
-static void ip_draw_to_rgba16_texture(Gfx** gfxP, GraphicsContext* gfxCtx, u16* tex, u16* zBuffer, size_t w, size_t h,
-                                      int timer) {
+static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, Gfx** gfxP, GraphicsContext* gfxCtx,
+                                      u16* tex, u16* zBuffer, size_t w, size_t h, int timer) {
     Gfx* gfx = *gfxP;
+
+    gDPNoOpString(gfx++, "ip_draw_to_rgba16_texture", 0);
 
     // idk
     gSPDisplayList(gfx++, sInnPaintingSetupDL);
@@ -296,6 +305,17 @@ static void ip_draw_to_rgba16_texture(Gfx** gfxP, GraphicsContext* gfxCtx, u16* 
     gDPSetPrimColor(gfx++, 0, 0, 100, 255, 100, 255);
     gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
 
+    gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+    gSPSegment(gfx++, 6, gSegments[6]);
+    gDPNoOpString(gfx++, "SkelAnime_Draw poeSkelAnime", 0);
+    gfx = Gfx_SetupDL(gfx, SETUPDL_25);
+    gDPSetEnvColor(gfx++, 255, 255, 255, 255);
+    gSPSegment(gfx++, 8, gEmptyDL);
+    Matrix_Translate(0.0f, -0.8f, 0.0f, MTXMODE_NEW);
+    f = 0.0003f;
+    Matrix_Scale(f, f, f, MTXMODE_APPLY);
+    gfx = SkelAnime_Draw(play, this->poeSkelAnime.skeleton, this->poeSkelAnime.jointTable, NULL, NULL, NULL, gfx);
+
     *gfxP = gfx;
 }
 
@@ -304,9 +324,6 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
 
     this->bufI = (this->bufI + 1) % 2;
 
-    ip_cpu_fill_rgba16_texture_solid(sInnPaintingTexRed, TEXW, TEXH, GPACK_RGBA5551(255, 0, 0, 1));
-    osWritebackDCache(sInnPaintingTexRed, sizeof(u16[TEXW * TEXH]));
-
     OPEN_DISPS(play->state.gfxCtx);
 
     // Draw to the texture
@@ -314,8 +331,8 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
         Gfx* gfx = POLY_OPA_DISP;
 
         Matrix_Push();
-        ip_draw_to_rgba16_texture(&gfx, play->state.gfxCtx, sInnPaintingTex[this->bufI], sInnPaintingZBuffer, TEXW,
-                                  TEXH, this->timer);
+        ip_draw_to_rgba16_texture(this, play, &gfx, play->state.gfxCtx, sIPFBTex[this->bufI], sInnPaintingZBuffer,
+                                  IPFB_W, IPFB_H, this->timer);
         Matrix_Pop();
 
         ip_restore_normal_drawing(&gfx, play);
@@ -325,9 +342,12 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
 
     // Draw the painting in the world
     gSPDisplayList(POLY_OPA_DISP++, sInnPaintingSetupDL);
-    gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gSPSegment(POLY_OPA_DISP++, INNPAINTINGTEXSEGNUM, sInnPaintingTex[this->bufI]);
-    gSPDisplayList(POLY_OPA_DISP++, sInnPaintingDL);
+    for (int i = 0; i < 4; i++) {
+        gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
+        gSPSegment(POLY_OPA_DISP++, IPQUAD_TEX_SEGNUM, sIPFBTex[this->bufI] + (i * IPQUAD_TEXW * IPQUAD_TEXH));
+        gSPDisplayList(POLY_OPA_DISP++, sIPQuadDL);
+        Matrix_Translate(0, -IPQUAD_H, 0, MTXMODE_APPLY);
+    }
 
     CLOSE_DISPS(play->state.gfxCtx);
 }

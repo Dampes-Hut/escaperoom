@@ -8,6 +8,8 @@ typedef struct InnPaintingActor {
     Actor actor;
     int bufI;
     int timer;
+    s32 objectPohSlot;
+    SkelAnime poeSkelAnime;
 } InnPaintingActor;
 
 #endif

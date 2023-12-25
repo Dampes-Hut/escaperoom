@@ -11,6 +11,7 @@ extern Vec3s inn_bedroom_vertices[102];
 extern CollisionHeader inn_bedroom_collisionHeader;
 extern SceneCmd* inn_bedroom_room_0_alternateHeaders[];
 extern SceneCmd inn_bedroom_room_0_header00[];
+extern s16 inn_bedroom_room_0_header00_objectList[];
 extern ActorEntry inn_bedroom_room_0_header00_actorList[];
 extern RoomShapeNormal inn_bedroom_room_0_shapeHeader;
 extern RoomShapeDListsEntry inn_bedroom_room_0_shapeDListEntry[1];
