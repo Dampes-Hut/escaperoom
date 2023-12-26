@@ -210,6 +210,7 @@ static void ip_rdp_fill_u16(Gfx** gfxP, size_t w, size_t h, u16 c) {
  */
 static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
     Gfx* gfx = *gfxP;
+    GraphicsContext* gfxCtx = play->state.gfxCtx;
 
     gDPPipeSync(gfx++);
     gDPSetColorImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, play->state.gfxCtx->curFrameBuffer);
@@ -219,12 +220,15 @@ static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
     int varY = CLAMP_MAX(Letterbox_GetSize(), SCREEN_HEIGHT / 2);
     gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0 + varY, SCREEN_WIDTH, SCREEN_HEIGHT - varY);
 
-    // TODO unsure if play->view always has up-to-date stuff
-    // yeah definitely looks odd, probably because of this
-    gSPViewport(gfx++, &play->view.vp);
+    Vp* vp = Graph_Alloc(gfxCtx, sizeof(Vp));
+    Mtx* projMtx = Graph_Alloc(gfxCtx, sizeof(Mtx));
+    *vp = play->view.vp;
+    *projMtx = play->view.projection;
+
+    gSPViewport(gfx++, vp);
     gSPPerspNormalize(gfx++, play->view.normal);
-    gSPMatrix(gfx++, &play->view.projection, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gSPMatrix(gfx++, &play->view.viewing, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
+    gSPMatrix(gfx++, projMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
+    gSPMatrix(gfx++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
 
     *gfxP = gfx;
 }
