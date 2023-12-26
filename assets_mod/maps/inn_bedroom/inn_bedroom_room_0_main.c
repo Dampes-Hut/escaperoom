@@ -32,8 +32,8 @@ ActorEntry inn_bedroom_room_0_header00_actorList[LENGTH_INN_BEDROOM_ROOM_0_HEADE
     // Custom Actor
     {
         /* Actor ID   */ ACTOR_INN_PAINTING,
-        /* Position   */ { -157, -53, -27 },
-        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(180.000), DEG_TO_BINANG(0.000) },
+        /* Position   */ { 0, -7, 237 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(184.620), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0000
     },
 };

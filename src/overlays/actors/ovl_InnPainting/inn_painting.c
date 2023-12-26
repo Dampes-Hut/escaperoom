@@ -339,11 +339,14 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
 
     // Draw the painting in the world
     gSPDisplayList(POLY_OPA_DISP++, sInnPaintingSetupDL);
+    float f = 80 / (IPQUAD_W * this->actor.scale.x);
+    Matrix_Scale(f, f, 0, MTXMODE_APPLY);
+    Matrix_Translate(-IPQUAD_W / 2, 4 * IPQUAD_H / 2, 0, MTXMODE_APPLY);
     for (int i = 0; i < 4; i++) {
+        Matrix_Translate(0, -IPQUAD_H, 0, MTXMODE_APPLY);
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPSegment(POLY_OPA_DISP++, IPQUAD_TEX_SEGNUM, sIPFBTex[this->bufI] + (i * IPQUAD_TEXW * IPQUAD_TEXH));
         gSPDisplayList(POLY_OPA_DISP++, sIPQuadDL);
-        Matrix_Translate(0, -IPQUAD_H, 0, MTXMODE_APPLY);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
