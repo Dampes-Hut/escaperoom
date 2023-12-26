@@ -9,6 +9,7 @@ typedef struct InnPaintingActor {
     int bufI;
     int timer;
     s32 objectPohSlot;
+    s32 objectInnPaintingSlot;
     SkelAnime poeSkelAnime;
 } InnPaintingActor;
 

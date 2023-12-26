@@ -409,3 +409,5 @@
 /* 0x018F */ DEFINE_OBJECT(object_ouke_haka, OBJECT_OUKE_HAKA)
 /* 0x0190 */ DEFINE_OBJECT(object_timeblock, OBJECT_TIMEBLOCK)
 /* 0x0191 */ DEFINE_OBJECT(object_zl4, OBJECT_ZL4)
+
+#include "escaperoom/tables/object_table.h"

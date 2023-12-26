@@ -6069,6 +6069,8 @@ beginseg
     number 6
 endseg
 
+#include "specd/objects.txt"
+
 beginseg
     name "g_pn_01"
     romalign 0x1000

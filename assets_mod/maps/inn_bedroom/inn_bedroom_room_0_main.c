@@ -10,7 +10,7 @@
 /**
  * Header Child Day (Default)
 */
-#define LENGTH_INN_BEDROOM_ROOM_0_HEADER00_OBJECTLIST 1
+#define LENGTH_INN_BEDROOM_ROOM_0_HEADER00_OBJECTLIST 2
 #define LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST 1
 SceneCmd inn_bedroom_room_0_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
@@ -25,6 +25,7 @@ SceneCmd inn_bedroom_room_0_header00[] = {
 
 s16 inn_bedroom_room_0_header00_objectList[LENGTH_INN_BEDROOM_ROOM_0_HEADER00_OBJECTLIST] = {
     OBJECT_POH,
+    OBJECT_INN_PAINTING,
 };
 
 ActorEntry inn_bedroom_room_0_header00_actorList[LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST] = {

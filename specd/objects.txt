@@ -1,0 +1,5 @@
+beginseg
+    name "object_inn_painting"
+    include "build/assets_mod/objects/object_inn_painting/gObjectInnPaintingBackgroundDL.o"
+    number 6
+endseg

@@ -1,6 +1,7 @@
 #include "inn_painting.h"
 
 #include "assets/objects/object_poh/object_poh.h"
+#include "assets_mod/objects/object_inn_painting/gObjectInnPaintingBackgroundDL.h"
 
 #define FLAGS 0
 
@@ -30,6 +31,8 @@ void InnPainting_Init(Actor* thisx, PlayState* play) {
 
     this->objectPohSlot = Object_GetSlot(&play->objectCtx, OBJECT_POH);
     assert(this->objectPohSlot >= 0);
+    this->objectInnPaintingSlot = Object_GetSlot(&play->objectCtx, OBJECT_INN_PAINTING);
+    assert(this->objectInnPaintingSlot >= 0);
 
     Actor_SetScale(thisx, 0.1f);
     InnPainting_MallocBuffers();
@@ -42,11 +45,13 @@ void InnPainting_Destroy(Actor* thisx, PlayState* play) {
 void InnPainting_WaitObjects(Actor* thisx, PlayState* play) {
     InnPaintingActor* this = (InnPaintingActor*)thisx;
 
-    if (Object_IsLoaded(&play->objectCtx, this->objectPohSlot)) {
+    if (Object_IsLoaded(&play->objectCtx, this->objectPohSlot) &&
+        Object_IsLoaded(&play->objectCtx, this->objectInnPaintingSlot)) {
+
         gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
-        SkelAnime_Init(play, &this->poeSkelAnime, &gPoeSkel, NULL, NULL, NULL, 0);
-        Animation_Change(&this->poeSkelAnime, &gPoeAppearAnim, 0.0f, Animation_GetLastFrame(&gPoeAppearAnim),0,
-                         ANIMMODE_LOOP, 0.0f);
+        SkelAnime_Init(play, &this->poeSkelAnime, &gPoeSkel, &gPoeFloatAnim, NULL, NULL, 0);
+        this->poeSkelAnime.playSpeed = 0.0f;
+        this->poeSkelAnime.curFrame = 5.0f;
 
         this->actor.update = InnPainting_Update;
         this->actor.draw = InnPainting_Draw;
@@ -227,6 +232,7 @@ static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
 static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, Gfx** gfxP, GraphicsContext* gfxCtx,
                                       u16* tex, u16* zBuffer, size_t w, size_t h, int timer) {
     Gfx* gfx = *gfxP;
+    f32 f;
 
     gDPNoOpString(gfx++, "ip_draw_to_rgba16_texture", 0);
 
@@ -257,7 +263,7 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
     Mtx* lookAtMtx = (Mtx*)K0_TO_K1(Graph_Alloc(gfxCtx, sizeof(Mtx)));
     u16 perspNorm;
 
-    guPerspective(projMtx, &perspNorm, 80.0f, (float)w / h, 0.1f, 10.0f, 1.0f);
+    guPerspective(projMtx, &perspNorm, 50.0f, (float)w / h, 0.1f, 10.0f, 1.0f);
     if (0) {
         ip_print_mtx("InnPainting_Draw projMtx", projMtx);
         rmonPrintf("perspNorm = %hu\n", perspNorm);
@@ -265,9 +271,9 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
     gSPPerspNormalize(gfx++, perspNorm);
     gSPMatrix(gfx++, projMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
 
-    guLookAt(lookAtMtx, 0, 0, 1, // eye
-             0, 0, 0,            // at
-             0.0f, 1.0f, 0.0f    // up
+    guLookAt(lookAtMtx, 0.35f, 1.50f, 2.75f,             // eye
+             0.20f, 1.30f, 1.78f,                        // at
+             0.32f - 0.35f, 2.48f - 1.50f, 2.55f - 2.75f // up
     );
     if (0) {
         //
@@ -287,23 +293,14 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
         rmonPrintf("%f %f %f -> %f %f %f\n", va.x, va.y, va.z, vb.x, vb.y, vb.z);
     }
 
-    gDPPipeSync(gfx++);
-    Matrix_Mult(&gMtxFClear, MTXMODE_NEW);
-    int framesPerTurnY = 30;
-    Matrix_RotateY(2 * M_PI / framesPerTurnY * (timer % framesPerTurnY), MTXMODE_APPLY);
-    // int framesPerTurnZ = 100;
-    // Matrix_RotateZ(2 * M_PI / framesPerTurnZ * (timer % framesPerTurnZ), MTXMODE_APPLY);
-    Matrix_Translate(0.0f, -0.5f, 0, MTXMODE_APPLY);
-    f32 f = 0.005f;
+    gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectInnPaintingSlot].segment);
+    gSPSegment(gfx++, 6, gSegments[6]);
+    gDPNoOpString(gfx++, "draw gObjectInnPaintingBackgroundDL", 0);
+    Matrix_Translate(0.0f, 0.0f, 0, MTXMODE_NEW);
+    f = 0.001f;
     Matrix_Scale(f, f, f, MTXMODE_APPLY);
-    gSPDisplayList(gfx++, sInnPaintingSetupDL);
     gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gDPSetPrimColor(gfx++, 0, 0, 255, 100, 100, 255);
-    gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
-    Matrix_RotateY(M_PI, MTXMODE_APPLY);
-    gSPMatrix(gfx++, Matrix_NewMtx(gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
-    gDPSetPrimColor(gfx++, 0, 0, 100, 255, 100, 255);
-    gSPDisplayList(gfx++, sInnPaintingFlatPrimColorDL);
+    gSPDisplayList(gfx++, gObjectInnPaintingBackgroundDL);
 
     gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
     gSPSegment(gfx++, 6, gSegments[6]);
@@ -311,7 +308,7 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
     gfx = Gfx_SetupDL(gfx, SETUPDL_25);
     gDPSetEnvColor(gfx++, 255, 255, 255, 255);
     gSPSegment(gfx++, 8, gEmptyDL);
-    Matrix_Translate(0.0f, -0.8f, 0.0f, MTXMODE_NEW);
+    Matrix_Translate(0.0f, 0.0f, 0, MTXMODE_NEW);
     f = 0.0003f;
     Matrix_Scale(f, f, f, MTXMODE_APPLY);
     gfx = SkelAnime_Draw(play, this->poeSkelAnime.skeleton, this->poeSkelAnime.jointTable, NULL, NULL, NULL, gfx);
