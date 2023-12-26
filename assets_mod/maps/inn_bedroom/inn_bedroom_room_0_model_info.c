@@ -15,6 +15,6 @@ RoomShapeNormal inn_bedroom_room_0_shapeHeader = {
 };
 
 RoomShapeDListsEntry inn_bedroom_room_0_shapeDListEntry[1] = {
-    { inn_bedroom_room_0_entry_0_opaque, NULL },
+    { inn_bedroom_room_0_entry_0_opaque, inn_bedroom_room_0_entry_0_transparent },
 };
 

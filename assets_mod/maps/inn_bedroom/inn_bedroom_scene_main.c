@@ -16,7 +16,7 @@ SceneCmd inn_bedroom_scene_header00[] = {
     SCENE_CMD_MISC_SETTINGS(0x00, 0x00),
     SCENE_CMD_COL_HEADER(&inn_bedroom_collisionHeader),
     SCENE_CMD_SPECIAL_FILES(0x00, OBJECT_GAMEPLAY_DANGEON_KEEP),
-    SCENE_CMD_SKYBOX_SETTINGS(0x01, 0x00, LIGHT_MODE_TIME),
+    SCENE_CMD_SKYBOX_SETTINGS(0x05, 0x00, LIGHT_MODE_TIME),
     SCENE_CMD_ENTRANCE_LIST(inn_bedroom_scene_header00_entranceList),
     SCENE_CMD_SPAWN_LIST(1, inn_bedroom_scene_header00_playerEntryList),
     SCENE_CMD_ENV_LIGHT_SETTINGS(4, inn_bedroom_scene_header00_lightSettings),

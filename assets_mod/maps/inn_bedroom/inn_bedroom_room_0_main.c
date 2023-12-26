@@ -14,9 +14,9 @@
 #define LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST 1
 SceneCmd inn_bedroom_room_0_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
-    SCENE_CMD_ROOM_BEHAVIOR(0x00, 0x00, false, false),
-    SCENE_CMD_SKYBOX_DISABLES(false, false),
-    SCENE_CMD_TIME_SETTINGS(0xFF, 0xFF, 10),
+    SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
+    SCENE_CMD_SKYBOX_DISABLES(false, true),
+    SCENE_CMD_TIME_SETTINGS(0, 0, 0),
     SCENE_CMD_ROOM_SHAPE(&inn_bedroom_room_0_shapeHeader),
     SCENE_CMD_OBJECT_LIST(LENGTH_INN_BEDROOM_ROOM_0_HEADER00_OBJECTLIST, inn_bedroom_room_0_header00_objectList),
     SCENE_CMD_ACTOR_LIST(LENGTH_INN_BEDROOM_ROOM_0_HEADER00_ACTORLIST, inn_bedroom_room_0_header00_actorList),
