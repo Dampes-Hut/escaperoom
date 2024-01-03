@@ -515,10 +515,17 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
         bindFuncs[info->type](lights, &info->params, objPos, play);
     }
 
+    // Better not go over the ucode limitation
+    assert(lights->numLights <= MAX_LIGHTS);
+
+    if (lights->numLights == 0) {
+        // Another ucode limitation: Lights0 still requires at least one other light alongside ambient.. add a dummy
+        lights->l.l[0] = (Light){0};
+        lights->numLights = 1;
+    }
+
     // Apply the lights to the gfx command list
     OPEN_DISPS(play->state.gfxCtx);
-
-    assert(lights->numLights <= MAX_LIGHTS);
 
     // Set number of lights
     gSPNumLights(POLY_OPA_DISP++, lights->numLights);
