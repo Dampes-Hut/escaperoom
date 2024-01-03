@@ -827,7 +827,7 @@ void Actor_Init(Actor* actor, PlayState* play) {
 
 void Actor_Destroy(Actor* actor, PlayState* play) {
     ActorOverlay* overlayEntry;
-    char* name;
+    UNUSED char* name;
 
     if (actor->destroy != NULL) {
         actor->destroy(actor, play);
@@ -2993,7 +2993,7 @@ Actor* Actor_SpawnEntry(ActorContext* actorCtx, ActorEntry* actorEntry, PlayStat
 }
 
 Actor* Actor_Delete(ActorContext* actorCtx, Actor* actor, PlayState* play) {
-    char* name;
+    UNUSED char* name;
     Player* player;
     Actor* newHead;
     ActorOverlay* overlayEntry;
@@ -3751,10 +3751,6 @@ void func_8003424C(PlayState* play, Vec3f* arg1) {
 }
 
 void Actor_SetColorFilter(Actor* actor, s16 colorFlag, s16 colorIntensityMax, s16 bufFlag, s16 duration) {
-    if ((colorFlag == COLORFILTER_COLORFLAG_GRAY) && !(colorIntensityMax & COLORFILTER_INTENSITY_FLAG)) {
-        Actor_PlaySfx(actor, NA_SE_EN_LIGHT_ARROW_HIT);
-    }
-
     actor->colorFilterParams = colorFlag | bufFlag | ((colorIntensityMax & 0xF8) << 5) | duration;
     actor->colorFilterTimer = duration;
 }
