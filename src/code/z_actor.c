@@ -2775,6 +2775,27 @@ void Actor_FreeOverlay(ActorOverlay* actorOverlay) {
     osSyncPrintf(VT_RST);
 }
 
+struct ActorSpawnFaultClientInfo {
+    s16 actorId;
+    f32 posX;
+    f32 posY;
+    f32 posZ;
+    s16 rotX;
+    s16 rotY;
+    s16 rotZ;
+    s16 params;
+    char* ovlName;
+};
+s32 Actor_Spawn_FaultClient(void* arg0, void* arg1) {
+    struct ActorSpawnFaultClientInfo* i = arg0;
+    FaultDrawer_Printf("actorId = 0x%04hX\n", i->actorId);
+    FaultDrawer_Printf("ovlName = %s\n", i->ovlName);
+    FaultDrawer_Printf("params = 0x%04hX\n", i->params);
+    FaultDrawer_Printf("pos = %f %f %f\n", i->posX, i->posY, i->posZ);
+    FaultDrawer_Printf("rot = 0x%04hX 0x%04hX 0x%04hX\n", -1, i->rotY, i->rotZ);
+    return false;
+}
+
 Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 posX, f32 posY, f32 posZ, s16 rotX,
                    s16 rotY, s16 rotZ, s16 params) {
     s32 pad;
@@ -2786,11 +2807,28 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     char* name;
     u32 overlaySize;
 
+    FaultClient __attribute__((__cleanup__(Fault_RemoveClient))) faultClient;
+    struct ActorSpawnFaultClientInfo actorSpawnFaultClientInfo = {
+        .actorId = actorId,
+        .posX = posX,
+        .posY = posY,
+        .posZ = posZ,
+        .rotX = rotX,
+        .rotY = rotY,
+        .rotZ = rotZ,
+        .params = params,
+        .ovlName = NULL,
+    };
+
+    Fault_AddClient(&faultClient, Actor_Spawn_FaultClient, &actorSpawnFaultClientInfo, NULL);
+
     overlayEntry = &gActorOverlayTable[actorId];
     ASSERT(actorId < ACTOR_ID_MAX, "profile < ACTOR_DLF_MAX", "../z_actor.c", 6883);
 
     name = overlayEntry->name != NULL ? overlayEntry->name : "";
     overlaySize = (uintptr_t)overlayEntry->vramEnd - (uintptr_t)overlayEntry->vramStart;
+
+    actorSpawnFaultClientInfo.ovlName = name;
 
     if (HREG(20) != 0) {
         // "Actor class addition [%d:%s]"
@@ -2874,6 +2912,8 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     }
 
     objectSlot = Object_GetSlot(&play->objectCtx, actorInit->objectId);
+
+    ASSERT_SOFT(objectSlot >= 0);
 
     if ((objectSlot < 0) ||
         ((actorInit->category == ACTORCAT_ENEMY) && Flags_GetClear(play, play->roomCtx.curRoom.num))) {
