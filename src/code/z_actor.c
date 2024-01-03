@@ -2775,7 +2775,7 @@ void Actor_FreeOverlay(ActorOverlay* actorOverlay) {
     osSyncPrintf(VT_RST);
 }
 
-struct ActorSpawnFaultClientInfo {
+typedef struct ActorSpawnFaultClientInfo {
     s16 actorId;
     f32 posX;
     f32 posY;
@@ -2785,9 +2785,10 @@ struct ActorSpawnFaultClientInfo {
     s16 rotZ;
     s16 params;
     char* ovlName;
-};
+} ActorSpawnFaultClientInfo;
+
 s32 Actor_Spawn_FaultClient(void* arg0, void* arg1) {
-    struct ActorSpawnFaultClientInfo* i = arg0;
+    ActorSpawnFaultClientInfo* i = arg0;
     FaultDrawer_Printf("actorId = 0x%04hX\n", i->actorId);
     FaultDrawer_Printf("ovlName = %s\n", i->ovlName);
     FaultDrawer_Printf("params = 0x%04hX\n", i->params);
@@ -2808,7 +2809,7 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     u32 overlaySize;
 
     FaultClient __attribute__((__cleanup__(Fault_RemoveClient))) faultClient;
-    struct ActorSpawnFaultClientInfo actorSpawnFaultClientInfo = {
+    ActorSpawnFaultClientInfo actorSpawnFaultClientInfo = {
         .actorId = actorId,
         .posX = posX,
         .posY = posY,
