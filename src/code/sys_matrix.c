@@ -661,7 +661,7 @@ void Matrix_MtxFCopy(MtxF* dest, MtxF* src) {
     dest->ww = src->ww;
 }
 
-void Matrix_MtxToMtxF(Mtx* src, MtxF* dest) {
+void Matrix_MtxToMtxF(const Mtx* src, MtxF* dest) {
     u16* m1 = (u16*)&src->m[0][0];
     u16* m2 = (u16*)&src->m[2][0];
 
