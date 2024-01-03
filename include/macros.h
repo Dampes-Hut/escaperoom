@@ -188,4 +188,6 @@ extern struct GraphicsContext* __gfxCtx;
                        ((height)-1) << G_TEXTURE_IMAGE_FRAC);                                                          \
     } while (0)
 
+#define XYZ(vec) (vec).x, (vec).y, (vec).z
+
 #endif
