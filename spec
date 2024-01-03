@@ -3394,6 +3394,8 @@ beginseg
     include "build/src/overlays/actors/ovl_Shot_Sun/ovl_Shot_Sun_reloc.o"
 endseg
 
+#include "specd/overlays.txt"
+
 beginseg
     name "gameplay_keep"
     romalign 0x1000
@@ -6066,6 +6068,8 @@ beginseg
     include "build/assets/objects/object_zl4/object_zl4.o"
     number 6
 endseg
+
+#include "specd/objects.txt"
 
 beginseg
     name "g_pn_01"
@@ -10411,6 +10415,8 @@ beginseg
     include "build/assets/scenes/test_levels/test01/test01_room_0.o"
     number 3
 endseg
+
+#include "specd/maps.txt"
 
 beginseg
     name "bump_texture_static"
