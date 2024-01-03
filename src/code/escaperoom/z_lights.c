@@ -21,8 +21,7 @@ typedef struct {
 } LightsBuffer;
 STATIC LightsBuffer sLightsBuffer;
 
-#define FOR_EACH_LIGHTNODE(cur, head) \
-    for (LightNode* (cur) = (head); (cur) != NULL; (cur) = (cur)->next)
+#define FOR_EACH_LIGHTNODE(cur, head) for (LightNode * (cur) = (head); (cur) != NULL; (cur) = (cur)->next)
 
 //
 //  Light Info
@@ -520,7 +519,7 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
 
     if (lights->numLights == 0) {
         // Another ucode limitation: Lights0 still requires at least one other light alongside ambient.. add a dummy
-        lights->l.l[0] = (Light){0};
+        lights->l.l[0] = (Light){ 0 };
         lights->numLights = 1;
     }
 
@@ -549,9 +548,9 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
 }
 
 STATIC void Lights_PopOne(Gfx* dl) {
-#define GBI_IS_NOOP(gW0)        (((gW0) >> 24) == G_NOOP)
-#define GBI_IS_LIGHTS(gW0)      (((gW0) & 0xFFFF00FF) == (((Gfx)gsSPLight(0,0)).words.w0 & 0xFFFF00FF))
-#define GBI_IS_NUMLIGHTS(gW0)   ((gW0) == ((Gfx)gsSPNumLights(0)).words.w0)
+#define GBI_IS_NOOP(gW0) (((gW0) >> 24) == G_NOOP)
+#define GBI_IS_LIGHTS(gW0) (((gW0) & 0xFFFF00FF) == (((Gfx)gsSPLight(0, 0)).words.w0 & 0xFFFF00FF))
+#define GBI_IS_NUMLIGHTS(gW0) ((gW0) == ((Gfx)gsSPNumLights(0)).words.w0)
 
     dl--;
     u32 gW0 = dl->words.w0;
