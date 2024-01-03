@@ -1,4 +1,5 @@
 #include "global.h"
+#include "terminal.h"
 
 typedef struct {
     /* 0x00 */ u32 value;
@@ -746,16 +747,18 @@ void UCodeDisas_Disassemble(UCodeDisas* this, Gfx* ptr) {
                     } break;
 
                     case 7: {
-                        DISAS_LOG("count_gsDPNoOpOpenDisp([%s:%d]),", curGfx->noop.value.str, curGfx->noop.len);
+                        DISAS_LOG("count_gsDPNoOp" VT_FGCOL(GREEN) "OpenDisp" VT_RST "([%s:%d]),",
+                                  curGfx->noop.value.str, curGfx->noop.len);
                     } break;
 
                     case 8: {
-                        DISAS_LOG("count_gsDPNoOpCloseDisp([%s:%d]),", curGfx->noop.value.str, curGfx->noop.len);
+                        DISAS_LOG("count_gsDPNoOp" VT_FGCOL(RED) "CloseDisp" VT_RST "([%s:%d]),",
+                                  curGfx->noop.value.str, curGfx->noop.len);
                     } break;
 
                     case 2: {
-                        DISAS_LOG("count_gsDPNoOpString(%c%s%c, %d),", '"', curGfx->noop.value.str, '"',
-                                  curGfx->noop.len);
+                        DISAS_LOG("count_gsDPNoOp" VT_FGCOL(YELLOW) "String" VT_RST "(%c%s%c, %d),", '"',
+                                  curGfx->noop.value.str, '"', curGfx->noop.len);
                     } break;
 
                     case 3: {
