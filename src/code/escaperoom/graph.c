@@ -225,9 +225,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
     osStopTimer(&timer);
 
     if (msg == (OSMesg)666) {
-        osSyncPrintf(VT_FGCOL(RED));
-        osSyncPrintf("RCPが帰ってきませんでした。"); // "RCP did not return."
-        osSyncPrintf(VT_RST);
+        rmonPrintf(VT_BGCOL(RED) "RCP hanging" VT_RST "\n");
 
         LogUtils_LogHexDump((void*)PHYS_TO_K1(SP_BASE_REG), 0x20);
         LogUtils_LogHexDump((void*)PHYS_TO_K1(DPC_BASE_REG), 0x20);
@@ -238,8 +236,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
             R_HREG_MODE = HREG_MODE_UCODE_DISAS;
             R_UCODE_DISAS_TOGGLE = 1;
             R_UCODE_DISAS_LOG_LEVEL = 2;
-            sPrevTaskWorkBuffer = sPrevTaskWorkBuffer;
-            Graph_DisassembleUCode(sPrevTaskWorkBuffer);
+            // Graph_DisassembleUCode(sPrevTaskWorkBuffer);
         }
 
         Fault_AddHungupAndCrashImpl("RCP is HUNG UP!!", "Oh! MY GOD!!");
