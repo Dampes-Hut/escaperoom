@@ -13,7 +13,7 @@
 
 // DEBUG / FAULT
 
-#define ASSERT_SOFT(cond) __assert_soft(#cond, __FILE__, __LINE__)
+#define ASSERT_SOFT(cond) (cond) ? (void)0 :__assert_soft(#cond, __FILE__, __LINE__)
 
 #ifdef NDEBUG
 #define FrameAdvance_IsEnabled(play)    (0)
