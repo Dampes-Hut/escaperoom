@@ -268,12 +268,6 @@ void Environment_Init(PlayState* play2, EnvironmentContext* envCtx, s32 unused) 
     Lights_DirectionalSetInfo(&envCtx->dirLight2, 80, 80, 80, 80, 80, 80);
     LightContext_InsertLight(play, &play->lightCtx, &envCtx->dirLight2);
 
-    {
-        static LightInfo posLight1;
-        Lights_PointSetInfo(&posLight1, -115, 20, 120, 255, 220, 150, 400, LIGHT_POINT_GLOW);
-        LightContext_InsertLight(play, &play->lightCtx, &posLight1);
-    }
-
     envCtx->skybox1Index = 99;
     envCtx->skybox2Index = 99;
 

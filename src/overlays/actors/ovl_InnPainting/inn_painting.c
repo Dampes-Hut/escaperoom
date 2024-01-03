@@ -86,16 +86,18 @@ void InnPainting_Update(Actor* thisx, PlayState* play) {
  * 3: top-left, s,t=0,0
  * 1: bottom-right, s,t=texture corner opposite of 0,0
  * 0: x,y=0,0
+ *
+ * Meant to be lit (G_LIGHTING), all normals are +z
  */
-#define IPQUAD_W 400
-#define IPQUAD_H 100
+#define IPQUAD_W 80
+#define IPQUAD_H 20
 #define IPQUAD_TEXW 64
 #define IPQUAD_TEXH 16
 static Vtx sIPQuadVtx[] = {
-    /* 0 */ VTX(0, 0, 0, 0, 1 * IPQUAD_TEXH * (1 << 6), 255, 255, 255, 255),
-    /* 1 */ VTX(IPQUAD_W, 0, 0, 1 * IPQUAD_TEXW * (1 << 6), 1 * IPQUAD_TEXH * (1 << 6), 255, 255, 255, 255),
-    /* 2 */ VTX(IPQUAD_W, IPQUAD_H, 0, 1 * IPQUAD_TEXW * (1 << 6), 0, 255, 255, 255, 255),
-    /* 3 */ VTX(0, IPQUAD_H, 0, 0, 0, 255, 255, 255, 255),
+    /* 0 */ VTX(0, 0, 0, 0, 1 * IPQUAD_TEXH * (1 << 6), 0, 0, 0x7F, 255),
+    /* 1 */ VTX(IPQUAD_W, 0, 0, 1 * IPQUAD_TEXW * (1 << 6), 1 * IPQUAD_TEXH * (1 << 6), 0, 0, 0x7F, 255),
+    /* 2 */ VTX(IPQUAD_W, IPQUAD_H, 0, 1 * IPQUAD_TEXW * (1 << 6), 0, 0, 0, 0x7F, 255),
+    /* 3 */ VTX(0, IPQUAD_H, 0, 0, 0, 0, 0, 0x7F, 255),
 };
 
 #define IPQUAD_TEX_SEGNUM 8
@@ -149,19 +151,6 @@ void InnPainting_FreeBuffers(void) {
     sMallocPtr = NULL;
 }
 
-static Gfx sInnPaintingFlatPrimColorDL[] = {
-    gsDPPipeSync(),
-    gsSPTexture(0x8000, 0x8000, 0, G_TX_RENDERTILE, G_OFF),
-    gsDPSetCombineLERP(0, 0, 0, PRIMITIVE, //
-                       0, 0, 0, 1,         //
-                       0, 0, 0, COMBINED,  //
-                       0, 0, 0, COMBINED),
-    gsDPSetRenderMode(G_RM_PASS, G_RM_ZB_OPA_SURF2),
-    gsSPVertex(sIPQuadVtx, 4, 0),
-    gsSP2Triangles(0, 1, 2, 0, 2, 3, 0, 0),
-    gsSPEndDisplayList(),
-};
-
 static Gfx sInnPaintingSetupDL[] = {
     gsDPPipeSync(),
     gsSPTexture(0xFFFF, 0xFFFF, 0, G_TX_RENDERTILE, G_ON),
@@ -193,8 +182,8 @@ static void ip_print_mtx(const char* lhs_str, const Mtx* mtx) {
 /**
  * @note the scissoring region and color image must be set before calling
  */
-static void ip_rdp_fill_u16(Gfx** gfxP, size_t w, size_t h, u16 c) {
-    Gfx* gfx = *gfxP;
+static void ip_rdp_fill_u16(Gfx* restrict* gfxP, size_t w, size_t h, u16 c) {
+    Gfx* restrict gfx = *gfxP;
 
     gDPPipeSync(gfx++);
     gDPSetRenderMode(gfx++, G_RM_NOOP, G_RM_NOOP2);
@@ -208,8 +197,8 @@ static void ip_rdp_fill_u16(Gfx** gfxP, size_t w, size_t h, u16 c) {
 /**
  * restore buffers, scissor region, viewport, projView transform
  */
-static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
-    Gfx* gfx = *gfxP;
+static void ip_restore_normal_drawing(Gfx* restrict* gfxP, PlayState* play) {
+    Gfx* restrict gfx = *gfxP;
     GraphicsContext* gfxCtx = play->state.gfxCtx;
 
     gDPPipeSync(gfx++);
@@ -233,9 +222,9 @@ static void ip_restore_normal_drawing(Gfx** gfxP, PlayState* play) {
     *gfxP = gfx;
 }
 
-static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, Gfx** gfxP, GraphicsContext* gfxCtx,
-                                      u16* tex, u16* zBuffer, size_t w, size_t h, int timer) {
-    Gfx* gfx = *gfxP;
+static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, Gfx* restrict* gfxP,
+                                      GraphicsContext* gfxCtx, u16* tex, u16* zBuffer, size_t w, size_t h, int timer) {
+    Gfx* restrict gfx = *gfxP;
     f32 f;
 
     gDPNoOpString(gfx++, "ip_draw_to_rgba16_texture", 0);
@@ -297,6 +286,14 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
         rmonPrintf("%f %f %f -> %f %f %f\n", va.x, va.y, va.z, vb.x, vb.y, vb.z);
     }
 
+    // TODO can't seem to make the directional light do anything
+    // e.g. gdSPDefLights1(0, 255, 0, 255, 0, 0, 80, 80, 80)
+    //      results in green only, no red anywhere
+    static Lights1 lights = gdSPDefLights1(255, 255, 255, 0, 0, 0, 0, 0, 0);
+    Lights1* lights_p = Graph_Alloc(gfxCtx, sizeof(lights));
+    *lights_p = lights;
+    gSPSetLights1(gfx++, (*lights_p));
+
     gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectInnPaintingSlot].segment);
     gSPSegment(gfx++, 6, gSegments[6]);
     gDPNoOpString(gfx++, "draw gObjectInnPaintingBackgroundDL", 0);
@@ -329,7 +326,7 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
 
     // Draw to the texture
     {
-        Gfx* gfx = POLY_OPA_DISP;
+        Gfx* restrict gfx = POLY_OPA_DISP;
 
         Matrix_Push();
         ip_draw_to_rgba16_texture(this, play, &gfx, play->state.gfxCtx, sIPFBTex[this->bufI], sInnPaintingZBuffer,
@@ -341,10 +338,18 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
         POLY_OPA_DISP = gfx;
     }
 
+    // ip_draw_to_rgba16_texture modifies the lights
+    Lights_BindAndDraw(play, &this->actor.world.pos, play->roomCtx.curRoom.usePointLights);
+
     // Draw the painting in the world
+
     gSPDisplayList(POLY_OPA_DISP++, sInnPaintingSetupDL);
-    float f = 80 / (IPQUAD_W * this->actor.scale.x);
-    Matrix_Scale(f, f, 0, MTXMODE_APPLY);
+
+    gSPSetGeometryMode(POLY_OPA_DISP++, G_LIGHTING);
+    if (play->roomCtx.curRoom.usePointLights)
+        gSPSetGeometryMode(POLY_OPA_DISP++, G_LIGHTING_POSITIONAL);
+
+    Matrix_SetTranslateRotateYXZ(XYZ(this->actor.world.pos), &this->actor.shape.rot);
     Matrix_Translate(-IPQUAD_W / 2, 4 * IPQUAD_H / 2, 0, MTXMODE_APPLY);
     for (int i = 0; i < 4; i++) {
         Matrix_Translate(0, -IPQUAD_H, 0, MTXMODE_APPLY);
