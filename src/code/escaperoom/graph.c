@@ -236,8 +236,7 @@ void Graph_TaskSet00(GraphicsContext* gfxCtx) {
             R_HREG_MODE = HREG_MODE_UCODE_DISAS;
             R_UCODE_DISAS_TOGGLE = 1;
             R_UCODE_DISAS_LOG_LEVEL = 2;
-            sPrevTaskWorkBuffer = sPrevTaskWorkBuffer;
-            Graph_DisassembleUCode(sPrevTaskWorkBuffer);
+            // Graph_DisassembleUCode(sPrevTaskWorkBuffer);
         }
 
         Fault_AddHungupAndCrashImpl("RCP is HUNG UP!!", "Oh! MY GOD!!");
