@@ -195,33 +195,8 @@ static void ip_rdp_fill_u16(Gfx* restrict* gfxP, size_t w, size_t h, u16 c) {
 }
 
 /**
- * restore buffers, scissor region, viewport, projView transform
+ * @note modifies the current matrix
  */
-static void ip_restore_normal_drawing(Gfx* restrict* gfxP, PlayState* play) {
-    Gfx* restrict gfx = *gfxP;
-    GraphicsContext* gfxCtx = play->state.gfxCtx;
-
-    gDPPipeSync(gfx++);
-    gDPSetColorImage(gfx++, G_IM_FMT_RGBA, G_IM_SIZ_16b, SCREEN_WIDTH, play->state.gfxCtx->curFrameBuffer);
-    gDPSetDepthImage(gfx++, gZBuffer);
-
-    // mimics View_ApplyLetterbox
-    int varY = CLAMP_MAX(Letterbox_GetSize(), SCREEN_HEIGHT / 2);
-    gDPSetScissor(gfx++, G_SC_NON_INTERLACE, 0, 0 + varY, SCREEN_WIDTH, SCREEN_HEIGHT - varY);
-
-    Vp* vp = Graph_Alloc(gfxCtx, sizeof(Vp));
-    Mtx* projMtx = Graph_Alloc(gfxCtx, sizeof(Mtx));
-    *vp = play->view.vp;
-    *projMtx = play->view.projection;
-
-    gSPViewport(gfx++, vp);
-    gSPPerspNormalize(gfx++, play->view.normal);
-    gSPMatrix(gfx++, projMtx, G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_PROJECTION);
-    gSPMatrix(gfx++, play->view.viewingPtr, G_MTX_NOPUSH | G_MTX_MUL | G_MTX_PROJECTION);
-
-    *gfxP = gfx;
-}
-
 static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, Gfx* restrict* gfxP,
                                       GraphicsContext* gfxCtx, u16* tex, u16* zBuffer, size_t w, size_t h, int timer) {
     Gfx* restrict gfx = *gfxP;
@@ -325,20 +300,20 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
     OPEN_DISPS(play->state.gfxCtx);
 
     // Draw to the texture
+    // Write the dlist in the POLY_OPA_DISP buffer, but run it in WORK_DISP
     {
-        Gfx* restrict gfx = POLY_OPA_DISP;
+        Gfx* restrict gfx = POLY_OPA_DISP + 1;
+        gSPBranchList(WORK_DISP++, gfx);
 
-        Matrix_Push();
         ip_draw_to_rgba16_texture(this, play, &gfx, play->state.gfxCtx, sIPFBTex[this->bufI], sInnPaintingZBuffer,
                                   IPFB_W, IPFB_H, this->timer);
-        Matrix_Pop();
 
-        ip_restore_normal_drawing(&gfx, play);
-
+        gSPBranchList(gfx++, WORK_DISP);
+        gSPBranchList(POLY_OPA_DISP, gfx);
         POLY_OPA_DISP = gfx;
     }
 
-    // ip_draw_to_rgba16_texture modifies the lights
+    // Currently z_actor never uses realPointLights
     Lights_BindAndDraw(play, &this->actor.world.pos, play->roomCtx.curRoom.usePointLights);
 
     // Draw the painting in the world
