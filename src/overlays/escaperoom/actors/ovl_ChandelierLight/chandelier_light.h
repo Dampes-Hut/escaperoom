@@ -6,17 +6,17 @@
 
 #define NUM_CANDLES 6
 
-struct ChandelierCandleInfo {
+typedef struct ChandelierCandleInfo {
     Vec3f flamePos; // in world space
     float brightness; // 0-1
-};
+} ChandelierCandleInfo;
 
 typedef struct ChandelierLightActor {
     Actor actor;
     LightInfo lightInfo;
     struct LightNode* lightNode;
     int timer;
-    struct ChandelierCandleInfo candles[NUM_CANDLES];
+    ChandelierCandleInfo candles[NUM_CANDLES];
     float brightness;
 } ChandelierLightActor;
 

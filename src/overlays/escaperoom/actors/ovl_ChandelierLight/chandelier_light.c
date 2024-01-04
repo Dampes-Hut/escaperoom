@@ -48,7 +48,7 @@ void ChandelierLight_Init(Actor* thisx, PlayState* play) {
         { -24.2f, -32.8f, 0.0f },
     };
     for (int iCandle = 0; iCandle < NUM_CANDLES; iCandle++) {
-        struct ChandelierCandleInfo* candle = &this->candles[iCandle];
+        ChandelierCandleInfo* candle = &this->candles[iCandle];
         int iPlane = iCandle / 2;
         Vec3f* flamePos = &candleFlamePositions[iCandle % 2];
 
@@ -76,7 +76,7 @@ void ChandelierLight_Update(Actor* thisx, PlayState* play) {
     float sumBrightness = 0.0f;
 
     for (int iCandle = 0; iCandle < NUM_CANDLES; iCandle++) {
-        struct ChandelierCandleInfo* candle = &this->candles[iCandle];
+        ChandelierCandleInfo* candle = &this->candles[iCandle];
 
         float targetBrightness = Rand_ZeroOne();
         candle->brightness = LERP(candle->brightness, targetBrightness, 0.8f);
@@ -153,7 +153,7 @@ void ChandelierLight_Draw(Actor* thisx, PlayState* play) {
     gSPDisplayList(POLY_XLU_DISP++, sGlowSetupDL);
 
     for (int iCandle = 0; iCandle < NUM_CANDLES; iCandle++) {
-        struct ChandelierCandleInfo* candle = &this->candles[iCandle];
+        ChandelierCandleInfo* candle = &this->candles[iCandle];
 
         Matrix_Translate(XYZ(candle->flamePos), MTXMODE_NEW);
         cl_draw_glow(&POLY_XLU_DISP, play->state.gfxCtx, LERP(12.0f, 17.0f, candle->brightness),
