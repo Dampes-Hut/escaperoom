@@ -145,7 +145,7 @@ ZAPD       := tools/ZAPD/ZAPD.out
 FADO       := tools/fado/fado.elf
 
 ifeq ($(COMPILER),gcc)
-  OPTFLAGS := -Og -g3 -ffast-math -fno-unsafe-math-optimizations
+  OPTFLAGS := -Og -ggdb3 -ffast-math -fno-unsafe-math-optimizations
 else
   OPTFLAGS := -O2
 endif
@@ -286,6 +286,7 @@ build/assets/%.o: CC := python3 tools/asm_processor/build.py $(CC) -- $(AS_NOCPP
 else
 # The / is intentionally left out to capture other directories starting with "assets"
 build/assets%.o: CFLAGS += -fno-zero-initialized-in-bss -fno-toplevel-reorder
+build/assets%.o: OPTFLAGS += -g0
 build/src/overlays/%.o: CFLAGS += -fno-merge-constants -mno-explicit-relocs -mno-split-addresses
 build/src/%.o: CFLAGS += -fexec-charset=euc-jp
 
@@ -356,7 +357,7 @@ build/$(SPEC): $(SPEC)
 	$(CPP) $(CPPFLAGS) $< > $@
 build/$(SPEC): specd/maps.txt specd/overlays.txt specd/objects.txt
 
-build/ldscript.txt: build/$(SPEC)
+build/ldscript.txt: build/$(SPEC) $(MKLDSCRIPT)
 	$(MKLDSCRIPT) $< $@
 
 build/undefined_syms.txt: undefined_syms.txt
