@@ -1,4 +1,5 @@
 import dataclasses
+import mmap
 from pathlib import Path
 import struct
 import sys
@@ -37,10 +38,7 @@ class Symbol:
 
 
 class ELF:
-    def __init__(self, data_bytes: bytes) -> None:
-        self.data_bytes = data_bytes
-
-        data = memoryview(data_bytes)
+    def __init__(self, data: mmap.mmap) -> None:
         self.data = data
 
         # Header
@@ -96,10 +94,9 @@ class ELF:
 
     def get_string(self, str_section: SectionHeader, offset: int) -> memoryview:
         start = str_section.sh_offset + offset
-        try:
-            end = self.data_bytes.index(0, start)
-        except ValueError as e:
-            raise Exception(f"Did not find any NUL byte starting at {start:#X}") from e
+        end = self.data.find(b"\0", start)
+        if end == -1:
+            raise Exception(f"Did not find any NUL byte starting at {start:#X}")
         return self.data[start:end]
 
     def section_foridx(self, i):
@@ -115,10 +112,16 @@ class SymInfo:
 
 
 def main():
-    ELF_PATH = Path(sys.argv[1])
-    PDB_PATH = Path(sys.argv[2])
+    elf_path = Path(sys.argv[1])
+    pdb_path = Path(sys.argv[2])
 
-    elf = ELF(ELF_PATH.read_bytes())
+    with elf_path.open("rb") as f_elf:
+        elf_data = mmap.mmap(f_elf.fileno(), 0, access=mmap.ACCESS_READ)
+        main_wrapped(elf_data, pdb_path)
+
+
+def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
+    elf = ELF(elf_data)
 
     print("Collecting symbols")
 
@@ -177,7 +180,7 @@ def main():
 
     padded_data = all_data + b"\0" * (next_MiB - final_len)
 
-    PDB_PATH.write_bytes(padded_data)
+    pdb_path.write_bytes(padded_data)
 
     print(f"Wrote {len(sym_info)} syms. PDB size (before padding) = 0x{final_len:X}")
 
