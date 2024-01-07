@@ -100,7 +100,8 @@ class ELF:
         return self.data[start:end]
 
     def section_foridx(self, i):
-        return SectionHeader(self.data[self.e_shoff + i * 0x28 :][:0x28])
+        off = self.e_shoff + i * 0x28
+        return SectionHeader(self.data[off : off + 0x28])
 
 
 @dataclasses.dataclass
@@ -120,23 +121,20 @@ def main():
         main_wrapped(elf_data, pdb_path)
 
 
-def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
-    elf = ELF(elf_data)
+STRUCT_BE_III = struct.Struct(">III")
 
-    print("Collecting symbols")
 
+def collect_symbols(elf: ELF):
     sym_info: list[SymInfo] = []
     str_data = bytearray()
 
     start = elf.symtab.sh_offset
     end = start + elf.symtab.sh_size
 
-    struct_BE_III = struct.Struct(">III")
-
     while start < end:
         st_info = elf.data[start + 12]
         if (st_info & 0xF) == 2:
-            st_name, st_value, st_size = struct_BE_III.unpack(
+            st_name, st_value, st_size = STRUCT_BE_III.unpack(
                 elf.data[start : start + 12]
             )
             name = elf.get_string(elf.strtab, st_name)
@@ -154,17 +152,12 @@ def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
 
         start += 0x10
 
-    print("Sorting symbols")
+    return sym_info, str_data
 
-    sym_info.sort(key=lambda inf: inf.start)
 
-    # for inf in sym_info:
-    #     print(f"0x{inf.start:08X} 0x{inf.end:08X} {inf.name.decode("latin1")}")
-
-    print("Assembling pdb")
-
+def assemble_pdb(sym_info: list[SymInfo], str_data: bytearray):
     sym_data = b"".join(
-        struct.pack(">III", inf.start, inf.end, inf.name_offset) for inf in sym_info
+        STRUCT_BE_III.pack(inf.start, inf.end, inf.name_offset) for inf in sym_info
     )
 
     all_data = b"".join(
@@ -179,6 +172,21 @@ def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
     next_MiB = (final_len + 0x100000 - 1) % 0x100000
 
     padded_data = all_data + b"\0" * (next_MiB - final_len)
+
+    return final_len, padded_data
+
+
+def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
+    elf = ELF(elf_data)
+
+    print("Collecting symbols")
+    sym_info, str_data = collect_symbols(elf)
+
+    print("Sorting symbols")
+    sym_info.sort(key=lambda inf: inf.start)
+
+    print("Assembling pdb")
+    final_len, padded_data = assemble_pdb(sym_info, str_data)
 
     pdb_path.write_bytes(padded_data)
 
