@@ -217,50 +217,66 @@ static void write_ld_script(FILE *fout)
 
     fputs("    _RomEnd = _RomSize;\n\n", fout);
 
+/**
+ * Don't link debug sections from overlays into the elf, as they end up unused when
+ * using gdb.
+ * (the z64 overlay loading scripts load the build/src/overlays/.../x.o files and
+ *  those still have all the debug info)
+ * This dramatically speeds up linking and gdb loading the elf.
+ */
+#define EXCLUDE " EXCLUDE_FILE (build/src/overlays/*)"
+/**
+ * Keep some sections still for the z64 overlay loading scripts to find .o files
+ * based on symbols. Alternatively the scripts could just get the .o files another
+ * way but I'm lazy to do that.
+ * The sections this is on were derived experimentally with gdb-multiarch version
+ *     GNU gdb (Ubuntu 14.0.50.20230907-0ubuntu1) 14.0.50.20230907-git
+ */
+#define EXCLUDE_NOT
     // Debugging sections
     fputs(
         // mdebug sections
-          "    .pdr              : { *(.pdr) }"                                             "\n"
-          "    .mdebug           : { *(.mdebug) }"                                          "\n"
-          "    .mdebug.abi32     : { *(.mdebug.abi32) }"                                    "\n"
+          "    .pdr              : {" EXCLUDE " *(.pdr) }"                                             "\n"
+          "    .mdebug           : {" EXCLUDE " *(.mdebug) }"                                          "\n"
+          "    .mdebug.abi32     : {" EXCLUDE " *(.mdebug.abi32) }"                                    "\n"
         // DWARF debug sections
         // Symbols in the DWARF debugging sections are relative to the beginning of the section so we begin them at 0.
         // DWARF 1
-          "    .debug          0 : { *(.debug) }"                                           "\n"
-          "    .line           0 : { *(.line) }"                                            "\n"
+          "    .debug          0 : {" EXCLUDE " *(.debug) }"                                           "\n"
+          "    .line           0 : {" EXCLUDE " *(.line) }"                                            "\n"
         // GNU DWARF 1 extensions
-          "    .debug_srcinfo  0 : { *(.debug_srcinfo) }"                                   "\n"
-          "    .debug_sfnames  0 : { *(.debug_sfnames) }"                                   "\n"
+          "    .debug_srcinfo  0 : {" EXCLUDE " *(.debug_srcinfo) }"                                   "\n"
+          "    .debug_sfnames  0 : {" EXCLUDE " *(.debug_sfnames) }"                                   "\n"
         // DWARF 1.1 and DWARF 2
-          "    .debug_aranges  0 : { *(.debug_aranges) }"                                   "\n"
-          "    .debug_pubnames 0 : { *(.debug_pubnames) }"                                  "\n"
+          "    .debug_aranges  0 : {" EXCLUDE " *(.debug_aranges) }"                                   "\n"
+          "    .debug_pubnames 0 : {" EXCLUDE " *(.debug_pubnames) }"                                  "\n"
         // DWARF 2
-          "    .debug_info     0 : { *(.debug_info .gnu.linkonce.wi.*) }"                   "\n"
-          "    .debug_abbrev   0 : { *(.debug_abbrev) }"                                    "\n"
-          "    .debug_line     0 : { *(.debug_line .debug_line.* .debug_line_end ) }"       "\n"
-          "    .debug_frame    0 : { *(.debug_frame) }"                                     "\n"
-          "    .debug_str      0 : { *(.debug_str) }"                                       "\n"
-          "    .debug_loc      0 : { *(.debug_loc) }"                                       "\n"
-          "    .debug_macinfo  0 : { *(.debug_macinfo) }"                                   "\n"
+          "    .debug_info     0 : {" EXCLUDE_NOT " *(.debug_info .gnu.linkonce.wi.*) }"               "\n"
+          "    .debug_abbrev   0 : {" EXCLUDE_NOT " *(.debug_abbrev) }"                                "\n"
+          "    .debug_line     0 : {" EXCLUDE_NOT " *(.debug_line .debug_line.* .debug_line_end ) }"   "\n"
+          "    .debug_frame    0 : {" EXCLUDE " *(.debug_frame) }"                                     "\n"
+          "    .debug_str      0 : {" EXCLUDE_NOT " *(.debug_str) }"                                   "\n"
+          "    .debug_loc      0 : {" EXCLUDE " *(.debug_loc) }"                                       "\n"
+          "    .debug_macinfo  0 : {" EXCLUDE " *(.debug_macinfo) }"                                   "\n"
         // SGI/MIPS DWARF 2 extensions
-          "    .debug_weaknames 0 : { *(.debug_weaknames) }"                                "\n"
-          "    .debug_funcnames 0 : { *(.debug_funcnames) }"                                "\n"
-          "    .debug_typenames 0 : { *(.debug_typenames) }"                                "\n"
-          "    .debug_varnames  0 : { *(.debug_varnames) }"                                 "\n"
+          "    .debug_weaknames 0 : {" EXCLUDE " *(.debug_weaknames) }"                                "\n"
+          "    .debug_funcnames 0 : {" EXCLUDE " *(.debug_funcnames) }"                                "\n"
+          "    .debug_typenames 0 : {" EXCLUDE " *(.debug_typenames) }"                                "\n"
+          "    .debug_varnames  0 : {" EXCLUDE " *(.debug_varnames) }"                                 "\n"
         // DWARF 3
-          "    .debug_pubtypes 0 : { *(.debug_pubtypes) }"                                  "\n"
-          "    .debug_ranges   0 : { *(.debug_ranges) }"                                    "\n"
+          "    .debug_pubtypes 0 : {" EXCLUDE " *(.debug_pubtypes) }"                                  "\n"
+          "    .debug_ranges   0 : {" EXCLUDE " *(.debug_ranges) }"                                    "\n"
         // DWARF 5
-          "    .debug_addr     0 : { *(.debug_addr) }"                                      "\n"
-          "    .debug_line_str 0 : { *(.debug_line_str) }"                                  "\n"
-          "    .debug_loclists 0 : { *(.debug_loclists) }"                                  "\n"
-          "    .debug_macro    0 : { *(.debug_macro) }"                                     "\n"
-          "    .debug_names    0 : { *(.debug_names) }"                                     "\n"
-          "    .debug_rnglists 0 : { *(.debug_rnglists) }"                                  "\n"
-          "    .debug_str_offsets 0 : { *(.debug_str_offsets) }"                            "\n"
-          "    .debug_sup      0 : { *(.debug_sup) }\n"
+          "    .debug_addr     0 : {" EXCLUDE " *(.debug_addr) }"                                      "\n"
+          "    .debug_line_str 0 : {" EXCLUDE " *(.debug_line_str) }"                                  "\n"
+          "    .debug_loclists 0 : {" EXCLUDE " *(.debug_loclists) }"                                  "\n"
+          "    .debug_macro    0 : {" EXCLUDE " *(.debug_macro) }"                                     "\n"
+          "    .debug_names    0 : {" EXCLUDE " *(.debug_names) }"                                     "\n"
+          "    .debug_rnglists 0 : {" EXCLUDE " *(.debug_rnglists) }"                                  "\n"
+          "    .debug_str_offsets 0 : {" EXCLUDE " *(.debug_str_offsets) }"                            "\n"
+          "    .debug_sup      0 : {" EXCLUDE " *(.debug_sup) }\n"
         // gnu attributes
-          "    .gnu.attributes 0 : { KEEP (*(.gnu.attributes)) }"                           "\n", fout);
+          "    .gnu.attributes 0 : { KEEP (" EXCLUDE " *(.gnu.attributes)) }"                          "\n", fout);
 
     // Discard all other sections not mentioned above
     fputs("    /DISCARD/ :"                                                                 "\n"
