@@ -1,0 +1,11 @@
+beginseg
+    name "object_inn_painting"
+    include "build/assets_mod/objects/object_inn_painting/gObjectInnPaintingBackgroundDL.o"
+    number 6
+endseg
+
+beginseg
+    name "object_chandelier"
+    include "build/assets_mod/objects/object_chandelier/gChandelierDL.o"
+    number 6
+endseg

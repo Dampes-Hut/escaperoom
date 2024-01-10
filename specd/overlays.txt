@@ -1,0 +1,11 @@
+beginseg
+    name "ovl_InnPainting"
+    include "build/src/overlays/escaperoom/actors/ovl_InnPainting/inn_painting.o"
+    include "build/src/overlays/escaperoom/actors/ovl_InnPainting/ovl_InnPainting_reloc.o"
+endseg
+
+beginseg
+    name "ovl_ChandelierLight"
+    include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/chandelier_light.o"
+    include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/ovl_ChandelierLight_reloc.o"
+endseg

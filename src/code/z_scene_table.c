@@ -1596,6 +1596,19 @@ void Scene_DrawConfigBesitu(PlayState* play) {
     CLOSE_DISPS(play->state.gfxCtx, "../z_scene_table.c", 7910);
 }
 
+void Scene_DrawConfigInnBedroom(PlayState* play) {
+    static Gfx sInnBedroomCurtainsColorDL[] = {
+        gsDPSetPrimColor(0, 0, 240, 220, 250, 240),
+        gsSPEndDisplayList(),
+    };
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gSPSegment(POLY_XLU_DISP++, 8, sInnBedroomCurtainsColorDL);
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
 void (*sSceneDrawConfigs[SDC_MAX])(PlayState*) = {
     Scene_DrawConfigDefault,                     // SDC_DEFAULT
     Scene_DrawConfigHyruleField,                 // SDC_HYRULE_FIELD
@@ -1650,6 +1663,7 @@ void (*sSceneDrawConfigs[SDC_MAX])(PlayState*) = {
     Scene_DrawConfigFishingPond,                 // SDC_FISHING_POND
     Scene_DrawConfigGanonsTowerCollapseInterior, // SDC_GANONS_TOWER_COLLAPSE_INTERIOR
     Scene_DrawConfigInsideGanonsCastleCollapse,  // SDC_INSIDE_GANONS_CASTLE_COLLAPSE
+    Scene_DrawConfigInnBedroom,                  // SDC_INN_BEDROOM
 };
 
 void Scene_Draw(PlayState* play) {

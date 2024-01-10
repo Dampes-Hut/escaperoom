@@ -433,7 +433,8 @@ typedef enum {
     /* 50 */ SDC_FISHING_POND,
     /* 51 */ SDC_GANONS_TOWER_COLLAPSE_INTERIOR,
     /* 52 */ SDC_INSIDE_GANONS_CASTLE_COLLAPSE,
-    /* 53 */ SDC_MAX
+    SDC_INN_BEDROOM,
+    SDC_MAX
 } SceneDrawConfig;
 
 // R_SCENE_CAM_TYPE values
@@ -510,6 +511,10 @@ typedef enum {
 #define SCENE_CMD_ROOM_BEHAVIOR(curRoomUnk3, curRoomUnk2, showInvisActors, disableWarpSongs) \
     { SCENE_CMD_ID_ROOM_BEHAVIOR, curRoomUnk3, \
         curRoomUnk2 | _SHIFTL(showInvisActors, 8, 1) | _SHIFTL(disableWarpSongs, 10, 1) }
+
+#define SCENE_CMD_ROOM_BEHAVIOR_PL(curRoomUnk3, curRoomUnk2, showInvisActors, disableWarpSongs, usePointLights) \
+    { SCENE_CMD_ID_ROOM_BEHAVIOR, curRoomUnk3, \
+        curRoomUnk2 | _SHIFTL(showInvisActors, 8, 1) | _SHIFTL(disableWarpSongs, 10, 1) | _SHIFTL(usePointLights, 11, 1) }
 
 #define SCENE_CMD_UNK_09() \
     { SCENE_CMD_ID_UNDEFINED_9, 0, CMD_W(0) }
