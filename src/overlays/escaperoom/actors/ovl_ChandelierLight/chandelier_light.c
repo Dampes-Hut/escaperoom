@@ -42,7 +42,7 @@ void ChandelierLight_Init(Actor* thisx, PlayState* play) {
     static_assert(NUM_CANDLES == 6, "If the model changes check this");
     // The model is made of 3 planes, each has 2 candles.
     // The XY plane has the two candles at the candleFlamePositions coordinates
-    Vec3f candleFlamePositions[2] = {
+    static Vec3f candleFlamePositions[2] = {
         // world coordinates relative to the actor
         { 23.1f, -31.7f, 0.0f },
         { -24.2f, -32.8f, 0.0f },
