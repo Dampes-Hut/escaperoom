@@ -1,20 +1,45 @@
+import dataclasses
+import mmap
+from pathlib import Path
+import struct
+import sys
 
-import struct, sys
 
 class SectionHeader:
+    STRUCT = struct.Struct(">IIIIIIIIII")
+
     def __init__(self, data):
-        self.sh_name, self.sh_type, self.sh_flags, self.sh_addr, \
-            self.sh_offset, self.sh_size, self.sh_link, self.sh_info, \
-                self.sh_addralign, self.sh_entsize = struct.unpack(">IIIIIIIIII", data)
+        (
+            self.sh_name,
+            self.sh_type,
+            self.sh_flags,
+            self.sh_addr,
+            self.sh_offset,
+            self.sh_size,
+            self.sh_link,
+            self.sh_info,
+            self.sh_addralign,
+            self.sh_entsize,
+        ) = self.STRUCT.unpack(data)
+
 
 class Symbol:
+    STRUCT = struct.Struct(">IIIBBH")
+
     def __init__(self, data):
-        self.st_name, self.st_value, self.st_size, self.st_info, \
-            self.st_other, self.st_shndx = struct.unpack(">IIIBBH", data)
+        (
+            self.st_name,
+            self.st_value,
+            self.st_size,
+            self.st_info,
+            self.st_other,
+            self.st_shndx,
+        ) = self.STRUCT.unpack(data)
+
 
 class ELF:
-    def __init__(self, data) -> None:
-        self.data : memoryview = data
+    def __init__(self, data: mmap.mmap) -> None:
+        self.data = data
 
         # Header
 
@@ -24,100 +49,149 @@ class ELF:
         assert self.e_ident[4] == 1
         assert self.e_ident[5] == 2
 
-        self.e_type, self.e_machine, self.e_version, self.e_entry, \
-            self.e_phoff, self.e_shoff, self.e_flags, self.e_ehsize, \
-                self.e_phentsize, self.e_phnum, self.e_shentsize, self.e_shnum, \
-                    self.e_shstrndx = struct.unpack(">HHIIIIIHHHHHH", data[16:52])
+        (
+            self.e_type,
+            self.e_machine,
+            self.e_version,
+            self.e_entry,
+            self.e_phoff,
+            self.e_shoff,
+            self.e_flags,
+            self.e_ehsize,
+            self.e_phentsize,
+            self.e_phnum,
+            self.e_shentsize,
+            self.e_shnum,
+            self.e_shstrndx,
+        ) = struct.unpack(">HHIIIIIHHHHHH", data[16:52])
 
         assert self.e_shentsize == 0x28
 
         self.shstrtab = self.section_foridx(self.e_shstrndx)
 
-        self.symtab = None
-        self.strtab = None
+        symtab = None
+        strtab = None
 
         for i in range(self.e_shnum):
             section = self.section_foridx(i)
 
             if section.sh_type == 2:
-                assert self.symtab is None
-                self.symtab = section
+                assert symtab is None
+                symtab = section
                 continue
 
             name = self.get_string(self.shstrtab, section.sh_name)
             if name == b".strtab":
-                assert self.strtab is None
-                self.strtab = section
+                assert strtab is None
+                strtab = section
                 continue
 
-        assert self.symtab is not None
-        assert self.strtab is not None
+        assert symtab is not None
+        assert strtab is not None
 
-    def get_string(self, str_section : SectionHeader, offset : int):
+        self.symtab = symtab
+        self.strtab = strtab
+
+    def get_string(self, str_section: SectionHeader, offset: int) -> memoryview:
         start = str_section.sh_offset + offset
-        end = start
-        while self.data[end] != 0:
-            end += 1
-        return bytes(self.data[start:end])
+        end = self.data.find(b"\0", start)
+        if end == -1:
+            raise Exception(f"Did not find any NUL byte starting at {start:#X}")
+        return self.data[start:end]
 
     def section_foridx(self, i):
-        return SectionHeader(self.data[self.e_shoff + i * 0x28:][:0x28])
+        off = self.e_shoff + i * 0x28
+        return SectionHeader(self.data[off : off + 0x28])
 
+
+@dataclasses.dataclass
 class SymInfo:
-    def __init__(self, start, end, name_offset, name):
-        self.start, self.end, self.name_offset = start, end, name_offset
-        self.name = name
+    start: int
+    end: int
+    name_offset: int
+    name: memoryview
 
-if __name__ == '__main__':
-    ELF_PATH = sys.argv[1]
-    PDB_PATH = sys.argv[2]
 
-    with open(ELF_PATH, "rb") as infile:
-        elf = ELF(memoryview(infile.read()))
+def main():
+    elf_path = Path(sys.argv[1])
+    pdb_path = Path(sys.argv[2])
 
-    print("Collecting symbols")
+    with elf_path.open("rb") as f_elf:
+        elf_data = mmap.mmap(f_elf.fileno(), 0, access=mmap.ACCESS_READ)
+        main_wrapped(elf_data, pdb_path)
 
-    sym_info = []
-    str_data = b""
+
+STRUCT_BE_III = struct.Struct(">III")
+
+
+def collect_symbols(elf: ELF):
+    sym_info: list[SymInfo] = []
+    str_data = bytearray()
 
     start = elf.symtab.sh_offset
     end = start + elf.symtab.sh_size
 
-    nsyms = 0
     while start < end:
-        st_info = elf.data[start+12]
+        st_info = elf.data[start + 12]
         if (st_info & 0xF) == 2:
-            st_name, st_value, st_size = struct.unpack(">III", elf.data[start:start+12])
+            st_name, st_value, st_size = STRUCT_BE_III.unpack(
+                elf.data[start : start + 12]
+            )
             name = elf.get_string(elf.strtab, st_name)
 
             sym_info.append(SymInfo(st_value, st_value + st_size, len(str_data), name))
 
-            str_data += name[:59] + b"\0" # ensure null-terminated and max length 60 chars
-            while len(str_data) % 4 != 0: # pad to 4 byte boundary
+            # max length 60 chars
+            str_data += name[:59]
+            # NUL-terminate
+            str_data += b"\0"
+
+            # pad to 4 byte boundary
+            while len(str_data) % 4 != 0:
                 str_data += b"\0"
 
-            nsyms += 1
         start += 0x10
 
+    return sym_info, str_data
+
+
+def assemble_pdb(sym_info: list[SymInfo], str_data: bytearray):
+    sym_data = b"".join(
+        STRUCT_BE_III.pack(inf.start, inf.end, inf.name_offset) for inf in sym_info
+    )
+
+    all_data = b"".join(
+        (
+            struct.pack(">II", 0xFFFF5A5A, len(sym_info)),
+            sym_data,
+            str_data,
+        )
+    )
+
+    final_len = len(all_data)
+    next_MiB = (final_len + 0x100000 - 1) % 0x100000
+
+    padded_data = all_data + b"\0" * (next_MiB - final_len)
+
+    return final_len, padded_data
+
+
+def main_wrapped(elf_data: mmap.mmap, pdb_path: Path):
+    elf = ELF(elf_data)
+
+    print("Collecting symbols")
+    sym_info, str_data = collect_symbols(elf)
+
     print("Sorting symbols")
-
-    sym_info.sort(key=lambda inf : inf.start)
-
-    # for inf in sym_info:
-    #     print(f"0x{inf.start:08X} 0x{inf.end:08X} {inf.name.decode("latin1")}")
+    sym_info.sort(key=lambda inf: inf.start)
 
     print("Assembling pdb")
+    final_len, padded_data = assemble_pdb(sym_info, str_data)
 
-    sym_data = b"".join(struct.pack(">III", inf.start, inf.end, inf.name_offset) for inf in sym_info)
+    pdb_path.write_bytes(padded_data)
 
-    all_data = struct.pack(">II", 0xFFFF5A5A, nsyms) + sym_data + str_data
-    
-    final_len = len(all_data)
-    next_mb = (final_len + 0x100000-1) & ~(0x100000-1)
+    print(f"Wrote {len(sym_info)} syms. PDB size (before padding) = 0x{final_len:X}")
 
-    padded_data = all_data + b"\0" * (next_mb - final_len)
 
-    with open(PDB_PATH, "wb") as outfile:
-        outfile.write(padded_data)
-
-    print(f"Wrote {nsyms} syms. PDB size (before padding) = 0x{final_len:X}")
+if __name__ == "__main__":
+    main()
