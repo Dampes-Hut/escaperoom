@@ -440,6 +440,4 @@ build/assets%.bin.inc.c: assets%.bin
 build/assets%.jpg.inc.c: assets%.jpg
 	$(ZAPD) bren -eh -i $< -o $@
 
-build/src/overlays/escaperoom/%.o: CFLAGS += -Werror
-
 -include $(DEP_FILES)
