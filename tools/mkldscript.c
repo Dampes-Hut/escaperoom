@@ -251,11 +251,11 @@ static void write_ld_script(FILE *fout)
           "    .debug_aranges  0 : {" EXCLUDE " *(.debug_aranges) }"                                   "\n"
           "    .debug_pubnames 0 : {" EXCLUDE " *(.debug_pubnames) }"                                  "\n"
         // DWARF 2
-          "    .debug_info     0 : {" EXCLUDE_NOT " *(.debug_info .gnu.linkonce.wi.*) }"                   "\n"
-          "    .debug_abbrev   0 : {" EXCLUDE_NOT " *(.debug_abbrev) }"                                    "\n"
-          "    .debug_line     0 : {" EXCLUDE_NOT " *(.debug_line .debug_line.* .debug_line_end ) }"       "\n"
+          "    .debug_info     0 : {" EXCLUDE_NOT " *(.debug_info .gnu.linkonce.wi.*) }"               "\n"
+          "    .debug_abbrev   0 : {" EXCLUDE_NOT " *(.debug_abbrev) }"                                "\n"
+          "    .debug_line     0 : {" EXCLUDE_NOT " *(.debug_line .debug_line.* .debug_line_end ) }"   "\n"
           "    .debug_frame    0 : {" EXCLUDE " *(.debug_frame) }"                                     "\n"
-          "    .debug_str      0 : {" EXCLUDE_NOT " *(.debug_str) }"                                       "\n"
+          "    .debug_str      0 : {" EXCLUDE_NOT " *(.debug_str) }"                                   "\n"
           "    .debug_loc      0 : {" EXCLUDE " *(.debug_loc) }"                                       "\n"
           "    .debug_macinfo  0 : {" EXCLUDE " *(.debug_macinfo) }"                                   "\n"
         // SGI/MIPS DWARF 2 extensions
@@ -276,7 +276,7 @@ static void write_ld_script(FILE *fout)
           "    .debug_str_offsets 0 : {" EXCLUDE " *(.debug_str_offsets) }"                            "\n"
           "    .debug_sup      0 : {" EXCLUDE " *(.debug_sup) }\n"
         // gnu attributes
-          "    .gnu.attributes 0 : { KEEP (" EXCLUDE " *(.gnu.attributes)) }"                           "\n", fout);
+          "    .gnu.attributes 0 : { KEEP (" EXCLUDE " *(.gnu.attributes)) }"                          "\n", fout);
 
     // Discard all other sections not mentioned above
     fputs("    /DISCARD/ :"                                                                 "\n"
