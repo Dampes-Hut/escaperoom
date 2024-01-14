@@ -145,7 +145,7 @@ ZAPD       := tools/ZAPD/ZAPD.out
 FADO       := tools/fado/fado.elf
 
 ifeq ($(COMPILER),gcc)
-  OPTFLAGS := -Og -ggdb3 -ffast-math -fno-unsafe-math-optimizations
+  OPTFLAGS := -Og -ggdb3 -ffast-math -fno-unsafe-math-optimizations -finline-functions-called-once
 else
   OPTFLAGS := -O2
 endif
