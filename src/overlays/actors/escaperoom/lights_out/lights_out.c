@@ -23,9 +23,11 @@ ActorInit Lights_Out_InitVars = {
 };
 
 ALIGNED16 u16 sLightsOutBoardPalette[LIGHTSOUT_NUM_STATES] = {
-    GPACK_RGBA5551(0, 148, 255, 1),
-    GPACK_RGBA5551(255, 0, 0, 1),
-    //GPACK_RGBA5551(0, 255, 0, 1),
+    // clang-format off
+    GPACK_RGBA5551(  0, 148, 255, 1),
+    GPACK_RGBA5551(255,   0,   0, 1),
+    // GPACK_RGBA5551(0, 255, 0, 1),
+    // clang-format on
 };
 
 // If we're working in the binary field GF(2) many calculations simplify significantly, in particular:
@@ -120,7 +122,7 @@ static void Matrix_GaussJordan(u8* E, u32 N, u32 p) {
 
         u32 i = r;
 
-        while (E[N*pivot + i] == 0) {
+        while (E[N * pivot + i] == 0) {
             i++;
 
             if (N == i) {
@@ -135,23 +137,23 @@ static void Matrix_GaussJordan(u8* E, u32 N, u32 p) {
 
         if (i != r) {
             for (u32 c = 0; c < N; c++) {
-                u8 swap = E[N*c + r];
-                E[N*c + r] = E[N*c + i];
-                E[N*c + i] = swap;
+                u8 swap = E[N * c + r];
+                E[N * c + r] = E[N * c + i];
+                E[N * c + i] = swap;
             }
         }
 
-        u32 v = E[N*pivot + r];
+        u32 v = E[N * pivot + r];
         for (u32 c = 0; c < N; c++) {
-            E[N*c + r] = Mod_Div(E[N*c + r], v, p);
+            E[N * c + r] = Mod_Div(E[N * c + r], v, p);
         }
 
         for (u32 j = 0; j < N; j++) {
             if (j != r) {
-                v = E[N*pivot + j];
+                v = E[N * pivot + j];
 
                 for (u32 c = 0; c < N; c++) {
-                    E[N*c + j] = Mod_Sub(E[N*c + j], Mod_Mul(E[N*c + r], v, p), p);
+                    E[N * c + j] = Mod_Sub(E[N * c + j], Mod_Mul(E[N * c + r], v, p), p);
                 }
             }
         }
@@ -210,7 +212,7 @@ static void LightsOut_BuildActionMatrix(u8* R, u32 n, u32 m) {
                 value = diffAC == 0;
             }
 
-            R[N*j + i] = value;
+            R[N * j + i] = value;
         }
     }
 }
@@ -237,7 +239,7 @@ static void Vector_Print(u8* V, u32 N) {
 
 /**
  * Generate an initial state that is guaranteed to be solvable.
- * 
+ *
  * A state is solvable (a set of moves exists that transforms this state to the winning state) if and only if the vector
  * representing the grid state is orthogonal to the generators of "quiet patterns", move combinations that leave the
  * board state unchanged.
@@ -344,8 +346,8 @@ void LightsOut_Destroy(Actor* thisx, PlayState* play) {
 }
 
 // (model space cell length) * (actor scale 0.01)
-#define CELL_SIDE_X   ((50000.0f / LIGHTSOUT_GRID_X) * 0.01f)
-#define CELL_SIDE_Z   ((50000.0f / LIGHTSOUT_GRID_Y) * 0.01f)
+#define CELL_SIDE_X ((50000.0f / LIGHTSOUT_GRID_X) * 0.01f)
+#define CELL_SIDE_Z ((50000.0f / LIGHTSOUT_GRID_Y) * 0.01f)
 
 static s32 LightsOut_GetPlayerCell(LightsOut* this, PlayState* play, u8* x, u8* z) {
     if (!func_800435B4(&this->dyna)) {
@@ -362,16 +364,16 @@ static s32 LightsOut_GetPlayerCell(LightsOut* this, PlayState* play, u8* x, u8* 
     f32 px = deltaX * cosY - deltaZ * sinY;
     f32 pz = deltaX * sinY + deltaZ * cosY;
 
-    px += CELL_SIDE_X * (f32)LIGHTSOUT_GRID_X/2;
-    pz += CELL_SIDE_Z * (f32)LIGHTSOUT_GRID_Y/2;
+    px += CELL_SIDE_X * (f32)LIGHTSOUT_GRID_X / 2;
+    pz += CELL_SIDE_Z * (f32)LIGHTSOUT_GRID_Y / 2;
 
     s32 cellX = (s32)(px / CELL_SIDE_X);
     s32 cellZ = (s32)(pz / CELL_SIDE_Z);
 
-    if (cellX < 0 || cellX > LIGHTSOUT_GRID_X-1) {
+    if (cellX < 0 || cellX > LIGHTSOUT_GRID_X - 1) {
         return false;
     }
-    if (cellZ < 0 || cellZ > LIGHTSOUT_GRID_Y-1) {
+    if (cellZ < 0 || cellZ > LIGHTSOUT_GRID_Y - 1) {
         return false;
     }
     *x = cellX;
@@ -395,13 +397,13 @@ static void LightsOut_StateAdvance(LightsOut* this, PlayState* play, u8 x, u8 z)
     if (x > 0) {
         LightsOut_SingleCellAdvance(this, x - 1, z);
     }
-    if (x < LIGHTSOUT_GRID_X-1) {
+    if (x < LIGHTSOUT_GRID_X - 1) {
         LightsOut_SingleCellAdvance(this, x + 1, z);
     }
     if (z > 0) {
         LightsOut_SingleCellAdvance(this, x, z - 1);
     }
-    if (z < LIGHTSOUT_GRID_Y-1) {
+    if (z < LIGHTSOUT_GRID_Y - 1) {
         LightsOut_SingleCellAdvance(this, x, z + 1);
     }
 }

@@ -3,7 +3,7 @@ import mmap
 from pathlib import Path
 import struct
 import sys
-
+from typing import List
 
 class SectionHeader:
     STRUCT = struct.Struct(">IIIIIIIIII")
@@ -125,7 +125,7 @@ STRUCT_BE_III = struct.Struct(">III")
 
 
 def collect_symbols(elf: ELF):
-    sym_info: list[SymInfo] = []
+    sym_info: List[SymInfo] = []
     str_data = bytearray()
 
     start = elf.symtab.sh_offset
@@ -155,7 +155,7 @@ def collect_symbols(elf: ELF):
     return sym_info, str_data
 
 
-def assemble_pdb(sym_info: list[SymInfo], str_data: bytearray):
+def assemble_pdb(sym_info: List[SymInfo], str_data: bytearray):
     sym_data = b"".join(
         STRUCT_BE_III.pack(inf.start, inf.end, inf.name_offset) for inf in sym_info
     )
