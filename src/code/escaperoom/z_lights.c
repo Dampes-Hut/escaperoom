@@ -264,6 +264,8 @@ STATIC Light* Lights_FindSlot(Lights* lights, f32 objDist) {
     return &lights->l.l[furthestI];
 }
 
+static const float sPointLight_r0 = 3000;
+
 STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* restrict params, Vec3f* objPos,
                                           UNUSED PlayState* play) {
     if (params->point.radius <= 0) {
@@ -286,9 +288,6 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
     refDiff.z = posF.z - objPos->z;
 
     f32 refDistSq = SQ(refDiff.x) + SQ(refDiff.y) + SQ(refDiff.z);
-    if (SQ(radiusF) <= refDistSq) {
-        return;
-    }
 
     f32 refDist = sqrtf(refDistSq);
 
@@ -302,9 +301,24 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
 
     // Success, build the light structure
 
-    f32 scale = refDist / radiusF;
+    // cf Lights_BindPoint
+    // Note: we skip rounding, may reduce possible artifacts due to integer truncation
 
-    scale = 1 - SQ(scale);
+    float r = radiusF;
+    float f;
+
+    float ca = 8;
+
+    f = sPointLight_r0 / r;
+    float la = CLAMP(f, 0, 255);
+
+    f = sPointLight_r0 / r;
+    f = SQ(f);
+    float qa = CLAMP(f, 1, 255);
+
+    f32 scale;
+
+    scale = 1 / (qa / 524288 * SQ(refDist) + la / 32768 * refDist + ca / 16 + (float)1 / 2);
 
     light->l.col[0] = light->l.colc[0] = params->point.color[0] * scale;
     light->l.col[1] = light->l.colc[1] = params->point.color[1] * scale;
@@ -327,7 +341,6 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
     if ((params->point.color[0] | params->point.color[1] | params->point.color[2]) == 0) {
         return;
     }
-    f32 radiusF = params->point.radius;
 
     Vec3f posF;
     posF.x = params->point.x;
@@ -359,13 +372,6 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
 
     // Success, build the light structure
 
-    radiusF = 4500000.0f / SQ(radiusF);
-    if (radiusF > 255) {
-        radiusF = 255;
-    } else if (radiusF < 20) {
-        radiusF = 20;
-    }
-
     light->p.col[0] = light->p.colc[0] = params->point.color[0];
     light->p.col[1] = light->p.colc[1] = params->point.color[1];
     light->p.col[2] = light->p.colc[2] = params->point.color[2];
@@ -377,9 +383,30 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
     // Set attenuation values, light intensity is computed as L = L0 / (qa * SQ(d) + la * d + ca) in the microcode
     // where d is the distance between a vertex and the light position. `ca` must be non-zero for the microcode to
     // take the point lighting codepath.
+
+    // Tharo:
+    // > afaik the denominator is (in floating point)
+    // > (Q / 524288) * SQ(d) + (L / 32768) * d + (C / 16) + (1 / 2)
+    // > C=8 avoids an overflow where this would compute a reciprocal > 1.0 for C < 8
+    // > https://www.desmos.com/calculator/s3vwzxd4v0
+
+    // With these coefficients, for 180 ~< r ~< 2400 , the attenuation f(d) will be
+    // f(r/4)~0.5 , f(r/2)~0.2 , f(r)~0.06
+
+    float r = params->point.radius;
+    float f;
+    int i;
+
     light->p.ca = 8;
-    light->p.la = 255;
-    light->p.qa = (s32)radiusF;
+
+    f = sPointLight_r0 / r;
+    i = ROUND(f);
+    light->p.la = CLAMP(i, 0, 255);
+
+    f = sPointLight_r0 / r;
+    f = SQ(f);
+    i = ROUND(f);
+    light->p.qa = CLAMP(i, 1, 255);
 }
 
 STATIC void Lights_BindDirectional(Lights* restrict lights, LightParams* restrict params, UNUSED Vec3f* objPos,
