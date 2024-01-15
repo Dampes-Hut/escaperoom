@@ -9,3 +9,9 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/chandelier_light.o"
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/ovl_ChandelierLight_reloc.o"
 endseg
+
+beginseg
+    name "ovl_CourtyardTombStone"
+    include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/courtyard_tomb_stone.o"
+    include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/ovl_CourtyardTombStone_reloc.o"
+endseg
