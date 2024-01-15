@@ -900,7 +900,9 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
     sDListsLodOffset = lod * 2;
 
+    gDPNoOpString(POLY_OPA_DISP++, "Player_DrawImpl: > SkelAnime_DrawFlexLod", 0);
     SkelAnime_DrawFlexLod(play, skeleton, jointTable, dListCount, overrideLimbDraw, postLimbDraw, data, lod);
+    gDPNoOpString(POLY_OPA_DISP++, "Player_DrawImpl: < SkelAnime_DrawFlexLod", 0);
 
     if ((overrideLimbDraw != Player_OverrideLimbDrawGameplayFirstPerson) &&
         (overrideLimbDraw != Player_OverrideLimbDrawGameplayCrawling) &&
@@ -909,6 +911,10 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
             s32 strengthUpgrade = CUR_UPG_VALUE(UPG_STRENGTH);
 
             if (strengthUpgrade >= 2) { // silver or gold gauntlets
+
+                gDPNoOpString(POLY_OPA_DISP++, "Player_DrawImpl: strengthUpgrade =", 0);
+                gDPNoOpWord(POLY_OPA_DISP++, strengthUpgrade, 0);
+
                 gDPPipeSync(POLY_OPA_DISP++);
 
                 color = &sGauntletColors[strengthUpgrade - 2];
@@ -926,6 +932,9 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
             if (boots != PLAYER_BOOTS_KOKIRI) {
                 Gfx** bootDLists = sBootDListGroups[boots - PLAYER_BOOTS_IRON];
+
+                gDPNoOpString(POLY_OPA_DISP++, "Player_DrawImpl: boots =", 0);
+                gDPNoOpWord(POLY_OPA_DISP++, boots, 0);
 
                 gSPDisplayList(POLY_OPA_DISP++, bootDLists[0]);
                 gSPDisplayList(POLY_OPA_DISP++, bootDLists[1]);
