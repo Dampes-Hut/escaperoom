@@ -9,3 +9,10 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/chandelier_light.o"
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/ovl_ChandelierLight_reloc.o"
 endseg
+
+beginseg
+    name "ovl_MuhDarkLink"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/muh_dark_link.o"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/ovl_MuhDarkLink_reloc.o"
+endseg
+

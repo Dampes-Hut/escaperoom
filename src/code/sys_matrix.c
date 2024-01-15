@@ -626,6 +626,15 @@ void Matrix_MultVec3f(Vec3f* src, Vec3f* dest) {
     dest->z = cmf->zw + (cmf->zx * src->x + cmf->zy * src->y + cmf->zz * src->z);
 }
 
+/**
+ * Equivalent to Matrix_MultVec3f((0,0,0), dest)
+ */
+Vec3f Matrix_GetTranslation(void) {
+    MtxF* cmf = sCurrentMatrix;
+
+    return (Vec3f){ cmf->xw, cmf->yw, cmf->zw };
+}
+
 void Matrix_MtxFCopy(MtxF* dest, MtxF* src) {
     dest->xx = src->xx;
     dest->yx = src->yx;

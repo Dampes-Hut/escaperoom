@@ -12,3 +12,19 @@ beginseg
     include "build/assets_mod/maps/inn_bedroom/inn_bedroom_room_0_model.o"
     number 3
 endseg
+
+beginseg
+    name "test_darklink_puzzle_scene"
+    include "build/assets_mod/maps/test_darklink_puzzle/test_darklink_puzzle_scene_main.o"
+    include "build/assets_mod/maps/test_darklink_puzzle/test_darklink_puzzle_scene_col.o"
+    number 2
+endseg
+
+beginseg
+    name "test_darklink_puzzle_room_0"
+    include "build/assets_mod/maps/test_darklink_puzzle/test_darklink_puzzle_room_0_main.o"
+    include "build/assets_mod/maps/test_darklink_puzzle/test_darklink_puzzle_room_0_model_info.o"
+    include "build/assets_mod/maps/test_darklink_puzzle/test_darklink_puzzle_room_0_model.o"
+    number 3
+endseg
+
