@@ -9,3 +9,9 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/chandelier_light.o"
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/ovl_ChandelierLight_reloc.o"
 endseg
+
+beginseg
+    name "ovl_PropFlame"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/prop_flame.o"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/ovl_PropFlame_reloc.o"
+endseg
