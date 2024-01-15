@@ -144,7 +144,9 @@ typedef struct {
 #define ACTOR_FLAG_2 (1 << 2)
 #define ACTOR_FLAG_3 (1 << 3)
 #define ACTOR_FLAG_4 (1 << 4)
+#define ACTOR_FLAG_NOCULL_UPDATE ACTOR_FLAG_4
 #define ACTOR_FLAG_5 (1 << 5)
+#define ACTOR_FLAG_NOCULL_DRAW ACTOR_FLAG_5
 #define ACTOR_FLAG_6 (1 << 6)
 #define ACTOR_FLAG_7 (1 << 7)
 #define ACTOR_FLAG_8 (1 << 8)

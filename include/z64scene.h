@@ -526,7 +526,7 @@ typedef enum {
     { SCENE_CMD_ID_OBJECT_LIST, numObjects, CMD_PTR(objectList) }
 
 #define SCENE_CMD_LIGHT_LIST(numLights, lightList) \
-    { SCENE_CMD_ID_POS_LIGHT_LIST, numLights, CMD_PTR(lightList) }
+    { SCENE_CMD_ID_LIGHT_LIST, numLights, CMD_PTR(lightList) }
 
 #define SCENE_CMD_PATH_LIST(pathList) \
     { SCENE_CMD_ID_PATH_LIST, 0, CMD_PTR(pathList) }

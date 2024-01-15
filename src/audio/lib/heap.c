@@ -756,11 +756,13 @@ void AudioHeap_UpdateReverbs(void) {
 void AudioHeap_ClearCurrentAiBuffer(void) {
     s32 curAiBufferIndex = gAudioCtx.curAiBufIndex;
     s32 i;
+    s16* buf;
 
     gAudioCtx.aiBufLengths[curAiBufferIndex] = gAudioCtx.audioBufferParameters.minAiBufferLength;
 
+    buf = (s16*)K0_TO_K1(gAudioCtx.aiBuffers[curAiBufferIndex]);
     for (i = 0; i < AIBUF_LEN; i++) {
-        gAudioCtx.aiBuffers[curAiBufferIndex][i] = 0;
+        buf[i] = 0;
     }
 }
 
@@ -828,8 +830,10 @@ s32 AudioHeap_ResetStep(void) {
             gAudioCtx.resetStatus = 0;
             for (i = 0; i < 3; i++) {
                 gAudioCtx.aiBufLengths[i] = gAudioCtx.audioBufferParameters.maxAiBufferLength;
+
+                s16* buf = (s16*)K0_TO_K1(gAudioCtx.aiBuffers[i]);
                 for (j = 0; j < AIBUF_LEN; j++) {
-                    gAudioCtx.aiBuffers[i][j] = 0;
+                    buf[j] = 0;
                 }
             }
             break;
@@ -1026,7 +1030,7 @@ void AudioHeap_Init(void) {
             reverb->filterLeftState =
                 AudioHeap_AllocDmaMemoryZeroed(&gAudioCtx.miscPool, 2 * (FILTER_BUF_PART1 + FILTER_BUF_PART2));
             reverb->filterLeft = AudioHeap_AllocDmaMemory(&gAudioCtx.miscPool, FILTER_SIZE);
-            AudioHeap_LoadLowPassFilter(reverb->filterLeft, settings->lowPassFilterCutoffLeft);
+            AudioHeap_LoadLowPassFilter((s16*)K0_TO_K1(reverb->filterLeft), settings->lowPassFilterCutoffLeft);
         } else {
             reverb->filterLeft = NULL;
         }
@@ -1035,7 +1039,7 @@ void AudioHeap_Init(void) {
             reverb->filterRightState =
                 AudioHeap_AllocDmaMemoryZeroed(&gAudioCtx.miscPool, 2 * (FILTER_BUF_PART1 + FILTER_BUF_PART2));
             reverb->filterRight = AudioHeap_AllocDmaMemory(&gAudioCtx.miscPool, FILTER_SIZE);
-            AudioHeap_LoadLowPassFilter(reverb->filterRight, settings->lowPassFilterCutoffRight);
+            AudioHeap_LoadLowPassFilter((s16*)K0_TO_K1(reverb->filterRight), settings->lowPassFilterCutoffRight);
         } else {
             reverb->filterRight = NULL;
         }

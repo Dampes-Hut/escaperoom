@@ -844,6 +844,8 @@ void AnimationContext_SetLoadFrame(PlayState* play, LinkAnimationHeader* animati
         LinkAnimationHeader* linkAnimHeader = SEGMENTED_TO_VIRTUAL(animation);
         s32 pad;
 
+        assert(frameTable != NULL);
+
         osCreateMesgQueue(&entry->data.load.msgQueue, &entry->data.load.msg, 1);
         DmaMgr_RequestAsync(&entry->data.load.req, frameTable,
                             LINK_ANIMATION_OFFSET(linkAnimHeader->segment, ((sizeof(Vec3s) * limbCount + 2) * frame)),
@@ -1070,6 +1072,9 @@ void SkelAnime_InitLink(PlayState* play, SkelAnime* skelAnime, FlexSkeletonHeade
     if (jointTable == NULL) {
         skelAnime->jointTable = ZeldaArena_MallocDebug(allocSize, "../z_skelanime.c", 2364);
         skelAnime->morphTable = ZeldaArena_MallocDebug(allocSize, "../z_skelanime.c", 2365);
+
+        assert(skelAnime->jointTable != NULL);
+        assert(skelAnime->morphTable != NULL);
     } else {
         ASSERT(limbBufCount == limbCount, "joint_buff_num == joint_num", "../z_skelanime.c", 2369);
 

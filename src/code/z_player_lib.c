@@ -582,6 +582,7 @@ void Player_SetEquipmentData(PlayState* play, Player* this) {
         this->currentShield = SHIELD_EQUIP_TO_PLAYER(CUR_EQUIP_VALUE(EQUIP_TYPE_SHIELD));
         this->currentTunic = TUNIC_EQUIP_TO_PLAYER(CUR_EQUIP_VALUE(EQUIP_TYPE_TUNIC));
         this->currentBoots = BOOTS_EQUIP_TO_PLAYER(CUR_EQUIP_VALUE(EQUIP_TYPE_BOOTS));
+        assert(this->currentBoots >= 0 && this->currentBoots < PLAYER_BOOTS_MAX);
         this->currentSwordItemId = B_BTN_ITEM;
         Player_SetModelGroup(this, Player_ActionToModelGroup(this, this->heldItemAction));
         Player_SetBootData(play, this);
@@ -926,6 +927,9 @@ void Player_DrawImpl(PlayState* play, void** skeleton, Vec3s* jointTable, s32 dL
 
             if (boots != PLAYER_BOOTS_KOKIRI) {
                 Gfx** bootDLists = sBootDListGroups[boots - PLAYER_BOOTS_IRON];
+
+                assert(boots - PLAYER_BOOTS_IRON >= 0);
+                assert(boots - PLAYER_BOOTS_IRON < ARRAY_COUNT(sBootDListGroups));
 
                 gSPDisplayList(POLY_OPA_DISP++, bootDLists[0]);
                 gSPDisplayList(POLY_OPA_DISP++, bootDLists[1]);

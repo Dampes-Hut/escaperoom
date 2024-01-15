@@ -149,14 +149,14 @@ s32 Graph_UCodeFaultClient(void* arg0, UNUSED void* arg1) {
 }
 
 void Graph_InitTHGA(GraphicsContext* gfxCtx) {
-    GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx & 1];
+    GfxPool* pool = (GfxPool*)K0_TO_K1(&gGfxPools[gfxCtx->gfxPoolIdx & 1]);
 
     pool->headMagic = GFXPOOL_HEAD_MAGIC;
     pool->tailMagic = GFXPOOL_TAIL_MAGIC;
-    THGA_Init(&gfxCtx->polyOpa, (void*)K0_TO_K1(pool->polyOpaBuffer), sizeof(pool->polyOpaBuffer));
-    THGA_Init(&gfxCtx->polyXlu, (void*)K0_TO_K1(pool->polyXluBuffer), sizeof(pool->polyXluBuffer));
-    THGA_Init(&gfxCtx->overlay, (void*)K0_TO_K1(pool->overlayBuffer), sizeof(pool->overlayBuffer));
-    THGA_Init(&gfxCtx->work, (void*)K0_TO_K1(pool->workBuffer), sizeof(pool->workBuffer));
+    THGA_Init(&gfxCtx->polyOpa, pool->polyOpaBuffer, sizeof(pool->polyOpaBuffer));
+    THGA_Init(&gfxCtx->polyXlu, pool->polyXluBuffer, sizeof(pool->polyXluBuffer));
+    THGA_Init(&gfxCtx->overlay, pool->overlayBuffer, sizeof(pool->overlayBuffer));
+    THGA_Init(&gfxCtx->work, pool->workBuffer, sizeof(pool->workBuffer));
 
     gfxCtx->polyOpaBuffer = pool->polyOpaBuffer;
     gfxCtx->polyXluBuffer = pool->polyXluBuffer;
@@ -369,7 +369,7 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
     problem = false;
 
     {
-        GfxPool* pool = &gGfxPools[gfxCtx->gfxPoolIdx & 1];
+        GfxPool* pool = (GfxPool*)K0_TO_K1(&gGfxPools[gfxCtx->gfxPoolIdx & 1]);
 
         if (pool->headMagic != GFXPOOL_HEAD_MAGIC) {
             //! @bug (?) : "problem = true;" may be missing

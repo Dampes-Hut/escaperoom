@@ -474,10 +474,12 @@ void Audio_SeqLayerDecayRelease(SequenceLayer* layer, s32 target) {
             attrs->filter = chan->filter;
 
             if (attrs->filter != NULL) {
+                // Align to cache line and write uncached
+                s16* buf = (s16*)K0_TO_K1(ALIGN16((uintptr_t)attrs->filterBuf));
                 for (i = 0; i < 8; i++) {
-                    attrs->filterBuf[i] = attrs->filter[i];
+                    buf[i] = attrs->filter[i];
                 }
-                attrs->filter = attrs->filterBuf;
+                attrs->filter = buf;
             }
 
             attrs->unk_6 = chan->unk_20;
