@@ -2775,6 +2775,7 @@ void Actor_FreeOverlay(ActorOverlay* actorOverlay) {
     osSyncPrintf(VT_RST);
 }
 
+#ifndef NDEBUG
 typedef struct ActorSpawnFaultClientInfo {
     s16 actorId;
     f32 posX;
@@ -2796,6 +2797,7 @@ s32 Actor_Spawn_FaultClient(void* arg0, void* arg1) {
     FaultDrawer_Printf("rot = 0x%04hX 0x%04hX 0x%04hX\n", -1, i->rotY, i->rotZ);
     return false;
 }
+#endif
 
 Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 posX, f32 posY, f32 posZ, s16 rotX,
                    s16 rotY, s16 rotZ, s16 params) {
@@ -2808,6 +2810,7 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     char* name;
     u32 overlaySize;
 
+#ifndef NDEBUG
     FaultClient __attribute__((__cleanup__(Fault_RemoveClient))) faultClient;
     ActorSpawnFaultClientInfo actorSpawnFaultClientInfo = {
         .actorId = actorId,
@@ -2822,6 +2825,7 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     };
 
     Fault_AddClient(&faultClient, Actor_Spawn_FaultClient, &actorSpawnFaultClientInfo, NULL);
+#endif
 
     overlayEntry = &gActorOverlayTable[actorId];
     ASSERT(actorId < ACTOR_ID_MAX, "profile < ACTOR_DLF_MAX", "../z_actor.c", 6883);

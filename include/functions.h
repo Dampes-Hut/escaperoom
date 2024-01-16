@@ -904,7 +904,12 @@ void LightContext_SetFog(LightContext* lightCtx, u8 r, u8 g, u8 b, s16 fogNear, 
 Lights* LightContext_NewLights(LightContext* lightCtx, GraphicsContext* gfxCtx);
 void LightContext_InitList(PlayState* play, LightContext* lightCtx);
 void LightContext_DestroyList(PlayState* play, LightContext* lightCtx);
-LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, LightInfo* info);
+LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, LightInfo* info
+#ifndef NDEBUG
+                                    ,
+                                    char* file, int line
+#endif
+);
 #if 0
 void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode* node);
 Lights* Lights_NewAndDraw(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambientB, u8 numLights, u8 r, u8 g,
@@ -912,7 +917,12 @@ Lights* Lights_NewAndDraw(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 
 Lights* Lights_New(GraphicsContext* gfxCtx, u8 ambientR, u8 ambientG, u8 ambientB);
 #endif
 void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode* light);
-LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* lightList, u32* numLights);
+LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* lightList, u32* numLights
+#ifndef NDEBUG
+                                    ,
+                                    char* file, int line
+#endif
+);
 void LightContext_RemoveLightList(PlayState* play, LightContext* lightCtx, LightNode* firstLight, u32 numLights);
 Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights);
 void Lights_Pop(PlayState* play);

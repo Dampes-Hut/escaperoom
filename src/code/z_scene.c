@@ -1,6 +1,10 @@
 #include "global.h"
 #include "terminal.h"
 
+#ifndef NDEBUG
+#include "src/code/escaperoom/debug/snprintf.h"
+#endif
+
 RomFile sNaviQuestHintFiles[];
 
 /**
@@ -315,14 +319,21 @@ void Scene_CommandObjectList(PlayState* play, SceneCmd* cmd) {
 }
 
 void Scene_CommandLightList(PlayState* play, SceneCmd* cmd) {
-    s32 i;
     LightInfo* lightInfo = SEGMENTED_TO_VIRTUAL(cmd->lightList.data);
 
     assert(play->roomCtx.curRoom.lightList == NULL);
 
     play->roomCtx.curRoom.numLights = cmd->lightList.length;
-    play->roomCtx.curRoom.lightList = LightContext_InsertLightList(play, &play->lightCtx, lightInfo,
-                                                                   &play->roomCtx.curRoom.numLights);
+    play->roomCtx.curRoom.lightList =
+        LightContext_InsertLightList(play, &play->lightCtx, lightInfo, &play->roomCtx.curRoom.numLights);
+#ifndef NDEBUG
+    int i = play->roomCtx.curRoom.numLights;
+    for (LightNode* ln = play->roomCtx.curRoom.lightList; i != 0; ln = ln->next, i--) {
+        assert(ln != NULL);
+        snprintf(ln->additional_context, sizeof(ln->additional_context), "prevRoom.num=%d curRoom.num=%d",
+                                                (int)play->roomCtx.prevRoom.num, (int)play->roomCtx.curRoom.num);
+    }
+#endif
 }
 
 void Scene_CommandPathList(PlayState* play, SceneCmd* cmd) {

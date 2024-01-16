@@ -52,7 +52,12 @@ typedef struct LightNode {
     /* 0x0 */ LightInfo* info;
     /* 0x4 */ struct LightNode* prev;
     /* 0x8 */ struct LightNode* next;
-} LightNode; // size = 0xC
+#ifndef NDEBUG
+    char file[256]; // copy the filename since a pointer may become dangling (if the string is in a z64 overlay)
+    int line;
+    char additional_context[256];
+#endif
+} LightNode;
 
 #define ENV_FOGNEAR_MAX 996
 #define ENV_ZFAR_MAX 12800
@@ -68,7 +73,8 @@ typedef struct {
 typedef enum {
     /* 0x00 */ LIGHT_POINT_NOGLOW,
     /* 0x01 */ LIGHT_DIRECTIONAL,
-    /* 0x02 */ LIGHT_POINT_GLOW
+    /* 0x02 */ LIGHT_POINT_GLOW,
+    /* 0x03 */ LIGHT_TYPE_MAX
 } LightType;
 
 #if 0

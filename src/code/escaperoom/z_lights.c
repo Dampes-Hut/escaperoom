@@ -1,6 +1,9 @@
 #include "global.h"
 #include "assets/objects/gameplay_keep/gameplay_keep.h"
 
+#undef LightContext_InsertLight
+#undef LightContext_InsertLightList
+
 #ifndef F3DEX_GBI_PL
 #error Does not support non-point-light microcode
 #endif
@@ -129,12 +132,36 @@ STATIC LightNode* Lights_FindBufSlot(void) {
  * only the closest lights to the object or camera eye to be bound when drawing. Further, inserting too many lights
  * into the system as a whole will eventually cause lights to be silently dropped.
  */
-LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, LightInfo* info) {
+LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, LightInfo* info
+#ifndef NDEBUG
+                                    ,
+                                    char* file, int line
+#endif
+) {
+#ifndef NDEBUG
+    // Check not inserting the light a second time
+    FOR_EACH_LIGHTNODE(lightNode, lightCtx->listHead) {
+        assert(lightNode->info != info);
+    }
+#endif
+
     LightNode* light = Lights_FindBufSlot();
     if (light == NULL) {
         // No space left
         return NULL;
     }
+
+#ifndef NDEBUG
+    assert(file != NULL);
+    size_t len = strlen(file);
+    if (len >= sizeof(light->file))
+        len = sizeof(light->file) - 1;
+    assert(len < sizeof(light->file));
+    memcpy(light->file, file, len);
+    light->file[len] = '\0';
+    light->line = line;
+    light->additional_context[0] = '\0';
+#endif
 
     // Bind light info
     light->info = info;
@@ -179,6 +206,12 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 
     // Unbind light info
     light->info = NULL;
+#ifndef NDEBUG
+    light->file[0] = '\0';
+    light->line = -1;
+    const char additional_context_freed[] = "freed by LightContext_RemoveLight";
+    memcpy(light->additional_context, additional_context_freed, sizeof(additional_context_freed));
+#endif
     // Mark not occupied
     sLightsBuffer.occupiedBitSet &= ~(1 << i);
 }
@@ -197,25 +230,66 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
  * @see LightContext_InsertLight
  * @see LightContext_RemoveLightList
  */
-LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* lightList, u32* numLights) {
+LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx, LightInfo* const lightList,
+                                        u32* numLights
+#ifndef NDEBUG
+                                        ,
+                                        char* file, int line
+#endif
+) {
     LightNode* first = NULL;
     u32 numLightsIn = *numLights;
     u32 i;
 
+#ifndef NDEBUG
+    // Check not inserting any light a second time
+    FOR_EACH_LIGHTNODE(lightNode, lightCtx->listHead) {
+        for (i = 0; i < numLightsIn; i++) {
+            assert(lightNode->info != &lightList[i]);
+        }
+    }
+#endif
+
     for (i = 0; i < numLightsIn; i++) {
         // Try and insert the light
-        LightNode* light = LightContext_InsertLight(play, lightCtx, lightList++);
+        LightNode* light = LightContext_InsertLight(play, lightCtx, &lightList[i]
+#ifndef NDEBUG
+                                                    ,
+                                                    file, line
+#endif
+        );
 
         if (light == NULL) {
             // No room, return the true number of lights inserted for possible removal later
             *numLights = i;
             break;
         }
-        if (first == NULL) {
-            // Record pointer to first light for possible removal later
-            first = light;
-        }
+
+        // LightContext_InsertLight inserts lights by adding them at the start
+        // of the lightCtx->listHead linked list
+        // This means the first light corresponding to the added lights in
+        // order of forward traversal of lightCtx->listHead, is the last
+        // inserted light.
+        // Record pointer to first light for possible removal later
+        first = light;
     }
+
+#ifndef NDEBUG
+    // Check the lights were inserted in the expected order
+    // (and are found in reverse order compared to the input array)
+    // Otherwise the first node `first` would most likely be wrong
+    i = *numLights;
+    FOR_EACH_LIGHTNODE(lightNode, first) {
+        if (i == 0) {
+            break;
+        }
+        i--;
+        assert(lightNode->info == &lightList[i]);
+    }
+    // Check all the inserted lights were indeed inserted
+    assert(i == 0);
+#endif
+
     return first;
 }
 
@@ -418,6 +492,50 @@ STATIC void Lights_BindDummy(UNUSED Lights* lights, UNUSED LightParams* params, 
 //  Light Drawing
 //
 
+typedef struct LightsBindAndDrawFaultClientInfo {
+    PlayState* play;
+    Vec3f* objPos;
+    s32 realPointLights;
+} LightsBindAndDrawFaultClientInfo;
+
+#define FaultDrawer_and_rmon_Printf(...) \
+    {                                    \
+        rmonPrintf(__VA_ARGS__);         \
+        FaultDrawer_Printf(__VA_ARGS__); \
+    }                                    \
+    (void)0
+
+s32 Lights_BindAndDraw_FaultClient(void* arg0, void* arg1) {
+    LightsBindAndDrawFaultClientInfo* i = arg0;
+    if (i == NULL) {
+        FaultDrawer_and_rmon_Printf("i == NULL\n");
+        return false;
+    }
+    FaultDrawer_and_rmon_Printf("objPos = 0x%08X\n", (u32)i->objPos);
+    if (i->objPos != NULL)
+        FaultDrawer_and_rmon_Printf("*objPos = %f %f %f\n", XYZ(*i->objPos));
+    FaultDrawer_and_rmon_Printf("realPointLights = %d\n", (int)i->realPointLights);
+    if (i->play == NULL) {
+        FaultDrawer_and_rmon_Printf("i->play == NULL\n");
+        return false;
+    }
+    FaultDrawer_and_rmon_Printf("i->play->lightCtx.listHead = 0x%08X\n", (u32)i->play->lightCtx.listHead);
+    for (LightNode* ln = i->play->lightCtx.listHead; ln != NULL; ln = ln->next) {
+        FaultDrawer_and_rmon_Printf("ln = 0x%08X\n", (u32)ln);
+        FaultDrawer_and_rmon_Printf("ln->info = 0x%08X\n", (u32)ln->info);
+        if ((u32)ln->info >= PHYS_TO_K0(0) && ((u32)ln->info + sizeof(*ln->info)) < PHYS_TO_K0(osMemSize)) {
+            FaultDrawer_and_rmon_Printf("ln->info->type = %d\n", (int)ln->info->type);
+        } else {
+            FaultDrawer_and_rmon_Printf("ln->info out of K0 ram, most likely a bad pointer\n");
+        }
+        FaultDrawer_and_rmon_Printf("ln->file = %.*s\n", sizeof(ln->file), ln->file); // TODO does oot support %.*s
+        FaultDrawer_and_rmon_Printf("ln->line = %d\n", ln->line);
+        FaultDrawer_and_rmon_Printf("ln->additional_context = %.*s\n", sizeof(ln->additional_context),
+                                    ln->additional_context);
+    }
+    return false;
+}
+
 /**
  * For every light registered with the Light Context, build a Lights group containing the 7 lights that are of the
  * highest priority. Directional lights are given highest priority, point lights (real and "fake") are given priority
@@ -448,20 +566,31 @@ STATIC void Lights_BindDummy(UNUSED Lights* lights, UNUSED LightParams* params, 
  *         persistent location!
  */
 Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) {
+#ifndef NDEBUG
+    FaultClient __attribute__((__cleanup__(Fault_RemoveClient))) faultClient;
+    LightsBindAndDrawFaultClientInfo lightsBindAndDrawFaultClientInfo = {
+        .play = play,
+        .objPos = objPos,
+        .realPointLights = realPointLights,
+    };
+
+    Fault_AddClient(&faultClient, Lights_BindAndDraw_FaultClient, &lightsBindAndDrawFaultClientInfo, NULL);
+#endif
+
     // Real point light bind functions
-    static const LightsBindFunc posBindFuncs[] = {
+    static const LightsBindFunc posBindFuncs[LIGHT_TYPE_MAX] = {
         Lights_BindPoint,
         Lights_BindDirectional,
         Lights_BindPoint,
     };
     // "Fake" point light bind functions
-    static const LightsBindFunc dirBindFuncs[] = {
+    static const LightsBindFunc dirBindFuncs[LIGHT_TYPE_MAX] = {
         Lights_BindPointWithReference,
         Lights_BindDirectional,
         Lights_BindPointWithReference,
     };
     // No point light bind function
-    static const LightsBindFunc dirOnlyBindFuncs[] = {
+    static const LightsBindFunc dirOnlyBindFuncs[LIGHT_TYPE_MAX] = {
         Lights_BindDummy,
         Lights_BindDirectional,
         Lights_BindDummy,
@@ -511,6 +640,10 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
     // Populate lights group
     FOR_EACH_LIGHTNODE(lightNode, play->lightCtx.listHead) {
         LightInfo* info = lightNode->info;
+        assert(info->type >= 0);
+        assert(info->type < LIGHT_TYPE_MAX);
+        assert((uintptr_t)(bindFuncs[info->type]) >= PHYS_TO_K0(0));
+        assert((uintptr_t)(bindFuncs[info->type]) < PHYS_TO_K0(osMemSize));
         bindFuncs[info->type](lights, &info->params, objPos, play);
     }
 
