@@ -528,7 +528,7 @@ s32 Lights_BindAndDraw_FaultClient(void* arg0, void* arg1) {
         } else {
             FaultDrawer_and_rmon_Printf("ln->info out of K0 ram, most likely a bad pointer\n");
         }
-        FaultDrawer_and_rmon_Printf("ln->file = %.*s\n", sizeof(ln->file), ln->file); // TODO does oot support %.*s
+        FaultDrawer_and_rmon_Printf("ln->file = %.*s\n", sizeof(ln->file), ln->file);
         FaultDrawer_and_rmon_Printf("ln->line = %d\n", ln->line);
         FaultDrawer_and_rmon_Printf("ln->additional_context = %.*s\n", sizeof(ln->additional_context),
                                     ln->additional_context);
