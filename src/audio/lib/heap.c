@@ -155,7 +155,7 @@ void* AudioHeap_AllocDmaMemory(AudioAllocPool* pool, u32 size) {
     if (ramAddr != NULL) {
         AudioHeap_WritebackDCache(ramAddr, size);
     }
-    return ramAddr;
+    return (void*)K0_TO_K1(ramAddr);
 }
 
 void* AudioHeap_AllocDmaMemoryZeroed(AudioAllocPool* pool, u32 size) {
@@ -165,7 +165,7 @@ void* AudioHeap_AllocDmaMemoryZeroed(AudioAllocPool* pool, u32 size) {
     if (ramAddr != NULL) {
         AudioHeap_WritebackDCache(ramAddr, size);
     }
-    return ramAddr;
+    return (void*)K0_TO_K1(ramAddr);
 }
 
 /**
@@ -1030,7 +1030,7 @@ void AudioHeap_Init(void) {
             reverb->filterLeftState =
                 AudioHeap_AllocDmaMemoryZeroed(&gAudioCtx.miscPool, 2 * (FILTER_BUF_PART1 + FILTER_BUF_PART2));
             reverb->filterLeft = AudioHeap_AllocDmaMemory(&gAudioCtx.miscPool, FILTER_SIZE);
-            AudioHeap_LoadLowPassFilter((s16*)K0_TO_K1(reverb->filterLeft), settings->lowPassFilterCutoffLeft);
+            AudioHeap_LoadLowPassFilter(reverb->filterLeft, settings->lowPassFilterCutoffLeft);
         } else {
             reverb->filterLeft = NULL;
         }
@@ -1039,7 +1039,7 @@ void AudioHeap_Init(void) {
             reverb->filterRightState =
                 AudioHeap_AllocDmaMemoryZeroed(&gAudioCtx.miscPool, 2 * (FILTER_BUF_PART1 + FILTER_BUF_PART2));
             reverb->filterRight = AudioHeap_AllocDmaMemory(&gAudioCtx.miscPool, FILTER_SIZE);
-            AudioHeap_LoadLowPassFilter((s16*)K0_TO_K1(reverb->filterRight), settings->lowPassFilterCutoffRight);
+            AudioHeap_LoadLowPassFilter(reverb->filterRight, settings->lowPassFilterCutoffRight);
         } else {
             reverb->filterRight = NULL;
         }
