@@ -318,7 +318,7 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
 
     f32 scale;
 
-    scale = 1 / (qa / 524288 * SQ(refDist) + la / 32768 * refDist + ca / 16 + (float)1 / 2);
+    scale = 1.0f / ((qa / 524288.0f) * SQ(refDist) + (la / 32768.0f) * refDist + (ca / 16.0f) + 0.5f);
 
     light->l.col[0] = light->l.colc[0] = params->point.color[0] * scale;
     light->l.col[1] = light->l.colc[1] = params->point.color[1] * scale;
