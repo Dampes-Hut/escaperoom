@@ -9,3 +9,21 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/chandelier_light.o"
     include "build/src/overlays/escaperoom/actors/ovl_ChandelierLight/ovl_ChandelierLight_reloc.o"
 endseg
+
+beginseg
+    name "ovl_CourtyardTombStone"
+    include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/courtyard_tomb_stone.o"
+    include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/ovl_CourtyardTombStone_reloc.o"
+endseg
+
+beginseg
+    name "ovl_PropFlame"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/prop_flame.o"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/ovl_PropFlame_reloc.o"
+endseg
+
+beginseg
+    name "ovl_MuhDarkLink"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/muh_dark_link.o"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/ovl_MuhDarkLink_reloc.o"
+endseg
