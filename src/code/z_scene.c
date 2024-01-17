@@ -327,7 +327,7 @@ void Scene_CommandLightList(PlayState* play, SceneCmd* cmd) {
     play->roomCtx.curRoom.lightList =
         LightContext_InsertLightList(play, &play->lightCtx, lightInfo, &play->roomCtx.curRoom.numLights);
 #ifndef NDEBUG
-    int i = play->roomCtx.curRoom.numLights;
+    u32 i = play->roomCtx.curRoom.numLights;
     for (LightNode* ln = play->roomCtx.curRoom.lightList; i != 0; ln = ln->next, i--) {
         assert(ln != NULL);
         snprintf(ln->additionalContext, sizeof(ln->additionalContext), "prevRoom.num=%d curRoom.num=%d",

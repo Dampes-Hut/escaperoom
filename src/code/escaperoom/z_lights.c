@@ -209,7 +209,7 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 #ifndef NDEBUG
     light->file[0] = '\0';
     light->line = -1;
-    const char additionalContextFreed[] = "freed by LightContext_RemoveLight";
+    STATIC const char additionalContextFreed[] = "freed by LightContext_RemoveLight";
     memcpy(light->additionalContext, additionalContextFreed, sizeof(additionalContextFreed));
 #endif
     // Mark not occupied
@@ -642,8 +642,6 @@ Lights* Lights_BindAndDraw(PlayState* play, Vec3f* objPos, s32 realPointLights) 
         LightInfo* info = lightNode->info;
         assert(info->type >= 0);
         assert(info->type < LIGHT_TYPE_MAX);
-        assert((uintptr_t)(bindFuncs[info->type]) >= PHYS_TO_K0(0));
-        assert((uintptr_t)(bindFuncs[info->type]) < PHYS_TO_K0(osMemSize));
         bindFuncs[info->type](lights, &info->params, objPos, play);
     }
 
