@@ -206,7 +206,8 @@ typedef struct {
     /* 0x0E48  0x0E64 */ FaroresWindData fw;
     /* 0x0E70  0x0E8C */ char unk_E8C[0x10];
     /* 0x0E80  0x0E9C */ s32 gsFlags[6];
-    /* 0x0E98  0x0EB4 */ char unk_EB4[0x4];
+#define CORRECT_COURTYARD_GRAVES_PULLED_FLAGS 0b110
+    /* 0x0E98  0x0EB4 */ u32 courtyard_graves_pulled_flags;
     /* 0x0E9C  0x0EB8 */ s32 highScores[7];
     /* 0x0EB8  0x0ED4 */ u16 eventChkInf[14]; // "event_chk_inf"
     /* 0x0ED4  0x0EF0 */ u16 itemGetInf[4]; // "item_get_inf"
@@ -238,7 +239,7 @@ typedef struct {
 typedef struct {
     /* 0x0000 */ Save save; // "memory"
     /* 0x1354 */ s32 fileNum; // "file_no"
-    /* 0x1358 */ char unk_1358[0x0004];
+    /* 0x1358 */ u32 numGravesMoved;
     /* 0x135C */ s32 gameMode;
     /* 0x1360 */ s32 sceneLayer; // "counter"
     /* 0x1364 */ s32 respawnFlag; // "restart_flag"
