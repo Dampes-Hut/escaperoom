@@ -1491,6 +1491,7 @@ Mtx* Matrix_ToMtx(Mtx* dest, char* file, int line);
 Mtx* Matrix_NewMtx(GraphicsContext* gfxCtx, char* file, int line);
 Mtx* Matrix_MtxFToNewMtx(MtxF* src, GraphicsContext* gfxCtx);
 void Matrix_MultVec3f(Vec3f* src, Vec3f* dest);
+Vec3f Matrix_GetTranslation(void);
 void Matrix_MtxFCopy(MtxF* dest, MtxF* src);
 void Matrix_MtxToMtxF(const Mtx* src, MtxF* dest);
 void Matrix_MultVec3fExt(Vec3f* src, Vec3f* dest, MtxF* mf);
