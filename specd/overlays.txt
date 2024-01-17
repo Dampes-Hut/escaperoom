@@ -15,3 +15,9 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/courtyard_tomb_stone.o"
     include "build/src/overlays/escaperoom/actors/ovl_CourtyardTombStone/ovl_CourtyardTombStone_reloc.o"
 endseg
+
+beginseg
+    name "ovl_PropFlame"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/prop_flame.o"
+    include "build/src/overlays/escaperoom/actors/ovl_PropFlame/ovl_PropFlame_reloc.o"
+endseg
