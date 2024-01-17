@@ -28,3 +28,18 @@ beginseg
     number 3
 endseg
 
+beginseg
+    name "test_dancefloor_scene"
+    include "build/assets_mod/maps/test_dancefloor/test_dancefloor_scene_main.o"
+    include "build/assets_mod/maps/test_dancefloor/test_dancefloor_scene_col.o"
+    number 2
+endseg
+
+beginseg
+    name "test_dancefloor_room_0"
+    include "build/assets_mod/maps/test_dancefloor/test_dancefloor_room_0_main.o"
+    include "build/assets_mod/maps/test_dancefloor/test_dancefloor_room_0_model_info.o"
+    include "build/assets_mod/maps/test_dancefloor/test_dancefloor_room_0_model.o"
+    number 3
+endseg
+
