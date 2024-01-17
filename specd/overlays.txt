@@ -21,3 +21,9 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_PropFlame/prop_flame.o"
     include "build/src/overlays/escaperoom/actors/ovl_PropFlame/ovl_PropFlame_reloc.o"
 endseg
+
+beginseg
+    name "ovl_MuhDarkLink"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/muh_dark_link.o"
+    include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/ovl_MuhDarkLink_reloc.o"
+endseg
