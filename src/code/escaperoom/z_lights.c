@@ -264,7 +264,19 @@ STATIC Light* Lights_FindSlot(Lights* lights, f32 objDist) {
     return &lights->l.l[furthestI];
 }
 
-static const float sPointLight_r0 = 3000;
+
+/**
+ * r0 is used to normalize a light radius r to get coefficients of the
+ * attenuation function f that match the radius r.
+ * The coefficients passed to the RSP (which further scales them afterwards,
+ * see in Lights_BindPoint) are r0/r and (r0/r)² for the linear and quadratic
+ * coefficients respectively.
+ * With these coefficients and sPointLight_r0=3000,
+ * for 180 ~< r ~< 2400 , the attenuation f(d) will be
+ * f(r/4)~0.5 , f(r/2)~0.2 , f(r)~0.06
+ * (this was derived experimentally, cf the Python code in the commit message / PR)
+ */
+STATIC const f32 sPointLight_r0 = 3000;
 
 STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* restrict params, Vec3f* objPos,
                                           UNUSED PlayState* play) {
@@ -304,17 +316,19 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
     // cf Lights_BindPoint
     // Note: we skip rounding, may reduce possible artifacts due to integer truncation
 
-    float r = radiusF;
-    float f;
+    f32 r = radiusF;
+    assert(r >= 1.0f);
+    f32 f;
 
-    float ca = 8;
+    f32 ca = 8;
 
     f = sPointLight_r0 / r;
-    float la = CLAMP(f, 0, 255);
+    assert(f >= 0.0f);
+    f32 la = CLAMP_MAX(f, 255);
 
     f = sPointLight_r0 / r;
     f = SQ(f);
-    float qa = CLAMP(f, 1, 255);
+    f32 qa = CLAMP(f, 1, 255);
 
     f32 scale;
 
@@ -390,22 +404,24 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
     // > C=8 avoids an overflow where this would compute a reciprocal > 1.0 for C < 8
     // > https://www.desmos.com/calculator/s3vwzxd4v0
 
-    // With these coefficients, for 180 ~< r ~< 2400 , the attenuation f(d) will be
-    // f(r/4)~0.5 , f(r/2)~0.2 , f(r)~0.06
+    // See sPointLight_r0 for details on the coefficients
 
-    float r = params->point.radius;
-    float f;
-    int i;
+    f32 r = params->point.radius;
+    assert(r >= 1.0f);
+    f32 f;
+    long i;
 
     light->p.ca = 8;
 
     f = sPointLight_r0 / r;
-    i = ROUND(f);
-    light->p.la = CLAMP(i, 0, 255);
+    assert(f >= 0.0f);
+    i = lnearbyintf(f);
+    assert(i >= 0);
+    light->p.la = CLAMP_MAX(i, 255);
 
     f = sPointLight_r0 / r;
     f = SQ(f);
-    i = ROUND(f);
+    i = lnearbyintf(f);
     light->p.qa = CLAMP(i, 1, 255);
 }
 
