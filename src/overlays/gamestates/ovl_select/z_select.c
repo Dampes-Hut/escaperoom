@@ -762,5 +762,5 @@ void MapSelect_Init(GameState* thisx) {
     DmaMgr_RequestSyncDebug(this->staticSegment, (uintptr_t)_z_select_staticSegmentRomStart, size, "../z_select.c",
                             1115);
     gSaveContext.save.cutsceneIndex = 0x8000;
-    gSaveContext.save.linkAge = LINK_AGE_CHILD;
+    gSaveContext.save.linkAge = LINK_AGE_ADULT;
 }
