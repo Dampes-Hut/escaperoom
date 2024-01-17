@@ -160,7 +160,7 @@ LightNode* LightContext_InsertLight(PlayState* play, LightContext* lightCtx, Lig
     memcpy(light->file, file, len);
     light->file[len] = '\0';
     light->line = line;
-    light->additional_context[0] = '\0';
+    light->additionalContext[0] = '\0';
 #endif
 
     // Bind light info
@@ -209,8 +209,8 @@ void LightContext_RemoveLight(PlayState* play, LightContext* lightCtx, LightNode
 #ifndef NDEBUG
     light->file[0] = '\0';
     light->line = -1;
-    const char additional_context_freed[] = "freed by LightContext_RemoveLight";
-    memcpy(light->additional_context, additional_context_freed, sizeof(additional_context_freed));
+    const char additionalContextFreed[] = "freed by LightContext_RemoveLight";
+    memcpy(light->additionalContext, additionalContextFreed, sizeof(additionalContextFreed));
 #endif
     // Mark not occupied
     sLightsBuffer.occupiedBitSet &= ~(1 << i);
@@ -530,8 +530,8 @@ s32 Lights_BindAndDraw_FaultClient(void* arg0, void* arg1) {
         }
         FaultDrawer_and_rmon_Printf("ln->file = %.*s\n", sizeof(ln->file), ln->file);
         FaultDrawer_and_rmon_Printf("ln->line = %d\n", ln->line);
-        FaultDrawer_and_rmon_Printf("ln->additional_context = %.*s\n", sizeof(ln->additional_context),
-                                    ln->additional_context);
+        FaultDrawer_and_rmon_Printf("ln->additionalContext = %.*s\n", sizeof(ln->additionalContext),
+                                    ln->additionalContext);
     }
     return false;
 }

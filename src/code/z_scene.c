@@ -330,7 +330,7 @@ void Scene_CommandLightList(PlayState* play, SceneCmd* cmd) {
     int i = play->roomCtx.curRoom.numLights;
     for (LightNode* ln = play->roomCtx.curRoom.lightList; i != 0; ln = ln->next, i--) {
         assert(ln != NULL);
-        snprintf(ln->additional_context, sizeof(ln->additional_context), "prevRoom.num=%d curRoom.num=%d",
+        snprintf(ln->additionalContext, sizeof(ln->additionalContext), "prevRoom.num=%d curRoom.num=%d",
                                                 (int)play->roomCtx.prevRoom.num, (int)play->roomCtx.curRoom.num);
     }
 #endif

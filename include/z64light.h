@@ -55,7 +55,7 @@ typedef struct LightNode {
 #ifndef NDEBUG
     char file[256]; // copy the filename since a pointer may become dangling (if the string is in a z64 overlay)
     int line;
-    char additional_context[256];
+    char additionalContext[256];
 #endif
 } LightNode;
 
