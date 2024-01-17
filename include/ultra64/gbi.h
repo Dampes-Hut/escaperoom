@@ -5139,11 +5139,35 @@ _DW({                                                   \
 #define gsDPPipeSync()          gsDPNoParam(    G_RDPPIPESYNC)
 #define gDPLoadSync(pkt)        gDPNoParam(pkt, G_RDPLOADSYNC)
 #define gsDPLoadSync()          gsDPNoParam(    G_RDPLOADSYNC)
+
+#ifdef NDEBUG
+#  define gDPNoOp(pkt)
+#else
 #define gDPNoOp(pkt)            gDPNoParam(pkt, G_NOOP)
+#endif
+
 #define gsDPNoOp()              gsDPNoParam(    G_NOOP)
+
+#ifdef NDEBUG
+#  define gDPNoOpTag(pkt, tag)
+#else
 #define gDPNoOpTag(pkt, tag)    gDPParam(pkt,   G_NOOP, tag)
+#endif
+
 #define gsDPNoOpTag(tag)        gsDPParam(      G_NOOP, tag)
 
+#ifdef NDEBUG
+#  define gDPNoOpHere(pkt, file, line)
+#  define gDPNoOpString(pkt, data, n)
+#  define gDPNoOpWord(pkt, data, n)
+#  define gDPNoOpFloat(pkt, data, n)
+#  define gDPNoOpQuiet(pkt)
+#  define gDPNoOpVerbose(pkt, n)
+#  define gDPNoOpCallBack(pkt, callback, arg)
+#  define gDPNoOpOpenDisp(pkt, file, line)
+#  define gDPNoOpCloseDisp(pkt, file, line)
+#  define gDPNoOpTag3(pkt, type, data, n)
+#else
 #define gDPNoOpHere(pkt, file, line)        gDma1p(pkt, G_NOOP, file, line, 1)
 #define gDPNoOpString(pkt, data, n)         gDma1p(pkt, G_NOOP, data, n, 2)
 #define gDPNoOpWord(pkt, data, n)           gDma1p(pkt, G_NOOP, data, n, 3)
@@ -5154,6 +5178,7 @@ _DW({                                                   \
 #define gDPNoOpOpenDisp(pkt, file, line)    gDma1p(pkt, G_NOOP, file, line, 7)
 #define gDPNoOpCloseDisp(pkt, file, line)   gDma1p(pkt, G_NOOP, file, line, 8)
 #define gDPNoOpTag3(pkt, type, data, n)     gDma1p(pkt, G_NOOP, data, n, type)
+#endif
 
 #endif
 

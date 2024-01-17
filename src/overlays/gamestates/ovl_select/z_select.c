@@ -46,6 +46,7 @@ void MapSelect_LoadGame(MapSelectState* this, s32 entranceIndex) {
 // "Translation" (Actual name)
 static SceneSelectEntry sScenes[] = {
     { "Inn Bedroom", MapSelect_LoadGame, ENTR_INN_BEDROOM_0 },
+    { "Test: Dark Link puzzle", MapSelect_LoadGame, ENTR_TEST_DARKLINK_PUZZLE_0 },
     { " 1:SPOT00", MapSelect_LoadGame, ENTR_HYRULE_FIELD_0 },
     { " 2:SPOT01", MapSelect_LoadGame, ENTR_KAKARIKO_VILLAGE_0 },
     { " 3:SPOT02", MapSelect_LoadGame, ENTR_GRAVEYARD_0 },
@@ -762,5 +763,5 @@ void MapSelect_Init(GameState* thisx) {
     DmaMgr_RequestSyncDebug(this->staticSegment, (uintptr_t)_z_select_staticSegmentRomStart, size, "../z_select.c",
                             1115);
     gSaveContext.save.cutsceneIndex = 0x8000;
-    gSaveContext.save.linkAge = LINK_AGE_CHILD;
+    gSaveContext.save.linkAge = LINK_AGE_ADULT;
 }
