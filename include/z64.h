@@ -292,6 +292,7 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ GameState state;
+    SramContext sramCtx;
 } SetupState; // size = 0xA4
 
 typedef struct {
