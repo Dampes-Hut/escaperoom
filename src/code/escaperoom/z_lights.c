@@ -264,6 +264,20 @@ STATIC Light* Lights_FindSlot(Lights* lights, f32 objDist) {
     return &lights->l.l[furthestI];
 }
 
+
+/**
+ * r0 is used to normalize a light radius r to get coefficients of the
+ * attenuation function f that match the radius r.
+ * The coefficients passed to the RSP (which further scales them afterwards,
+ * see in Lights_BindPoint) are r0/r and (r0/r)² for the linear and quadratic
+ * coefficients respectively.
+ * With these coefficients and sPointLight_r0=3000,
+ * for 180 ~< r ~< 2400 , the attenuation f(d) will be
+ * f(r/4)~0.5 , f(r/2)~0.2 , f(r)~0.06
+ * (this was derived experimentally, cf the Python code in the commit message / PR)
+ */
+STATIC const f32 sPointLight_r0 = 3000;
+
 STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* restrict params, Vec3f* objPos,
                                           UNUSED PlayState* play) {
     if (params->point.radius <= 0) {
@@ -286,9 +300,6 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
     refDiff.z = posF.z - objPos->z;
 
     f32 refDistSq = SQ(refDiff.x) + SQ(refDiff.y) + SQ(refDiff.z);
-    if (SQ(radiusF) <= refDistSq) {
-        return;
-    }
 
     f32 refDist = sqrtf(refDistSq);
 
@@ -302,9 +313,26 @@ STATIC void Lights_BindPointWithReference(Lights* restrict lights, LightParams* 
 
     // Success, build the light structure
 
-    f32 scale = refDist / radiusF;
+    // cf Lights_BindPoint
+    // Note: we skip rounding, may reduce possible artifacts due to integer truncation
 
-    scale = 1 - SQ(scale);
+    f32 r = radiusF;
+    assert(r >= 1.0f);
+    f32 f;
+
+    f32 ca = 8;
+
+    f = sPointLight_r0 / r;
+    assert(f >= 0.0f);
+    f32 la = CLAMP_MAX(f, 255);
+
+    f = sPointLight_r0 / r;
+    f = SQ(f);
+    f32 qa = CLAMP(f, 1, 255);
+
+    f32 scale;
+
+    scale = 1.0f / ((qa / 524288.0f) * SQ(refDist) + (la / 32768.0f) * refDist + (ca / 16.0f) + 0.5f);
 
     light->l.col[0] = light->l.colc[0] = params->point.color[0] * scale;
     light->l.col[1] = light->l.colc[1] = params->point.color[1] * scale;
@@ -327,7 +355,6 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
     if ((params->point.color[0] | params->point.color[1] | params->point.color[2]) == 0) {
         return;
     }
-    f32 radiusF = params->point.radius;
 
     Vec3f posF;
     posF.x = params->point.x;
@@ -359,13 +386,6 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
 
     // Success, build the light structure
 
-    radiusF = 4500000.0f / SQ(radiusF);
-    if (radiusF > 255) {
-        radiusF = 255;
-    } else if (radiusF < 20) {
-        radiusF = 20;
-    }
-
     light->p.col[0] = light->p.colc[0] = params->point.color[0];
     light->p.col[1] = light->p.colc[1] = params->point.color[1];
     light->p.col[2] = light->p.colc[2] = params->point.color[2];
@@ -377,9 +397,32 @@ STATIC void Lights_BindPoint(Lights* restrict lights, LightParams* restrict para
     // Set attenuation values, light intensity is computed as L = L0 / (qa * SQ(d) + la * d + ca) in the microcode
     // where d is the distance between a vertex and the light position. `ca` must be non-zero for the microcode to
     // take the point lighting codepath.
+
+    // Tharo:
+    // > afaik the denominator is (in floating point)
+    // > (Q / 524288) * SQ(d) + (L / 32768) * d + (C / 16) + (1 / 2)
+    // > C=8 avoids an overflow where this would compute a reciprocal > 1.0 for C < 8
+    // > https://www.desmos.com/calculator/s3vwzxd4v0
+
+    // See sPointLight_r0 for details on the coefficients
+
+    f32 r = params->point.radius;
+    assert(r >= 1.0f);
+    f32 f;
+    long i;
+
     light->p.ca = 8;
-    light->p.la = 255;
-    light->p.qa = (s32)radiusF;
+
+    f = sPointLight_r0 / r;
+    assert(f >= 0.0f);
+    i = lnearbyintf(f);
+    assert(i >= 0);
+    light->p.la = CLAMP_MAX(i, 255);
+
+    f = sPointLight_r0 / r;
+    f = SQ(f);
+    i = lnearbyintf(f);
+    light->p.qa = CLAMP(i, 1, 255);
 }
 
 STATIC void Lights_BindDirectional(Lights* restrict lights, LightParams* restrict params, UNUSED Vec3f* objPos,
