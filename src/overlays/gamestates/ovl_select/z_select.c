@@ -47,6 +47,7 @@ void MapSelect_LoadGame(MapSelectState* this, s32 entranceIndex) {
 static SceneSelectEntry sScenes[] = {
     { "Test Dance Floor", MapSelect_LoadGame, ENTR_TEST_DANCEFLOOR_0 },
     { "Inn Bedroom", MapSelect_LoadGame, ENTR_INN_BEDROOM_0 },
+    { "Main Map", MapSelect_LoadGame, ENTR_MAINMAP_0 },
     { "Test: Dark Link puzzle", MapSelect_LoadGame, ENTR_TEST_DARKLINK_PUZZLE_0 },
     { " 1:SPOT00", MapSelect_LoadGame, ENTR_HYRULE_FIELD_0 },
     { " 2:SPOT01", MapSelect_LoadGame, ENTR_KAKARIKO_VILLAGE_0 },

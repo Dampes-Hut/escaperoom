@@ -3,3 +3,4 @@
 DEFINE_SCENE(inn_bedroom_scene, none, SCENE_INN_BEDROOM, SDC_INN_BEDROOM, 0, 0)
 DEFINE_SCENE(test_darklink_puzzle_scene, none, SCENE_TEST_DARKLINK_PUZZLE, SDC_DEFAULT, 0, 0)
 DEFINE_SCENE(test_dancefloor_scene, none, SCENE_TEST_DANCEFLOOR, SDC_DEFAULT, 0, 0)
+DEFINE_SCENE(mainmap_scene, none, SCENE_MAINMAP, SDC_DEFAULT, 0, 0)

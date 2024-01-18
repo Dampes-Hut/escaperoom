@@ -43,3 +43,58 @@ beginseg
     number 3
 endseg
 
+beginseg
+    name "mainmap_scene"
+    include "build/assets_mod/maps/mainmap/mainmap_scene_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_scene_col.o"
+    include "build/assets_mod/maps/mainmap/mainmap_scene_tex.o"
+    number 2
+endseg
+
+beginseg
+    name "mainmap_room_0"
+    include "build/assets_mod/maps/mainmap/mainmap_room_0_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_0_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_0_model.o"
+    number 3
+endseg
+
+beginseg
+    name "mainmap_room_1"
+    include "build/assets_mod/maps/mainmap/mainmap_room_1_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_1_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_1_model.o"
+    number 3
+endseg
+
+beginseg
+    name "mainmap_room_2"
+    include "build/assets_mod/maps/mainmap/mainmap_room_2_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_2_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_2_model.o"
+    number 3
+endseg
+
+beginseg
+    name "mainmap_room_3"
+    include "build/assets_mod/maps/mainmap/mainmap_room_3_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_3_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_3_model.o"
+    number 3
+endseg
+
+beginseg
+    name "mainmap_room_4"
+    include "build/assets_mod/maps/mainmap/mainmap_room_4_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_4_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_4_model.o"
+    number 3
+endseg
+
+beginseg
+    name "mainmap_room_5"
+    include "build/assets_mod/maps/mainmap/mainmap_room_5_main.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_5_model_info.o"
+    include "build/assets_mod/maps/mainmap/mainmap_room_5_model.o"
+    number 3
+endseg
