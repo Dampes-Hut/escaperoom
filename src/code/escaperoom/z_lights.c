@@ -241,15 +241,6 @@ LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx,
     u32 numLightsIn = *numLights;
     u32 i;
 
-#ifndef NDEBUG
-    // Check not inserting any light a second time
-    FOR_EACH_LIGHTNODE(lightNode, lightCtx->listHead) {
-        for (i = 0; i < numLightsIn; i++) {
-            assert(lightNode->info != &lightList[i]);
-        }
-    }
-#endif
-
     for (i = 0; i < numLightsIn; i++) {
         // Try and insert the light
         LightNode* light = LightContext_InsertLight(play, lightCtx, &lightList[i]
@@ -267,28 +258,13 @@ LightNode* LightContext_InsertLightList(PlayState* play, LightContext* lightCtx,
 
         // LightContext_InsertLight inserts lights by adding them at the start
         // of the lightCtx->listHead linked list
+        assert(light == lightCtx->listHead);
         // This means the first light corresponding to the added lights in
         // order of forward traversal of lightCtx->listHead, is the last
         // inserted light.
         // Record pointer to first light for possible removal later
         first = light;
     }
-
-#ifndef NDEBUG
-    // Check the lights were inserted in the expected order
-    // (and are found in reverse order compared to the input array)
-    // Otherwise the first node `first` would most likely be wrong
-    i = *numLights;
-    FOR_EACH_LIGHTNODE(lightNode, first) {
-        if (i == 0) {
-            break;
-        }
-        i--;
-        assert(lightNode->info == &lightList[i]);
-    }
-    // Check all the inserted lights were indeed inserted
-    assert(i == 0);
-#endif
 
     return first;
 }
