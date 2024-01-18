@@ -155,7 +155,7 @@ void* AudioHeap_AllocDmaMemory(AudioAllocPool* pool, u32 size) {
     if (ramAddr != NULL) {
         AudioHeap_WritebackDCache(ramAddr, size);
     }
-    return ramAddr;
+    return (void*)K0_TO_K1(ramAddr);
 }
 
 void* AudioHeap_AllocDmaMemoryZeroed(AudioAllocPool* pool, u32 size) {
@@ -165,7 +165,7 @@ void* AudioHeap_AllocDmaMemoryZeroed(AudioAllocPool* pool, u32 size) {
     if (ramAddr != NULL) {
         AudioHeap_WritebackDCache(ramAddr, size);
     }
-    return ramAddr;
+    return (void*)K0_TO_K1(ramAddr);
 }
 
 /**
@@ -756,11 +756,13 @@ void AudioHeap_UpdateReverbs(void) {
 void AudioHeap_ClearCurrentAiBuffer(void) {
     s32 curAiBufferIndex = gAudioCtx.curAiBufIndex;
     s32 i;
+    s16* buf;
 
     gAudioCtx.aiBufLengths[curAiBufferIndex] = gAudioCtx.audioBufferParameters.minAiBufferLength;
 
+    buf = (s16*)K0_TO_K1(gAudioCtx.aiBuffers[curAiBufferIndex]);
     for (i = 0; i < AIBUF_LEN; i++) {
-        gAudioCtx.aiBuffers[curAiBufferIndex][i] = 0;
+        buf[i] = 0;
     }
 }
 
@@ -828,8 +830,10 @@ s32 AudioHeap_ResetStep(void) {
             gAudioCtx.resetStatus = 0;
             for (i = 0; i < 3; i++) {
                 gAudioCtx.aiBufLengths[i] = gAudioCtx.audioBufferParameters.maxAiBufferLength;
+
+                s16* buf = (s16*)K0_TO_K1(gAudioCtx.aiBuffers[i]);
                 for (j = 0; j < AIBUF_LEN; j++) {
-                    gAudioCtx.aiBuffers[i][j] = 0;
+                    buf[j] = 0;
                 }
             }
             break;

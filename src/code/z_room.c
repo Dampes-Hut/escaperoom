@@ -600,6 +600,8 @@ s32 func_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
         roomCtx->prevRoom = roomCtx->curRoom;
         roomCtx->curRoom.num = roomNum;
         roomCtx->curRoom.segment = NULL;
+        roomCtx->curRoom.lightList = NULL;
+        roomCtx->curRoom.numLights = 0;
         roomCtx->status = 1;
 
         ASSERT(roomNum < play->numRooms, "read_room_ID < game_play->room_rom_address.num", "../z_room.c", 1009);

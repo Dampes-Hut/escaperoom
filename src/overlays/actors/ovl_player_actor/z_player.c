@@ -10353,7 +10353,26 @@ void Player_ProcessSceneCollision(PlayState* play, Player* this) {
 
     Math_Vec3f_Copy(&unusedWorldPos, &this->actor.world.pos);
 
-    Actor_UpdateBgCheckInfo(play, &this->actor, vWallCheckHeight, vWallCheckRadius, ceilingCheckHeight, flags);
+    {
+        // Fix this->actor.wallPoly being NULL even when Link is touching a wall,
+        // but isn't moving into it.
+        // The idea is "if Link has touched a wall previously, move him a bit
+        // into the wall so he will still be considered as touching it".
+        // Note: it may be a good idea to check for low speed / near-neutral stick
+        //       as a condition to enable this hack, to mitigate added movement jank.
+        static CollisionPoly* sMuhPrevWallPoly = NULL;
+        if (sMuhPrevWallPoly != NULL) {
+            Vec3f wallNormal;
+            float unitsOffset = 1;
+            Math_Vec3s_ToVec3f(&wallNormal, &sMuhPrevWallPoly->normal);
+            Math_Vec3f_Scale(&wallNormal, -1.0f * unitsOffset * 1.0f / 0x7FFF);
+            Math_Vec3f_Sum(&this->actor.world.pos, &wallNormal, &this->actor.world.pos);
+        }
+
+        Actor_UpdateBgCheckInfo(play, &this->actor, vWallCheckHeight, vWallCheckRadius, ceilingCheckHeight, flags);
+
+        sMuhPrevWallPoly = this->actor.wallPoly;
+    }
 
     if (this->actor.bgCheckFlags & BGCHECKFLAG_CEILING) {
         this->actor.velocity.y = 0.0f;

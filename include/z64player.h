@@ -631,6 +631,7 @@ typedef struct {
 #define PLAYER_STATE2_2 (1 << 2)
 #define PLAYER_STATE2_3 (1 << 3)
 #define PLAYER_STATE2_4 (1 << 4)
+#define PLAYER_STATE2_GRABBING_PUSHPULL_WALL PLAYER_STATE2_4
 #define PLAYER_STATE2_5 (1 << 5)
 #define PLAYER_STATE2_6 (1 << 6)
 #define PLAYER_STATE2_7 (1 << 7)
