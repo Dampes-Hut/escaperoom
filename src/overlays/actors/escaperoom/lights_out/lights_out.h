@@ -3,9 +3,7 @@
 
 #include "global.h"
 
-struct LightsOut;
-
-typedef void (*LightsOutActionFunc)(struct LightsOut*, PlayState*);
+#define LIGHTSOUT_SIZED_ASSET_NAME(baseSymName) baseSymName ## _original
 
 // Maximum grid size is limited by:
 // - TMEM size; sqrt(2048) = ~45

@@ -27,3 +27,21 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/muh_dark_link.o"
     include "build/src/overlays/escaperoom/actors/ovl_MuhDarkLink/ovl_MuhDarkLink_reloc.o"
 endseg
+
+beginseg
+    name "ovl_Lights_Out_Target"
+    include "build/src/overlays/actors/escaperoom/lights_out/lights_out_target.o"
+    include "build/src/overlays/actors/escaperoom/lights_out/ovl_Lights_Out_Target_reloc.o"
+endseg
+
+beginseg
+    name "ovl_Lights_Out_FanceDloor"
+    include "build/src/overlays/actors/escaperoom/lights_out/lights_out_fancedloor.o"
+    include "build/src/overlays/actors/escaperoom/lights_out/ovl_Lights_Out_FanceDloor_reloc.o"
+endseg
+
+beginseg
+    name "ovl_Lights_Out"
+    include "build/src/overlays/actors/escaperoom/lights_out/lights_out.o"
+    include "build/src/overlays/actors/escaperoom/lights_out/ovl_Lights_Out_reloc.o"
+endseg

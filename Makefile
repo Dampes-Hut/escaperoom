@@ -441,4 +441,23 @@ build/assets%.bin.inc.c: assets%.bin
 build/assets%.jpg.inc.c: assets%.jpg
 	$(ZAPD) bren -eh -i $< -o $@
 
+build/src/overlays/actors/escaperoom/lights_out/lights_out_target.o: \
+src/overlays/actors/escaperoom/lights_out/assets/loa_common.inc.c \
+src/overlays/actors/escaperoom/lights_out/assets/loa_sized.inc.c \
+src/overlays/actors/escaperoom/lights_out/lo_common.inc.c \
+src/overlays/actors/escaperoom/lights_out/lo_common_target_fancedloor.h \
+src/overlays/actors/escaperoom/lights_out/lights_out_target.h
+
+build/src/overlays/actors/escaperoom/lights_out/lights_out_fancedloor.o: \
+src/overlays/actors/escaperoom/lights_out/assets/loa_common.inc.c \
+src/overlays/actors/escaperoom/lights_out/assets/loa_sized.inc.c \
+src/overlays/actors/escaperoom/lights_out/lo_common.inc.c \
+src/overlays/actors/escaperoom/lights_out/lo_common_target_fancedloor.h \
+src/overlays/actors/escaperoom/lights_out/lights_out_fancedloor.h
+
+build/src/overlays/actors/escaperoom/lights_out/lights_out.o: \
+src/overlays/actors/escaperoom/lights_out/assets/loa_common.inc.c \
+src/overlays/actors/escaperoom/lights_out/assets/loa_sized.inc.c \
+src/overlays/actors/escaperoom/lights_out/lo_common.inc.c
+
 -include $(DEP_FILES)
