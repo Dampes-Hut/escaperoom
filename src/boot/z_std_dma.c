@@ -236,7 +236,7 @@ NORETURN void DmaMgr_Error(DmaRequest* req, const char* file, const char* errorN
     void* ram = req->dramAddr;
     size_t size = req->size;
     char buff1[80];
-    char buff2[80];
+    char buff2[512];
 
     osSyncPrintf("%c", BEL);
     osSyncPrintf(VT_FGCOL(RED));
@@ -261,7 +261,9 @@ NORETURN void DmaMgr_Error(DmaRequest* req, const char* file, const char* errorN
         sprintf(buff1, "DMA ERROR: %s", errorName != NULL ? errorName : "???");
     }
 
-    sprintf(buff2, "%07X %08X %X %s", vrom, (uintptr_t)ram, size, file != NULL ? file : "???");
+    sprintf(buff2, "vrom=%08X\nram=%08X\nsize=%X\nfile=%s\nerrorName=%s\nerrorDesc=%s", vrom, (uintptr_t)ram, size,
+            file != NULL ? file : "???", errorName != NULL ? errorName : "(null)",
+            errorDesc != NULL ? errorDesc : "(null)");
     Fault_AddHungupAndCrashImpl(buff1, buff2);
 }
 
@@ -460,15 +462,15 @@ s32 DmaMgr_SendRequest(DmaRequest* req, void* ram, uintptr_t vrom, size_t size, 
                        OSMesg msg) {
     static s32 sDmaMgrQueueFullLogged = 0;
 
-    if ((1 && (ram == NULL)) || (osMemSize < OS_K0_TO_PHYSICAL(ram) + size) || (vrom & 1) || (vrom > 0x4000000) ||
-        (size == 0) || (size & 1)) {
-        //! @bug `req` is passed to `DmaMgr_Error` without rom, ram and size being set
-        DmaMgr_Error(req, NULL, "ILLIGAL DMA-FUNCTION CALL", "パラメータ異常です");
-    }
-
     req->vromAddr = vrom;
     req->dramAddr = ram;
     req->size = size;
+
+    if ((1 && (ram == NULL)) || (osMemSize < OS_K0_TO_PHYSICAL(ram) + size) || (vrom & 1) || (vrom > 0x4000000) ||
+        (size == 0) || (size & 1)) {
+        DmaMgr_Error(req, NULL, "ILLIGAL DMA-FUNCTION CALL", "パラメータ異常です");
+    }
+
     req->unk_14 = 0;
     req->notifyQueue = queue;
     req->notifyMsg = msg;

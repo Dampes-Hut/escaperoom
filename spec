@@ -3397,13 +3397,6 @@ endseg
 #include "specd/overlays.txt"
 
 beginseg
-    name "ovl_Lights_Out"
-    include "build/src/overlays/actors/escaperoom/lights_out/lights_out.o"
-    include "build/src/overlays/actors/escaperoom/lights_out/lights_out_assets.o"
-    include "build/src/overlays/actors/escaperoom/lights_out/ovl_Lights_Out_reloc.o"
-endseg
-
-beginseg
     name "gameplay_keep"
     romalign 0x1000
     include "build/assets/objects/gameplay_keep/gameplay_keep.o"
