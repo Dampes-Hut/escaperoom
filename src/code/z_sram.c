@@ -900,6 +900,7 @@ void Sram_InitSram(GameState* gameState, SramContext* sramCtx) {
     }
 
     if (CHECK_BTN_ANY(gameState->input[2].cur.button, BTN_DRIGHT)) {
+        rmonPrintf("CLEARING SRAM\n");
         bzero(sramCtx->readBuff, SRAM_SIZE);
         for (i = 0; i < CHECKSUM_SIZE; i++) {
             sramCtx->readBuff[i] = i;

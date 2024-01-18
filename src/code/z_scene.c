@@ -334,6 +334,11 @@ void Scene_CommandLightList(PlayState* play, SceneCmd* cmd) {
                                                 (int)play->roomCtx.prevRoom.num, (int)play->roomCtx.curRoom.num);
     }
 #endif
+
+    rmonPrintf("Scene_CommandLightList\n");
+    rmonPrintf("cmd->lightList.length = %d\n", cmd->lightList.length);
+    rmonPrintf("play->roomCtx.curRoom.numLights = %d\n", play->roomCtx.curRoom.numLights);
+    rmonPrintf("play->roomCtx.curRoom.lightList = 0x%X\n", (u32)play->roomCtx.curRoom.lightList);
 }
 
 void Scene_CommandPathList(PlayState* play, SceneCmd* cmd) {

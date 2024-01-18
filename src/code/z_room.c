@@ -596,7 +596,11 @@ u32 func_80096FE8(PlayState* play, RoomContext* roomCtx) {
 s32 func_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
     u32 size;
 
+    rmonPrintf("func_8009728C(play, roomCtx, roomNum=%d)\n", roomNum);
+
     if (roomCtx->status == 0) {
+        rmonPrintf("> func_8009728C: roomCtx->status == 0\n");
+
         roomCtx->prevRoom = roomCtx->curRoom;
         roomCtx->curRoom.num = roomNum;
         roomCtx->curRoom.segment = NULL;
@@ -615,9 +619,11 @@ s32 func_8009728C(PlayState* play, RoomContext* roomCtx, s32 roomNum) {
                             &roomCtx->loadQueue, NULL, "../z_room.c", 1036);
         roomCtx->unk_30 ^= 1;
 
+        rmonPrintf("< func_8009728C: roomCtx->status == 0\n");
         return true;
     }
 
+    rmonPrintf("< func_8009728C: roomCtx->status != 0\n");
     return false;
 }
 
@@ -654,6 +660,9 @@ void func_80097534(PlayState* play, RoomContext* roomCtx) {
     roomCtx->prevRoom.num = -1;
     roomCtx->prevRoom.segment = NULL;
 
+    rmonPrintf("func_80097534 ('''room unload''')\n");
+    rmonPrintf("play->roomCtx.curRoom.lightList = 0x%X\n", (u32)roomCtx->curRoom.lightList);
+    rmonPrintf("play->roomCtx.prevRoom.lightList = 0x%X\n", (u32)roomCtx->prevRoom.lightList);
     LightContext_RemoveLightList(play, &play->lightCtx, roomCtx->prevRoom.lightList, roomCtx->prevRoom.numLights);
     roomCtx->prevRoom.lightList = NULL;
     roomCtx->prevRoom.numLights = 0;

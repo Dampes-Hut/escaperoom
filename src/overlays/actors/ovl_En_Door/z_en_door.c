@@ -296,6 +296,8 @@ void EnDoor_Open(EnDoor* this, PlayState* play) {
     s32 i;
     s32 numEffects;
 
+    rmonPrintf("EnDoor_Open\n");
+
     if (DECR(this->lockTimer) == 0) {
         if (SkelAnime_Update(&this->skelAnime)) {
             this->actionFunc = EnDoor_Idle;

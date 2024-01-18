@@ -4862,6 +4862,8 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
         (!(this->stateFlags1 & PLAYER_STATE1_11) ||
          ((this->heldActor != NULL) && (this->heldActor->id == ACTOR_EN_RU1)))) {
         if (CHECK_BTN_ALL(sControlInput->press.button, BTN_A) || (Player_Action_8084F9A0 == this->actionFunc)) {
+            rmonPrintf("> Player_ActionChange_1 BTN_A or opening\n");
+
             doorActor = this->doorActor;
 
             if (this->doorType <= PLAYER_DOORTYPE_AJAR) {
@@ -4918,6 +4920,8 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
                     Actor_DisableLens(play);
                 }
             } else {
+                rmonPrintf("> Player_ActionChange_1 EnDoor or DoorKiller\n");
+
                 // The door actor can be either EnDoor or DoorKiller.
                 door = (DoorActorBase*)doorActor;
 
@@ -4970,6 +4974,8 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
 
                 // If the door actor is not DoorKiller
                 if (this->doorType != PLAYER_DOORTYPE_FAKE) {
+                    rmonPrintf("> Player_ActionChange_1 EnDoor\n");
+
                     // The door actor is EnDoor
 
                     this->stateFlags1 |= PLAYER_STATE1_29;
@@ -4994,7 +5000,10 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
                                                  .bgCamIndex,
                                              0, 38.0f * D_808535EC, 26.0f * D_808535EC, 10.0f * D_808535EC);
                     }
+
+                    rmonPrintf("< Player_ActionChange_1 EnDoor\n");
                 }
+                rmonPrintf("< Player_ActionChange_1 EnDoor or DoorKiller\n");
             }
 
             if ((this->doorType != PLAYER_DOORTYPE_FAKE) && (doorActor->category == ACTORCAT_DOOR)) {
@@ -5003,6 +5012,7 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
                                 .room;
 
                 if ((frontRoom >= 0) && (frontRoom != play->roomCtx.curRoom.num)) {
+                    rmonPrintf("Player_ActionChange_1: func_8009728C()\n");
                     func_8009728C(play, &play->roomCtx, frontRoom);
                 }
             }
@@ -5013,6 +5023,7 @@ s32 Player_ActionChange_1(Player* this, PlayState* play) {
                 attachedActor->room = play->roomCtx.curRoom.num;
             }
 
+            rmonPrintf("< Player_ActionChange_1 BTN_A or opening\n");
             return 1;
         }
     }
