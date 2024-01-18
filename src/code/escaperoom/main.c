@@ -85,6 +85,8 @@ void Main(void* arg) {
 
     Regs_Init();
 
+    dREG(80) = -1; // no previous map select entry selected
+
     R_ENABLE_ARENA_DBG = 0;
 
     osCreateMesgQueue(&sSerialEventQueue, sSerialMsgBuf, ARRAY_COUNT(sSerialMsgBuf));

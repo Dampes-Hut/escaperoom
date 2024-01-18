@@ -754,6 +754,16 @@ void MapSelect_Init(GameState* thisx) {
 
     size = (uintptr_t)_z_select_staticSegmentRomEnd - (uintptr_t)_z_select_staticSegmentRomStart;
 
+    // Default entry to select
+    s32 defaultEntryEntranceIndex = ENTR_TEST_DANCEFLOOR_0;
+    for (int i = 0; i < this->count; i++) {
+        if (this->scenes[i].entranceIndex == defaultEntryEntranceIndex) {
+            this->currentScene = i;
+            // Note: may need to set topDisplayedScene, pageDownIndex
+            //       if currentScene isn't near 0
+        }
+    }
+
     if ((dREG(80) >= 0) && (dREG(80) < this->count)) {
         this->currentScene = dREG(80);
         this->topDisplayedScene = dREG(81);
