@@ -1601,6 +1601,15 @@ s32 Camera_Normal1(Camera* camera) {
             Camera_CalcDefaultPitch(camera, atEyeNextGeo.pitch, roData->pitchTarget, rwData->slopePitchAdj);
     }
 
+    if (camera->play->sceneId == SCENE_TEST_DANCEFLOOR) {
+        eyeAdjustment.pitch = atEyeNextGeo.pitch;
+        Math_StepToS(&eyeAdjustment.pitch, 0x2800, 0x300);
+        Math_StepToF(&eyeAdjustment.r, 700.0f, 10.0f);
+
+        // Prevent the camera yaw aligning to Link's direction
+        rwData->startSwingTimer = 100;
+    }
+
     // set eyeAdjustment pitch from 79.65 degrees to -85 degrees
     if (eyeAdjustment.pitch > 0x38A4) {
         eyeAdjustment.pitch = 0x38A4;
