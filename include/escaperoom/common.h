@@ -128,6 +128,11 @@
 #define Graph_Alloc(gfxCtx, size) Graph_Alloc(gfxCtx, size)
 #endif
 
+#ifndef NDEBUG
+#define LightContext_InsertLight(play, lightCtx, info) LightContext_InsertLight(play, lightCtx, info, __FILE__, __LINE__)
+#define LightContext_InsertLightList(play, lightCtx, lightList, numLights) LightContext_InsertLightList(play, lightCtx, lightList, numLights, __FILE__, __LINE__)
+#endif
+
 #define gFrameBuffer0   ((void*)0x80600000)
 #define gFrameBuffer1   ((void*)0x80700000)
 
