@@ -7,6 +7,14 @@
 #include "z_en_mag.h"
 #include "assets/objects/object_mag/object_mag.h"
 
+static u64 sEscapeRoomByTeamDampesHutTex[] = {
+#include "build/assets_mod/misc/escape_room_by_team_dampes_hut.rgba32.inc.c"
+};
+
+static u64 sCopyright2024TeamDampesHutTex[] = {
+#include "build/assets_mod/misc/copyright2024teamdampeshut.ia8.inc.c"
+};
+
 #define FLAGS (ACTOR_FLAG_4 | ACTOR_FLAG_5)
 
 void EnMag_Init(Actor* thisx, PlayState* play);
@@ -454,9 +462,10 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
         EnMag_DrawTextureI8(&gfx, gTitleOcarinaOfTimeTMTextTex, 96, 8, 143, 126, 96, 8, 1024, 1024);
 
         gDPPipeSync(gfx++);
-        gDPSetPrimColor(gfx++, 0, 0, 255, 255, 255, (s16)this->subAlpha);
+        gDPSetPrimColor(gfx++, 0, 0, 110, 70, 220, (s16)this->subAlpha);
 
-        EnMag_DrawImageRGBA32(&gfx, 174, 145, (u8*)gTitleMasterQuestSubtitleTex, 128, 32);
+        // Note: I'm aware this sticks out like a sore thumb. Developer art ftw
+        EnMag_DrawImageRGBA32(&gfx, 184, 155, (u8*)sEscapeRoomByTeamDampesHutTex, 128, 32);
     }
 
     Gfx_SetupDL_39Ptr(&gfx);
@@ -473,6 +482,13 @@ void EnMag_DrawInner(Actor* thisx, PlayState* play, Gfx** gfxP) {
                             G_TX_NOLOD, G_TX_NOLOD);
 
         gSPTextureRectangle(gfx++, 78 << 2, 198 << 2, 238 << 2, 214 << 2, G_TX_RENDERTILE, 0, 0, 1 << 10, 1 << 10);
+
+        gDPLoadTextureBlock(gfx++, sCopyright2024TeamDampesHutTex, G_IM_FMT_IA, G_IM_SIZ_8b, 160, 16, 0,
+                            G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMIRROR | G_TX_CLAMP, G_TX_NOMASK, G_TX_NOMASK,
+                            G_TX_NOLOD, G_TX_NOLOD);
+
+        gSPTextureRectangle(gfx++, 81 << 2, 215 << 2, (81 + 160) << 2, (215 + 16) << 2, G_TX_RENDERTILE, 0, 0, 1 << 10,
+                            1 << 10);
     }
 
     if (gSaveContext.fileNum == 0xFEDC) {

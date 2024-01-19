@@ -2,6 +2,7 @@ beginseg
     name "inn_bedroom_scene"
     include "build/assets_mod/maps/inn_bedroom/inn_bedroom_scene_main.o"
     include "build/assets_mod/maps/inn_bedroom/inn_bedroom_scene_col.o"
+    include "build/assets_mod/maps/inn_bedroom/inn_bedroom_scene_cs_0.o"
     number 2
 endseg
 

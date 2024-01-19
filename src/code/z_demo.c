@@ -550,6 +550,9 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
     Player* player = GET_PLAYER(play);
     s32 titleDemoSkipped = false;
 
+    // Remove the code that skips demo mode cutscenes, we don't have any and it's skipping our title cutscene
+    // Alternatively we could check for our title screen scene instead of SCENE_HYRULE_FIELD
+#if 0
     if ((gSaveContext.gameMode != GAMEMODE_NORMAL) && (gSaveContext.gameMode != GAMEMODE_END_CREDITS) &&
         (play->sceneId != SCENE_HYRULE_FIELD) && (csCtx->curFrame > 20) &&
         (CHECK_BTN_ALL(play->state.input[0].press.button, BTN_A) ||
@@ -560,10 +563,16 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
                              &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
         titleDemoSkipped = true;
     }
+#endif
 
-    if ((csCtx->curFrame == cmd->startFrame) || titleDemoSkipped ||
-        ((csCtx->curFrame > 20) && CHECK_BTN_ALL(play->state.input[0].press.button, BTN_START) &&
-         (gSaveContext.fileNum != 0xFEDC))) {
+    if ((csCtx->curFrame == cmd->startFrame) ||
+        titleDemoSkipped
+#ifndef NDEBUG
+        // Skip cutscenes with Start
+        || ((csCtx->curFrame > 20) && CHECK_BTN_ALL(play->state.input[0].press.button, BTN_START) &&
+            (gSaveContext.fileNum != 0xFEDC))
+#endif
+    ) {
         csCtx->state = CS_STATE_RUN_UNSTOPPABLE;
         Audio_SetCutsceneFlag(0);
         gSaveContext.cutsceneTransitionControl = 1;
@@ -580,6 +589,13 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
         gSaveContext.save.cutsceneIndex = 0;
 
         switch (cmd->destination) {
+            case CS_DEST_TITLE_SCREEN_LOOP:
+                play->nextEntranceIndex = ENTR_INN_BEDROOM_0;
+                gSaveContext.save.cutsceneIndex = 0xFFF0;
+                play->transitionTrigger = TRANS_TRIGGER_START;
+                play->transitionType = TRANS_TYPE_TRIFORCE;
+                break;
+
             case CS_DEST_CUTSCENE_MAP_GANON_HORSE:
                 play->nextEntranceIndex = ENTR_CUTSCENE_MAP_0;
                 gSaveContext.save.cutsceneIndex = 0xFFF1;
