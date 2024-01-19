@@ -249,6 +249,70 @@ void CutsceneCmd_Misc(PlayState* play, CutsceneContext* csCtx, CsCmdMisc* cmd) {
     }
 
     switch (cmd->type) {
+        case CS_MISC_SFX_LINK_ADVENTURING:
+            if (csCtx->curFrame < 40) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame == 40) {
+                Sfx_PlaySfxCentered(NA_SE_VO_LI_SWORD_N);
+            } else if (csCtx->curFrame < 50) {
+            } else if (csCtx->curFrame < 70) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame == 70) {
+                Sfx_PlaySfxCentered(NA_SE_PL_PULL_UP_ROCK);
+            } else if (csCtx->curFrame == 85) {
+                Sfx_PlaySfxCentered(NA_SE_PL_THROW);
+            } else if (csCtx->curFrame == 100) {
+                Sfx_PlaySfxCentered(NA_SE_PL_BOUND_GRASS);
+            } else if (csCtx->curFrame < 140) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame == 140) {
+                Sfx_PlaySfxCentered(NA_SE_VO_LI_AUTO_JUMP);
+            } else if (csCtx->curFrame < 150) {
+            } else if (csCtx->curFrame < 165) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame == 170) {
+                Sfx_PlaySfxCentered(NA_SE_VO_LI_SWORD_L);
+            } else if (csCtx->curFrame < 180) {
+            } else if (csCtx->curFrame < 200) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame == 215) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+                Sfx_PlaySfxCentered(NA_SE_EV_DOG_CRY_EVENING);
+            } else if (csCtx->curFrame < 240) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame < 260) {
+            } else if (csCtx->curFrame == 260) {
+                Sfx_PlaySfxCentered(NA_SE_OC_DOOR_OPEN);
+            } else if (csCtx->curFrame < 270) {
+            } else if (csCtx->curFrame < 280) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_GRASS - SFX_FLAG);
+            } else if (csCtx->curFrame < 300) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_CONCRETE - SFX_FLAG);
+            } else if (csCtx->curFrame < 320) {
+            } else if (csCtx->curFrame == 320) {
+                Sfx_PlaySfxCentered(NA_SE_EV_DOOR_CLOSE);
+            } else if (csCtx->curFrame < 330) {
+            } else if (csCtx->curFrame < 370) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_CONCRETE - SFX_FLAG);
+            } else if (csCtx->curFrame < 400) {
+            } else if (csCtx->curFrame < 450) {
+                Sfx_PlaySfxCentered(NA_SE_SY_RUPY_COUNT);
+            } else if (csCtx->curFrame < 470) {
+            } else if (csCtx->curFrame < 540) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_CONCRETE - SFX_FLAG);
+            } else if (csCtx->curFrame < 550) {
+            } else if (csCtx->curFrame == 550) {
+                Sfx_PlaySfxCentered(NA_SE_OC_DOOR_OPEN);
+            } else if (csCtx->curFrame < 560) {
+            } else if (csCtx->curFrame < 590) {
+                Sfx_PlaySfxCentered(NA_SE_PL_WALK_CONCRETE - SFX_FLAG);
+            } else if (csCtx->curFrame < 600) {
+            } else if (csCtx->curFrame == 600) {
+                Sfx_PlaySfxCentered(NA_SE_EV_DOOR_CLOSE);
+            }
+
+            break;
+
         case CS_MISC_RAIN:
             if (isFirstFrame) {
                 Audio_SetNatureAmbienceChannelIO(NATURE_CHANNEL_RAIN, CHANNEL_IO_PORT_4, 0x3F);
@@ -1512,6 +1576,15 @@ void CutsceneCmd_Transition(PlayState* play, CutsceneContext* csCtx, CsCmdTransi
                 } else {
                     play->envCtx.screenFillColor[3] = 255.0f * lerp;
                 }
+                break;
+
+            case CS_TRANS_BLACK_FILL:
+                play->envCtx.screenFillColor[0] = 0;
+                play->envCtx.screenFillColor[1] = 0;
+                play->envCtx.screenFillColor[2] = 0;
+                play->envCtx.screenFillColor[3] = 255;
+                if (csCtx->curFrame < 600)
+                    csCtx->curFrame = 600;
                 break;
 
             case CS_TRANS_BLACK_FILL_OUT_TO_HALF:

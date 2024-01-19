@@ -200,7 +200,8 @@ typedef enum {
     /* 0x20 */ CS_MISC_SANDSTORM_FILL,
     /* 0x21 */ CS_MISC_SUNSSONG_START,
     /* 0x22 */ CS_MISC_FREEZE_TIME,
-    /* 0x23 */ CS_MISC_LONG_SCARECROW_SONG
+    /* 0x23 */ CS_MISC_LONG_SCARECROW_SONG,
+    CS_MISC_SFX_LINK_ADVENTURING
 } CutsceneMiscType;
 
 typedef enum {
@@ -229,7 +230,8 @@ typedef enum {
     /* 0x0A */ CS_TRANS_BLACK_FILL_OUT,
     /* 0x0B */ CS_TRANS_BLACK_FILL_IN,
     /* 0x0C */ CS_TRANS_BLACK_FILL_OUT_TO_HALF, // used with `TRANS_MODE_CS_BLACK_FILL`
-    /* 0x0D */ CS_TRANS_BLACK_FILL_IN_FROM_HALF
+    /* 0x0D */ CS_TRANS_BLACK_FILL_IN_FROM_HALF,
+    CS_TRANS_BLACK_FILL
 } CutsceneTransitionType;
 
 typedef enum {
