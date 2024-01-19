@@ -71,6 +71,8 @@ void ChandelierLight_Destroy(Actor* thisx, PlayState* play) {
 void ChandelierLight_Update(Actor* thisx, PlayState* play) {
     ChandelierLightActor* this = (ChandelierLightActor*)thisx;
 
+    func_8002F974(&this->actor, NA_SE_EV_TORCH - SFX_FLAG);
+
     this->timer++;
 
     float sumBrightness = 0.0f;

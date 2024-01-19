@@ -488,6 +488,7 @@ typedef enum {
     /* 0x19 */ PLAYER_CUEID_25,
     /* 0x1A */ PLAYER_CUEID_26,
     /* 0x1B */ PLAYER_CUEID_27,
+#define PLAYER_CUEID_SLEEPING PLAYER_CUEID_28
     /* 0x1C */ PLAYER_CUEID_28,
     /* 0x1D */ PLAYER_CUEID_29,
     /* 0x1E */ PLAYER_CUEID_30,

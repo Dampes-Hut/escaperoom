@@ -24,7 +24,6 @@ void* TransitionTriforce_Init(void* thisx) {
     guOrtho(&this->projection, -160.0f, 160.0f, -120.0f, 120.0f, -1000.0f, 1000.0f, 1.0f);
     this->transPos = 1.0f;
     this->state = 2;
-    this->step = 0.015f;
     this->type = TRANS_INSTANCE_TYPE_FILL_OUT;
 
     return this;
@@ -41,7 +40,9 @@ void TransitionTriforce_Update(void* thisx, s32 updateRate) {
         if (this->state == 1) {
             this->transPos = CLAMP_MIN(this->transPos * (1.0f - this->step), 0.03f);
         } else if (this->state == 2) {
-            this->transPos = CLAMP_MIN(this->transPos - this->step, 0.03f);
+            this->step = LERP(0.015f, 0.005f, 1.0f - this->transPos);
+#define TRANSPOS_MIN 0.015f
+            this->transPos = CLAMP_MIN(this->transPos - this->step, TRANSPOS_MIN);
         } else if (this->state == 3) {
             this->transPos = CLAMP_MAX(this->transPos / (1.0f - this->step), 1.0f);
         } else if (this->state == 4) {
@@ -126,7 +127,7 @@ s32 TransitionTriforce_IsDone(void* thisx) {
     TransitionTriforce* this = (TransitionTriforce*)thisx;
 
     if (this->state == 1 || this->state == 2) {
-        return this->transPos <= 0.03f;
+        return this->transPos <= TRANSPOS_MIN;
     } else if (this->state == 3 || this->state == 4) {
         return this->transPos >= 1.0f;
     } else {
