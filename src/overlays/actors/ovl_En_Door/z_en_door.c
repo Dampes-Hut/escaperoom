@@ -240,9 +240,11 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
             if (ABS(yawDiff) < 0x3000) {
                 if (this->lockTimer != 0) {
                     if (gSaveContext.save.info.inventory.dungeonKeys[gSaveContext.mapIndex] <= 0) {
+#if 0
                         Player* player2 = GET_PLAYER(play);
 
                         player2->naviTextId = -0x203;
+#endif
                         return;
                     } else {
                         player->doorTimer = 10;

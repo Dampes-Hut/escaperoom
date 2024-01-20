@@ -6,7 +6,15 @@ UNSKIPPABLE QUICKTEXT_ENABLE COLOR(RED) "MISSING MESSAGE DATA! (DE)" COLOR(DEFAU
 UNSKIPPABLE QUICKTEXT_ENABLE COLOR(RED) "MISSING MESSAGE DATA! (FR)" COLOR(DEFAULT) QUICKTEXT_DISABLE
 )
 
+#define DEFINE_MESSAGE_EN(textId, type, yPos, nesMessage)                                                      \
+    DEFINE_MESSAGE(                                                                                            \
+        textId, type, yPos, nesMessage,                                                                        \
+        UNSKIPPABLE QUICKTEXT_ENABLE COLOR(RED) "MISSING MESSAGE DATA! (DE)" COLOR(DEFAULT) QUICKTEXT_DISABLE, \
+        UNSKIPPABLE QUICKTEXT_ENABLE COLOR(RED) "MISSING MESSAGE DATA! (FR)" COLOR(DEFAULT) QUICKTEXT_DISABLE)
 
+DEFINE_MESSAGE_EN(100, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "You found a key!\nIt can open a locked door." QUICKTEXT_DISABLE
+)
 
 
 
