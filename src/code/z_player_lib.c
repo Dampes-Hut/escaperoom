@@ -1182,6 +1182,11 @@ s32 Player_OverrideLimbDrawGameplayDefault(PlayState* play, s32 limbIndex, Gfx**
             }
 
             *dList = *(dLists + sDListsLodOffset);
+
+            if ((gSaveContext.save.info.equips.equipment & (0xF << EQUIP_TYPE_SWORD)) == 0) {
+                // No sword equipped
+                *dList = NULL;
+            }
         } else if (limbIndex == PLAYER_LIMB_WAIST) {
             *dList = *(this->waistDLists + sDListsLodOffset);
         }
