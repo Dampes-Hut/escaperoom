@@ -208,7 +208,7 @@ typedef struct {
     /* 0x0E48  0x0E64 */ FaroresWindData fw;
     /* 0x0E70  0x0E8C */ char unk_E8C[0x10];
     /* 0x0E80  0x0E9C */ s32 gsFlags[6];
-#define CORRECT_COURTYARD_GRAVES_PULLED_FLAGS 0b110
+#define CORRECT_COURTYARD_GRAVES_PULLED_FLAGS ((1 << 0) | (1 << 3) | (1 << 4) | (1 << 6) | (1 << 8))
     /* 0x0E98  0x0EB4 */ u32 courtyard_graves_pulled_flags;
     /* 0x0E9C  0x0EB8 */ s32 highScores[7];
     /* 0x0EB8  0x0ED4 */ u16 eventChkInf[14]; // "event_chk_inf"
