@@ -812,7 +812,9 @@ void Lights_DrawGlow(PlayState* play) {
             continue;
         }
 
-        f32 scale = SQ(params->radius) * 2e-6f;
+        // 1e-3f because the gGlowCircleDL is 1000x1000 in model space
+        // 2e-1f for 20% of the radius, just because
+        f32 scale = params->radius * 2e-1f * 1e-3f;
         Matrix_Translate(params->x, params->y, params->z, MTXMODE_NEW);
         Matrix_Scale(scale, scale, scale, MTXMODE_APPLY);
         gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx, __FILE__, __LINE__),

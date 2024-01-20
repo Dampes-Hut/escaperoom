@@ -1056,7 +1056,7 @@ void func_80A04414(EnElf* this, PlayState* play) {
 }
 
 void func_80A0461C(EnElf* this, PlayState* play) {
-    s32 temp;
+    s32 temp = this->unk_2A8;
     Actor* arrowPointedActor;
     Player* player = GET_PLAYER(play);
 
@@ -1105,10 +1105,13 @@ void func_80A0461C(EnElf* this, PlayState* play) {
                             this->unk_2C0--;
                             temp = 0;
                         } else {
+                            // make navi not vanish on her own after some time
+#if 0
                             if (this->unk_2C7 == 0) {
                                 Actor_PlaySfx(&this->actor, NA_SE_EV_NAVY_VANISH);
                             }
                             temp = 7;
+#endif
                         }
                         break;
                     case 7:
