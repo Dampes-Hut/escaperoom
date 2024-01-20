@@ -14,8 +14,8 @@
 SceneCmd mainmap_room_5_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
     SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
-    SCENE_CMD_SKYBOX_DISABLES(false, false),
-    SCENE_CMD_TIME_SETTINGS(0xFF, 0xFF, 10),
+    SCENE_CMD_SKYBOX_DISABLES(false, true),
+    SCENE_CMD_TIME_SETTINGS(0, 0, 0),
     SCENE_CMD_ROOM_SHAPE(&mainmap_room_5_shapeHeader),
     SCENE_CMD_LIGHT_LIST(LENGTH_MAINMAP_ROOM_5_HEADER00_LIGHTINFOLIST, mainmap_room_5_header00_lightInfoList),
     SCENE_CMD_END(),

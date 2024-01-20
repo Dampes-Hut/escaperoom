@@ -36,8 +36,8 @@ RomFile mainmap_scene_roomList[] = {
 ActorEntry mainmap_scene_header00_playerEntryList[] = {
     {
         /* Actor ID   */ ACTOR_PLAYER,
-        /* Position   */ { 1142, -175, 543 },
-        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(357.182), DEG_TO_BINANG(0.000) },
+        /* Position   */ { -259, -123, -218 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(338.665), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0FFF
     },
 };
@@ -47,18 +47,18 @@ TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
     {
         /* Room & Cam Index (Front, Back) */ { 0, 0x00, 1, 0x00 },
         /* Actor ID                       */ ACTOR_EN_DOOR,
-        /* Position                       */ { 510, -151, -116 },
+        /* Position                       */ { 513, -151, -113 },
         /* Rotation Y                     */ DEG_TO_BINANG(227.681),
         /* Parameters                     */ 0x0000
     },
 
     // Wooden Door
     {
-        /* Room & Cam Index (Front, Back) */ { 0, 0x00, 2, 0x00 },
+        /* Room & Cam Index (Front, Back) */ { 2, 0x00, 0, 0x00 },
         /* Actor ID                       */ ACTOR_EN_DOOR,
         /* Position                       */ { 1145, -175, 580 },
-        /* Rotation Y                     */ DEG_TO_BINANG(0.709),
-        /* Parameters                     */ 0x0000
+        /* Rotation Y                     */ DEG_TO_BINANG(180.709),
+        /* Parameters                     */ 1<<7 /*locked, flag0*/
     },
 
     // Wooden Door
@@ -72,11 +72,11 @@ TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
 
     // Wooden Door
     {
-        /* Room & Cam Index (Front, Back) */ { 2, 0x00, 5, 0x00 },
+        /* Room & Cam Index (Front, Back) */ { 5, 0x00, 2, 0x00 },
         /* Actor ID                       */ ACTOR_EN_DOOR,
         /* Position                       */ { 1043, -249, 1274 },
-        /* Rotation Y                     */ DEG_TO_BINANG(270.000),
-        /* Parameters                     */ 0x0000
+        /* Rotation Y                     */ DEG_TO_BINANG(90.000),
+        /* Parameters                     */ (1<<7) | 1 /*locked, flag1*/
     },
 
     // Wooden Door

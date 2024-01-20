@@ -888,6 +888,8 @@ void func_80A03CF8(EnElf* this, PlayState* play) {
     } else {
         distFromPlayerHat = Math_Vec3f_DistXYZ(&player->bodyPartsPos[PLAYER_BODYPART_HAT], &this->actor.world.pos);
 
+        rmonPrintf("this->unk_2A8=%hd\n", this->unk_2A8);
+
         switch (this->unk_2A8) {
             case 7:
                 func_80A02C98(this, &player->bodyPartsPos[PLAYER_BODYPART_HAT], 1.0f - this->unk_2AE * (1.0f / 30.0f));
@@ -1056,7 +1058,7 @@ void func_80A04414(EnElf* this, PlayState* play) {
 }
 
 void func_80A0461C(EnElf* this, PlayState* play) {
-    s32 temp;
+    s32 temp = this->unk_2A8;
     Actor* arrowPointedActor;
     Player* player = GET_PLAYER(play);
 
@@ -1105,10 +1107,13 @@ void func_80A0461C(EnElf* this, PlayState* play) {
                             this->unk_2C0--;
                             temp = 0;
                         } else {
+                            // make navi not vanish on her own after some time
+#if 0
                             if (this->unk_2C7 == 0) {
                                 Actor_PlaySfx(&this->actor, NA_SE_EV_NAVY_VANISH);
                             }
                             temp = 7;
+#endif
                         }
                         break;
                     case 7:

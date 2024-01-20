@@ -12,7 +12,7 @@
 */
 #define LENGTH_MAINMAP_ROOM_0_HEADER00_LIGHTINFOLIST 2
 #define LENGTH_MAINMAP_ROOM_0_HEADER00_OBJECTLIST 1
-#define LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST 12
+#define LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST 13
 SceneCmd mainmap_room_0_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
     SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
@@ -145,6 +145,14 @@ ActorEntry mainmap_room_0_header00_actorList[LENGTH_MAINMAP_ROOM_0_HEADER00_ACTO
         /* Position   */ { 440, 22, -19 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
         /* Parameters */ 50
+    },
+
+    // Collectable Item
+    {
+        /* Actor ID   */ ACTOR_EN_ITEM00,
+        /* Position   */ { 1062, -179, 69 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ ITEM00_SMALL_KEY
     },
 };
 
