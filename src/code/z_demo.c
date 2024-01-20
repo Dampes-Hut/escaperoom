@@ -660,6 +660,12 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
                 play->transitionType = TRANS_TYPE_TRIFORCE;
                 break;
 
+            case CS_DEST_INTROCS_PART2:
+                play->nextEntranceIndex = ENTR_INN_BEDROOM_0; // placeholder
+                play->transitionTrigger = TRANS_TRIGGER_START;
+                play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
+                break;
+
             case CS_DEST_CUTSCENE_MAP_GANON_HORSE:
                 play->nextEntranceIndex = ENTR_CUTSCENE_MAP_0;
                 gSaveContext.save.cutsceneIndex = 0xFFF1;
@@ -1579,12 +1585,16 @@ void CutsceneCmd_Transition(PlayState* play, CutsceneContext* csCtx, CsCmdTransi
                 break;
 
             case CS_TRANS_BLACK_FILL:
+#if 0
+                if (csCtx->curFrame < 600) {
+                    csCtx->curFrame = 1098;
+                    break;
+                }
+#endif
                 play->envCtx.screenFillColor[0] = 0;
                 play->envCtx.screenFillColor[1] = 0;
                 play->envCtx.screenFillColor[2] = 0;
                 play->envCtx.screenFillColor[3] = 255;
-                if (csCtx->curFrame < 600)
-                    csCtx->curFrame = 600;
                 break;
 
             case CS_TRANS_BLACK_FILL_OUT_TO_HALF:
@@ -1986,6 +1996,9 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
             case CS_CMD_ACTOR_CUE_0_15:
             case CS_CMD_ACTOR_CUE_0_16:
             case CS_CMD_ACTOR_CUE_0_17:
+            case CS_CMD_ACTOR_CUE_INN_PAINTING:
+                static_assert(ACTOR_CUE_INN_PAINTING_CHANNEL == 0, "");
+
                 MemCpy(&cmdEntries, script, sizeof(cmdEntries));
                 script += sizeof(cmdEntries);
 

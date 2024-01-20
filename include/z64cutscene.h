@@ -160,6 +160,8 @@ typedef enum {
     /* 0x008E */ CS_CMD_ACTOR_CUE_7_6,
     /* 0x008F */ CS_CMD_ACTOR_CUE_9_0,
     /* 0x0090 */ CS_CMD_ACTOR_CUE_0_17,
+#define ACTOR_CUE_INN_PAINTING_CHANNEL 0
+    CS_CMD_ACTOR_CUE_INN_PAINTING,
     /* 0x03E8 */ CS_CMD_DESTINATION = 0x03E8,
     /* 0xFFFF */ CS_CMD_END = 0xFFFF
 } CutsceneCmd;
@@ -355,7 +357,8 @@ typedef enum {
     /* 0x75 */ CS_DEST_HYRULE_FIELD_CREDITS_SKY,
     /* 0x76 */ CS_DEST_GANON_BATTLE_TOWER_COLLAPSE,
     /* 0x77 */ CS_DEST_ZELDAS_COURTYARD_RECEIVE_LETTER,
-    CS_DEST_TITLE_SCREEN_LOOP
+    CS_DEST_TITLE_SCREEN_LOOP,
+    CS_DEST_INTROCS_PART2
 } CutsceneDestination;
 
 typedef union {
@@ -528,5 +531,7 @@ typedef struct {
     /* 0x24 */ CsCmdActorCue* playerCue;
     /* 0x28 */ CsCmdActorCue* actorCues[10]; // "npcdemopnt"
 } CutsceneContext; // size = 0x50
+
+#include "escaperoom/cutscenes.h"
 
 #endif
