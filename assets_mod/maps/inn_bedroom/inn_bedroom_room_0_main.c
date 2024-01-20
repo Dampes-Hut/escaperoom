@@ -29,6 +29,7 @@ SceneCmd* inn_bedroom_room_0_alternateHeaders[] = {
     NULL,
     NULL,
     inn_bedroom_room_0_header04,
+    inn_bedroom_room_0_header05,
 };
 
 s16 inn_bedroom_room_0_header00_objectList[LENGTH_INN_BEDROOM_ROOM_0_HEADER00_OBJECTLIST] = {
@@ -91,6 +92,46 @@ ActorEntry inn_bedroom_room_0_header04_actorList[LENGTH_INN_BEDROOM_ROOM_0_HEADE
     {
         /* Actor ID   */ ACTOR_EN_MAG,
         /* Position   */ { -300, -74, 46 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_INN_PAINTING,
+        /* Position   */ { 0, -7, 237 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(184.620), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
+    },
+};
+
+/**
+ * Header Cutscene No. 2
+*/
+#define LENGTH_INN_BEDROOM_ROOM_0_HEADER05_OBJECTLIST 3
+#define LENGTH_INN_BEDROOM_ROOM_0_HEADER05_ACTORLIST 2
+SceneCmd inn_bedroom_room_0_header05[] = {
+    SCENE_CMD_ECHO_SETTINGS(0x00),
+    SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
+    SCENE_CMD_SKYBOX_DISABLES(false, true),
+    SCENE_CMD_TIME_SETTINGS(0, 0, 0),
+    SCENE_CMD_ROOM_SHAPE(&inn_bedroom_room_0_shapeHeader),
+    SCENE_CMD_OBJECT_LIST(LENGTH_INN_BEDROOM_ROOM_0_HEADER05_OBJECTLIST, inn_bedroom_room_0_header05_objectList),
+    SCENE_CMD_ACTOR_LIST(LENGTH_INN_BEDROOM_ROOM_0_HEADER05_ACTORLIST, inn_bedroom_room_0_header05_actorList),
+    SCENE_CMD_END(),
+};
+
+s16 inn_bedroom_room_0_header05_objectList[LENGTH_INN_BEDROOM_ROOM_0_HEADER05_OBJECTLIST] = {
+    OBJECT_POH,
+    OBJECT_INN_PAINTING,
+    OBJECT_CHANDELIER,
+};
+
+ActorEntry inn_bedroom_room_0_header05_actorList[LENGTH_INN_BEDROOM_ROOM_0_HEADER05_ACTORLIST] = {
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_CHANDELIER_LIGHT,
+        /* Position   */ { -114, 58, 122 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0000
     },

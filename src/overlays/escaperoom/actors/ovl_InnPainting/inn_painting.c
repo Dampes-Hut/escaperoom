@@ -1,5 +1,6 @@
 #include "inn_painting.h"
 
+#include "assets/objects/gameplay_keep/gameplay_keep.h"
 #include "assets/objects/object_poh/object_poh.h"
 #include "assets_mod/objects/object_inn_painting/gObjectInnPaintingBackgroundDL.h"
 
@@ -58,13 +59,163 @@ void InnPainting_WaitObjects(Actor* thisx, PlayState* play) {
     }
 }
 
+void ip_update_cs(InnPaintingActor* this, PlayState* play) {
+    CsCmdActorCue* cue = play->csCtx.actorCues[ACTOR_CUE_INN_PAINTING_CHANNEL];
+
+    if (cue == NULL) {
+        return;
+    }
+
+    bool isFirstFrame = cue->startFrame == play->csCtx.curFrame;
+
+    rmonPrintf("ip_update_cs: cue->id=%hu\n", cue->id);
+
+    switch (cue->id) {
+        case INNPAINTING_CUEID_NOOP:
+            break;
+
+        case INNPAINTING_CUEID_POE_UNFREEZE:
+            Math_StepToF(&this->poeSkelAnime.playSpeed, 1.0f, 0.02f);
+            break;
+
+        case INNPAINTING_CUEID_POE_EXITPAINTING:
+            if (this->poeExitPaintingTimerIni == 0) {
+                this->poeSkelAnime.playSpeed = 1.0f;
+                this->poeExitPaintingTimer = this->poeExitPaintingTimerIni = 80;
+            }
+            break;
+
+        case INNPAINTING_CUEID_POE_CASTCURSE:
+            if (this->poeCastCurseTimerIni == 0) {
+                gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+                Animation_Change(&this->poeSkelAnime, &gPoeAttackAnim, 1.0f, 0.0f,
+                                 Animation_GetLastFrame(&gPoeAttackAnim), ANIMMODE_LOOP, -10.0f);
+                this->poeCastCurseTimer = this->poeCastCurseTimerIni = 80;
+
+                Sfx_PlaySfxAtPos(&this->poeOutsideProjectedPos, NA_SE_EN_PO_LAUGH);
+            }
+            break;
+
+        case INNPAINTING_CUEID_LINK_TRIFORCE:
+            if (this->linkTriforceTimerIni == 0) {
+                this->linkTriforceTimer = this->linkTriforceTimerIni = 50;
+            }
+            break;
+
+        case INNPAINTING_CUEID_POE_SURPRISED:
+            if (this->poeSkelAnime.animation != &gPoeDamagedAnim) {
+                rmonPrintf("INNPAINTING_CUEID_POE_SURPRISED: -> gPoeDamagedAnim\n");
+                gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+                Animation_Change(&this->poeSkelAnime, &gPoeDamagedAnim, 1.0f, 0.0f,
+                                 Animation_GetLastFrame(&gPoeDamagedAnim), ANIMMODE_ONCE, -2.0f);
+                
+                Sfx_PlaySfxAtPos(&this->poeOutsideProjectedPos, NA_SE_EN_PO_CRY);
+            }
+            break;
+
+        default:
+            rmonPrintf("ip_update_cs: unexpected cue->id=%hu\n", cue->id);
+            ASSERT_SOFT(0);
+            break;
+    }
+}
+
+// copied from muhdl_update_effects
+static void ip_update_curse_effects(InnPaintingActor* this, PlayState* play) {
+    for (int i = 0; i < ARRAY_COUNT(this->curseEffects); i++) {
+        InnPaintingActorCurseEffect* eff = &this->curseEffects[i];
+
+        if (eff->duration == 0 && this->poeCastCurseTimer != 0) {
+#define EFF_DURATION_MIN 10
+#define EFF_DURATION_MAX 50
+            eff->playerBodyPart = (u8)Rand_ZeroFloat(PLAYER_BODYPART_MAX);
+            eff->duration = (u8)(EFF_DURATION_MIN + Rand_ZeroFloat(EFF_DURATION_MAX - EFF_DURATION_MIN));
+            eff->timer = 0;
+            float f = 20.0f;
+            eff->posOffset.x = Rand_CenteredFloat(f);
+            eff->posOffset.y = Rand_CenteredFloat(f);
+            eff->posOffset.z = Rand_CenteredFloat(f);
+        }
+
+        if (eff->duration != 0) {
+            assert(eff->timer < eff->duration);
+            // fade in and out
+            // t                texIndex
+            // EFF_DURATION     7
+            // ~EFF_DURATION/2  0
+            // 0                7
+            eff->texIndex = 7 * SQ((float)eff->timer / eff->duration * 2 - 1);
+
+            eff->timer++;
+
+            if (eff->timer == eff->duration) {
+                eff->duration = 0;
+            }
+        }
+    }
+}
+
+static Vec3f sZeroVec = { 0 };
+
 void InnPainting_Update(Actor* thisx, PlayState* play) {
     InnPaintingActor* this = (InnPaintingActor*)thisx;
 
+    ip_update_cs(this, play);
+
     this->timer++;
 
+    if (this->poeExitPaintingTimer > 0) {
+        this->poeExitPaintingTimer--;
+
+        float f = (this->poeExitPaintingTimerIni - this->poeExitPaintingTimer) / (float)this->poeExitPaintingTimerIni;
+
+        this->poeOutsideRot = this->actor.shape.rot;
+
+        Matrix_SetTranslateRotateYXZ(XYZ(this->actor.world.pos), &this->actor.shape.rot);
+        Matrix_Translate(0.0f, -50.0f, (f - 0.6f) * 150, MTXMODE_APPLY);
+        if (f >= 0.8f) {
+            float f2 = (f - 0.8f) / (1.0f - 0.8f);
+            Matrix_Translate(30.0f * f2, 0.0f, 0.0f, MTXMODE_APPLY);
+            this->poeOutsideRot.y = this->actor.shape.rot.y + -0x4000 * f2;
+        }
+        Matrix_MultVec3f(&sZeroVec, &this->poeOutsidePos);
+
+        this->drawPoeOutside = true;
+    }
+
+    if (this->poeSkelAnime.animation == &gPoeFleeAnim) {
+        Matrix_SetTranslateRotateYXZ(XYZ(this->poeOutsidePos), &this->poeOutsideRot);
+        Matrix_Translate(0.0f, 0.0f, -3.0f, MTXMODE_APPLY);
+        Matrix_MultVec3f(&sZeroVec, &this->poeOutsidePos);
+    }
+
+    if (this->drawPoeOutside) {
+        Matrix_MultVec3fExt(&this->poeOutsidePos, &this->poeOutsideProjectedPos, &play->viewProjectionMtxF);
+
+        Sfx_PlaySfxAtPos(&this->poeOutsideProjectedPos, NA_SE_EN_PO_FLY - SFX_FLAG);
+    }
+
+    if (this->poeCastCurseTimer > 0) {
+        this->poeCastCurseTimer--;
+    }
+
+    if (this->linkTriforceTimer > 0) {
+        this->linkTriforceTimer--;
+        if (this->linkTriforceTimer == this->linkTriforceTimerIni * 8 / 10) {
+            Sfx_PlaySfxCentered(NA_SE_EV_TRIFORCE_FLASH);
+        }
+    }
+
+    ip_update_curse_effects(this, play);
+
     gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
-    SkelAnime_Update(&this->poeSkelAnime);
+    s32 animFinished = SkelAnime_Update(&this->poeSkelAnime);
+
+    if (this->poeSkelAnime.animation == &gPoeDamagedAnim && animFinished) {
+        rmonPrintf("InnPainting_Update: gPoeDamagedAnim&&animFinished -> gPoeFleeAnim\n");
+        Animation_Change(&this->poeSkelAnime, &gPoeFleeAnim, 1.0f, 0.0f, Animation_GetLastFrame(&gPoeFleeAnim),
+                         ANIMMODE_LOOP, 0.0f);
+    }
 }
 
 /**
@@ -284,13 +435,82 @@ static void ip_draw_to_rgba16_texture(InnPaintingActor* this, PlayState* play, G
     gfx = Gfx_SetupDL(gfx, SETUPDL_25);
     gDPSetEnvColor(gfx++, 255, 255, 255, 255);
     gSPSegment(gfx++, 8, gEmptyDL);
-    Matrix_Translate(0.0f, 0.0f, 0, MTXMODE_NEW);
+    if (this->poeExitPaintingTimerIni != 0) {
+        Matrix_Translate(0.0f, 0.0f,
+                         (this->poeExitPaintingTimerIni - this->poeExitPaintingTimer) /
+                             (float)this->poeExitPaintingTimerIni * 5.0f,
+                         MTXMODE_NEW);
+    } else {
+        Matrix_Translate(0.0f, 0.0f, 0.0f, MTXMODE_NEW);
+    }
     f = 0.0003f;
     Matrix_Scale(f, f, f, MTXMODE_APPLY);
     gfx = SkelAnime_Draw(play, this->poeSkelAnime.skeleton, this->poeSkelAnime.jointTable, NULL, NULL, NULL, gfx);
 
     *gfxP = gfx;
 }
+
+// copied from muhdl_draw_smoke
+static void ip_draw_curse_effects(InnPaintingActor* this, PlayState* play) {
+    Gfx* restrict* gfxP;
+    Gfx* restrict gfx;
+    MtxF mf;
+    float f;
+    static void* dustTextures[] = {
+        gDust1Tex, gDust2Tex, gDust3Tex, gDust4Tex, gDust5Tex, gDust6Tex, gDust7Tex, gDust8Tex,
+    };
+    Player* player = GET_PLAYER(play);
+
+    OPEN_DISPS(play->state.gfxCtx);
+
+    gfxP = &POLY_XLU_DISP;
+    gfx = *gfxP;
+
+    f = 1;
+    SkinMatrix_SetScale(&mf, f, f, f);
+    SkinMatrix_MtxFMtxFMult(&mf, &play->billboardMtxF, &mf);
+
+    gDPPipeSync(gfx++);
+
+    // opt note: merge SETUPDL_0 and the dynamic bits into a static DL
+    gfx = Gfx_SetupDL(gfx, SETUPDL_0);
+    gDPSetCombineLERP(gfx++,                                       //
+                      PRIMITIVE, ENVIRONMENT, TEXEL0, ENVIRONMENT, //
+                      PRIMITIVE, 0, TEXEL0, 0,                     //
+                      COMBINED, 0, SHADE, 0,                       //
+                      0, 0, 0, COMBINED);
+    gSPSetGeometryMode(gfx++, G_LIGHTING);
+
+    // inner color
+    gDPSetPrimColor(gfx++, 0, 0, 80, 30, 80, 140);
+    // outer color
+    gDPSetEnvColor(gfx++, 20, 0, 20, 0);
+
+    for (int i = 0; i < ARRAY_COUNT(this->curseEffects); i++) {
+        InnPaintingActorCurseEffect* eff = &this->curseEffects[i];
+
+        if (eff->duration != 0) {
+            mf.xw = player->bodyPartsPos[eff->playerBodyPart].x + eff->posOffset.x;
+            mf.yw = player->bodyPartsPos[eff->playerBodyPart].y + eff->posOffset.y;
+            mf.zw = player->bodyPartsPos[eff->playerBodyPart].z + eff->posOffset.z;
+
+            gSPMatrix(gfx++, Matrix_MtxFToNewMtx(&mf, play->state.gfxCtx), G_MTX_NOPUSH | G_MTX_LOAD | G_MTX_MODELVIEW);
+
+            assert(eff->texIndex >= 0);
+            assert(eff->texIndex < ARRAY_COUNT(dustTextures));
+            // opt note: repeat texture load
+            gSPSegment(gfx++, 0x08, SEGMENTED_TO_VIRTUAL(dustTextures[eff->texIndex]));
+            gSPDisplayList(gfx++, gEffDustDL);
+        }
+    }
+
+    *gfxP = gfx;
+
+    CLOSE_DISPS(play->state.gfxCtx);
+}
+
+// sTriforceDL
+#include "assets/overlays/ovl_End_Title/ovl_End_Title.c"
 
 void InnPainting_Draw(Actor* thisx, PlayState* play) {
     InnPaintingActor* this = (InnPaintingActor*)thisx;
@@ -331,6 +551,46 @@ void InnPainting_Draw(Actor* thisx, PlayState* play) {
         gSPMatrix(POLY_OPA_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_MODELVIEW | G_MTX_LOAD | G_MTX_NOPUSH);
         gSPSegment(POLY_OPA_DISP++, IPQUAD_TEX_SEGNUM, sIPFBTex[this->bufI] + (i * IPQUAD_TEXW * IPQUAD_TEXH));
         gSPDisplayList(POLY_OPA_DISP++, sIPQuadDL);
+    }
+
+    // Draw poe outside painting
+    if (this->drawPoeOutside) {
+        f32 f;
+
+        Matrix_SetTranslateRotateYXZ(XYZ(this->poeOutsidePos), &this->poeOutsideRot);
+
+        gSegments[6] = VIRTUAL_TO_PHYSICAL(play->objectCtx.slots[this->objectPohSlot].segment);
+        gSPSegment(POLY_OPA_DISP++, 6, gSegments[6]);
+        gDPNoOpString(POLY_OPA_DISP++, "InnPainting_Draw: SkelAnime_Draw poeSkelAnime", 0);
+        POLY_OPA_DISP = Gfx_SetupDL(POLY_OPA_DISP, SETUPDL_25);
+        gDPSetEnvColor(POLY_OPA_DISP++, 255, 255, 255, 255);
+        gSPSegment(POLY_OPA_DISP++, 8, gEmptyDL);
+        f = 0.01f;
+        Matrix_Scale(f, f, f, MTXMODE_APPLY);
+        POLY_OPA_DISP = SkelAnime_Draw(play, this->poeSkelAnime.skeleton, this->poeSkelAnime.jointTable, NULL, NULL,
+                                       NULL, POLY_OPA_DISP);
+    }
+
+    ip_draw_curse_effects(this, play);
+
+    // Draw triforce
+    if (this->linkTriforceTimerIni != 0) {
+        Player* player = GET_PLAYER(play);
+        float f;
+
+        Gfx_SetupDL_25Xlu(play->state.gfxCtx);
+        Matrix_Translate(XYZ(player->bodyPartsPos[PLAYER_BODYPART_L_HAND]), MTXMODE_NEW);
+        Matrix_Translate(0.0f, 20.0f, 0.0f, MTXMODE_APPLY);
+        Matrix_RotateX(M_PI / 2, MTXMODE_APPLY);
+        f = this->linkTriforceTimerIni - this->linkTriforceTimer;
+        f /= this->linkTriforceTimerIni;
+        if (f < 0.3f)
+            f = LERP(0.001f, 0.02f, f / 0.3f);
+        else
+            f = LERP(0.02f, 0.01f, (f - 0.3f) / (1.0f - 0.3f));
+        Matrix_Scale(f, f, f, MTXMODE_APPLY);
+        gSPMatrix(POLY_XLU_DISP++, Matrix_NewMtx(play->state.gfxCtx), G_MTX_LOAD | G_MTX_NOPUSH | G_MTX_MODELVIEW);
+        gSPDisplayList(POLY_XLU_DISP++, sTriforceDL);
     }
 
     CLOSE_DISPS(play->state.gfxCtx);
