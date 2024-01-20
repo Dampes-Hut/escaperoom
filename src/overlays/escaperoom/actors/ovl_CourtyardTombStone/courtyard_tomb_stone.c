@@ -61,6 +61,13 @@ bool CourtyardTombStone_Move(CourtyardTombStoneActor* this, PlayState* play, flo
     float speed = (1.0f - SQ(movedDistNormalized)) * strengthFac;
     speed = CLAMP(speed, 0.1f, 5.0f);
 
+    if (COURTYARD_TOMB_STONE_INDEX(&this->dyna.actor) == 6) {
+        // make this tombstone in particular slower to move, part of the hints
+        speed = CLAMP_MAX(speed, 3.0f);
+        speed /= 4.0f;
+        speed = CLAMP_MIN(speed, 0.1f);
+    }
+
     bool targetReached = Math_StepToF(&this->movedDist, target, speed);
     CourtyardTombStone_SetPosition(this, this->movedDist);
 
