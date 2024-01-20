@@ -338,6 +338,7 @@ void EnElf_Init(Actor* thisx, PlayState* play) {
 
     switch (thisx->params) {
         case FAIRY_NAVI:
+            this->fairyFlags |= FAIRY_FLAG_BIG;
             thisx->room = -1;
             EnElf_SetupAction(this, func_80A03CF8);
             func_80A01C38(this, 0);
@@ -1483,7 +1484,7 @@ s32 EnElf_OverrideLimbDraw(PlayState* play, s32 limbIndex, Gfx** dList, Vec3f* p
         scale = ((Math_SinS(this->timer * 4096) * 0.1f) + 1.0f) * 0.012f;
 
         if (this->fairyFlags & FAIRY_FLAG_BIG) {
-            scale *= 2.0f;
+            scale *= 1.15f;
         }
 
         scale *= (this->actor.scale.x * 124.99999f);
