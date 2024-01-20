@@ -150,6 +150,7 @@ typedef struct {
 #define ACTOR_FLAG_6 (1 << 6)
 #define ACTOR_FLAG_7 (1 << 7)
 #define ACTOR_FLAG_8 (1 << 8)
+#define ACTOR_FLAG_TALK ACTOR_FLAG_8
 #define ACTOR_FLAG_9 (1 << 9)
 #define ACTOR_FLAG_10 (1 << 10)
 #define ACTOR_FLAG_ENKUSA_CUT (1 << 11)
@@ -582,5 +583,40 @@ typedef struct {
     /* 0x18 */ Vec3f trackPos;
     /* 0x24 */ char unk_24[0x4];
 } NpcInteractInfo; // size = 0x28
+
+/**
+ * When a given talk offer is accepted, Player will set `ACTOR_FLAG_TALK` for that actor.
+ * This function serves to acknowledge that the offer was accepted by Player, and notifies the actor
+ * that it should proceed with its own internal processes for handling dialogue.
+ *
+ * @return  true if the talk offer was accepted, false otherwise
+ */
+s32 Actor_TalkOfferAccepted(Actor* actor, struct PlayState* play);
+#define Actor_TalkOfferAccepted Actor_ProcessTalkRequest
+
+/**
+ * This function covers offering the ability to talk with the player.
+ * Passing an exchangeItemId (see `ExchangeItemID`) allows the player to also use the item to initiate the
+ * conversation.
+ *
+ * This function carries a talk exchange offer to the player actor if context allows it (e.g. the player is in range
+ * and not busy with certain things).
+ *
+ * @return true If the player actor is capable of accepting the offer.
+ */
+s32 Actor_OfferTalkExchange(Actor* actor, struct PlayState* play, f32 xzRange, f32 yRange, u32 exchangeItemId);
+#define Actor_OfferTalkExchange func_8002F1C4
+
+/**
+ * Offers a talk exchange request within an equilateral cylinder with the radius specified.
+ */
+s32 Actor_OfferTalkExchangeEquiCylinder(Actor* actor, struct PlayState* play, f32 radius, u32 exchangeItemId);
+#define Actor_OfferTalkExchangeEquiCylinder func_8002F298
+
+/**
+ * Offers a talk request within an equilateral cylinder with the radius specified.
+ */
+s32 Actor_OfferTalk(Actor* actor, struct PlayState* play, f32 radius);
+#define Actor_OfferTalk func_8002F2CC
 
 #endif
