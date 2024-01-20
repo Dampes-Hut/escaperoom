@@ -47,7 +47,8 @@ void MapSelect_LoadGame(MapSelectState* this, s32 entranceIndex) {
 static SceneSelectEntry sScenes[] = {
     { "Test Dance Floor", MapSelect_LoadGame, ENTR_TEST_DANCEFLOOR_0 },
     { "Inn Bedroom", MapSelect_LoadGame, ENTR_INN_BEDROOM_0 },
-    { "Main Map", MapSelect_LoadGame, ENTR_MAINMAP_0 },
+    { "Main Map: Courtyard Coffin", MapSelect_LoadGame, ENTR_MAINMAP_COURTYARD_COFFIN },
+    { "Main Map: (dbg) Library", MapSelect_LoadGame, ENTR_MAINMAP_DBG_LIBRARY },
     { "Test: Dark Link puzzle", MapSelect_LoadGame, ENTR_TEST_DARKLINK_PUZZLE_0 },
     { " 1:SPOT00", MapSelect_LoadGame, ENTR_HYRULE_FIELD_0 },
     { " 2:SPOT01", MapSelect_LoadGame, ENTR_KAKARIKO_VILLAGE_0 },
@@ -755,7 +756,7 @@ void MapSelect_Init(GameState* thisx) {
     size = (uintptr_t)_z_select_staticSegmentRomEnd - (uintptr_t)_z_select_staticSegmentRomStart;
 
     // Default entry to select
-    s32 defaultEntryEntranceIndex = ENTR_TEST_DANCEFLOOR_0;
+    s32 defaultEntryEntranceIndex = ENTR_MAINMAP_DBG_LIBRARY;
     for (int i = 0; i < this->count; i++) {
         if (this->scenes[i].entranceIndex == defaultEntryEntranceIndex) {
             this->currentScene = i;

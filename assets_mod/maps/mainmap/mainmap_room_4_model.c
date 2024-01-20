@@ -8,9 +8,140 @@
 #include "variables.h"
 
 Gfx mainmap_room_4_entry_0_opaque[] = {
+	gsSPDisplayList(mainmap_dl_a_books_mesh_layer_Opaque),
+	gsSPDisplayList(mainmap_dl_b_table_chairs_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_bookshelves_mesh_layer_Opaque),
-	gsSPDisplayList(mainmap_dl_library_quick_geo_mesh_layer_Opaque),
+	gsSPDisplayList(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque),
 	gsSPEndDisplayList(),
+};
+
+u64 mainmap_dl_open_book_128x64_gray_i4[] = {
+	0x5566555666555555, 0x5555566655555555, 0x6555566566555555, 0x5556666665555555, 0x5566566666666665, 0x6566566666666666, 0x6666666666666666, 0x6666666666666666, 
+	0x5666666666666666, 0x6666666666666666, 0x6666666666666666, 0x6666666665666555, 0x5566666666666666, 0x6666666666666666, 0x6666666666666666, 0x6666666666666666, 
+	0x6666666666666666, 0x6666666666666666, 0x6666666666666666, 0x6666666666666666, 0x5666666666666677, 0x7777777767777777, 0x7777777777777777, 0x6677777777776666, 
+	0x6666777777777777, 0x6666666677777777, 0x7777777777777777, 0x7766666666666665, 0x6666777777777777, 0x7788888888888888, 0x8888888888888887, 0x7777777777777776, 
+	0x6777788888888887, 0x7777777777788888, 0x8888888888888777, 0x7777777766666666, 0x6667777787788888, 0x8889999999999999, 0x9999999999998888, 0x8877888877777777, 
+	0x7778889999999988, 0x8878888888889999, 0x9999998888888888, 0x8888777777777666, 0x6667888888888999, 0x999999a9aaaaaaaa, 0xaa99aaa999999999, 0x9888888888888777, 
+	0x788999aaaaaaa999, 0x99888899999999aa, 0x9999999999999988, 0x8888877777777666, 0x6667888999999999, 0x99aaaaaaaaaaaa99, 0xaaaaaaaa99999999, 0x9988888888888777, 
+	0x89999aaaaaaaaaa9, 0x9999999999aaaaaa, 0xaaaaaaaa999aa999, 0x8998888887787766, 0x667788999999aaaa, 0xaaaaaabbaabbbaab, 0xaaaaaabaaaaaaaaa, 0x9998888888888877, 
+	0x9aaabbbbcbbbbbba, 0xaa9999aaaa9aabaa, 0xbbaabbbbaaabaa99, 0x9999888888887766, 0x6677889aa9a9aaab, 0xbbbabbbbbbbcbbbb, 0xbbbbbbbbbaaaaaaa, 0xaa99898888888877, 
+	0x9aabbcccccccbbbb, 0xaaa99aaaaaabbbbb, 0xbbbbbbbbbaaaaaaa, 0xaaa9999888887766, 0x5777889aaaaaabbb, 0xbbbbbbbbbbccbbbb, 0xbbbcbcbbbbbaaaaa, 0xaa99998888887777, 
+	0xaabcccdddccccccb, 0xbba999aaaaabbbbb, 0xbbbbbbbbbbaabaaa, 0xaa99999988887766, 0x67788899aaaaabbb, 0xbbbbbbbbbcccbbbb, 0xbbbbbbbbbbbbaaaa, 0xaa99998888887877, 
+	0xabbccdddddcdcccb, 0xbbbaaaaaaabbbbbb, 0xbbbbbbccbbbabaaa, 0xba9a999999887776, 0x67788999aaaaabcb, 0xbbbbbbbcccccbbbb, 0xbbbbbcbcbbbbabaa, 0xaa99998888888877, 
+	0xabccdddddddddccc, 0xbbbbaaaabbabbbbc, 0xbbccccbbbbbbbabb, 0xbaaaaa9999888776, 0x6778899aaaaabbbb, 0xbbbbbbbccccbbbbb, 0xbbbbccbcbbbbabaa, 0xaaa9999888888887, 
+	0xbccddddddddddccc, 0xccbbbaabbbabbbbc, 0xcccccccccbbcbbbb, 0xbbaaaaa999888776, 0x678889aaaabbbbbb, 0xbbbbbbbbcccbbbbb, 0xbbbbcbbbbbbbbbaa, 0xaaaa999988888887, 
+	0xcddddddddddddddd, 0xccccbbbbbcbccccc, 0xccccccccccccbcbb, 0xbbabaaaa99888776, 0x678899aaabbbbbbb, 0xbbccccbbcccbcbbb, 0xbbbbcbbcbbbbbbbb, 0xaaaa999988888887, 
+	0xcddddeeeeedddeed, 0xcdcccccbccbccccc, 0xccccccccccccccbb, 0xbbbbaaaa99888776, 0x778899aaababbbbb, 0xbbbbccbbcccccbbb, 0xbbbbcbccbbbbbbbb, 0xaaaa999998888887, 
+	0xcdddeddeeedddeed, 0xddddcccccccccddd, 0xccddcccdccccccbb, 0xbbbbabaa99888876, 0x6789999aabbbbbcb, 0xbcbbccccccccccbb, 0xbcbbbbcbbbbbbaaa, 0x999a999998888887, 
+	0xddddeeedeeeeeeed, 0xdedddcdddddddddd, 0xddddddddddddccbc, 0xcbbbbbaaa9988876, 0x78899aaabbbbbbcc, 0xcccccccccbcccccc, 0xbccccbcccbbbaaab, 0xaaaa999998888887, 
+	0xdddeeeededeeeeee, 0xdedddddddddddddd, 0xdddddddddeddccbc, 0xcbbbbaaaa9998876, 0x7889aaabbbbbbbcb, 0xcccccccccccccccc, 0xbccccbcccccbaaaa, 0xaaaaaa9999888887, 
+	0xcddeddeddddddddd, 0xdeddddddddddddde, 0xdddddddddeeedccc, 0xcccbbbaaa9999886, 0x7899aaabbbbbcccc, 0xbbbccccccccccccc, 0xccccccccccccbbaa, 0xbaaaaa9999888887, 
+	0xccdddddddddddddd, 0xdeddddddddeededd, 0xddddddddeeeeddcd, 0xdcbbbbbaaaa99886, 0x789aabbcbbbbbbcc, 0xcbbccccccccccccc, 0xcccccccccbbbbbbb, 0xbaaaaa9999888887, 
+	0xbcddccdddddddedd, 0xddeddddddeeedddd, 0xeeeeddddeedeeedd, 0xdcbcbbabbaa99986, 0x899abbbccccccccc, 0xcccccccccccccccc, 0xccccccccccbbbbbb, 0xbaaaaa9999888887, 
+	0xbccdcccdcddddddd, 0xddedddddddeedddd, 0xeeeededddddeeedd, 0xdcccbaabbaaaa986, 0x899aabbcccbccccc, 0xcccccdcccccccccc, 0xccccddccccccbbbb, 0xbaaaaaa999888887, 
+	0xbccccccccddddddd, 0xdddddddddddeeeee, 0xededdedeeededddd, 0xdccbbbbabaa9a986, 0x79aaabbdccbccccc, 0xcccccdcccccccccc, 0xccccccccbccbbbbb, 0xbaaaaaa999888887, 
+	0xbccdcdcdccccdddd, 0xddeeeddddddddded, 0xedddededdeddeedd, 0xdccccbaaaaaa9986, 0x79aabbccbccccccc, 0xcccccdcccccccccc, 0xdcccccccbcccbbbb, 0xbaaaaaa999988887, 
+	0xbcccddddcddddddd, 0xdeedddddddddedee, 0xedededeeedeededd, 0xdcdcdcbaaaaaa986, 0x79aabbcccccccccd, 0xcccdcccccccdcccc, 0xdcccccccccbccccb, 0xbbbaaaa999988887, 
+	0xbccccddddddddedd, 0xdeeeedddddddeeed, 0xedddedeeeddeddee, 0xcddddcbaaaaaa986, 0x79aabbccccccccdd, 0xcccddddccdcdcdcd, 0xccddddddccbccccb, 0xbbbaaaa999888887, 
+	0xbccddddddddddedd, 0xddddeedddeeeeeed, 0xedddeedddeddeddc, 0xcdddccaaaaaaba96, 0x89abbbbbcccccccc, 0xcccddddcccddcdcd, 0xddddddccdccccbcc, 0xbbbbaaa998888887, 
+	0xbcccdddddddddddd, 0xbdeedeeddddeeeee, 0xeddeeedddddcddbc, 0xdddcccbaaaaaba96, 0x89abbbbbcccccccc, 0xccccdddcccccdddc, 0xdcdcdddddcccccbc, 0xcbbbaaa988888877, 
+	0xbcccccdddddddddd, 0xedddeedddddeeeee, 0xeeeeedddddddeccc, 0xdddcccbbbaaabb96, 0x89abbbbbcccccccc, 0xdcdcccdcccdcdcdc, 0xdddcdcccccccccbc, 0xbbbaaaa988888877, 
+	0xbccccccdddcddddd, 0xeddeeededeeeeeee, 0xdeeededeeededcdd, 0xdddddcccbbaabba6, 0x8abbbbbbcccccccd, 0xdcdcccdddcdcdddc, 0xdcddddddcccccccc, 0xbbbbaa9999888887, 
+	0xbcdcdcddcdddddde, 0xdeeedeeeeddeeeee, 0xeeeeeeeeddedcedd, 0xedddcdccbbaabba7, 0x8abbbbbbcccccccd, 0xccccdcdcdddddddd, 0xdccdcdcdcccccbbb, 0xbbbbaa9999888777, 
+	0xcccccdddddcddeee, 0xedeedeeeeeeeeeee, 0xeeeeeeeedeeddded, 0xddddcdcccbaabba7, 0x9abbbbbbccccdccc, 0xdcdcdddddddddddd, 0xcdddddcddccccccb, 0xcbbaaaa999888887, 
+	0xbccdcbcddddedded, 0xedeedeeeddeeeeee, 0xeeeeeeeeeddeeedd, 0xddddcccccbaaaba7, 0x8abbbbbccccdcdcd, 0xdcdddddddddddddd, 0xddddddddcccccccb, 0xbbbbaaa999988887, 
+	0xcbbcdddddddedddd, 0xeeeeeeeedeeeeeee, 0xeeeeeeeeedcedede, 0xddeddcccccbbabb7, 0x9bbbabbbcccccdcd, 0xdcdddddddddddddd, 0xddddcdcccddccccb, 0xcbbbaaa999888887, 
+	0xcddcccdddddddddd, 0xddeeeeeeeeeeeeee, 0xeddddeeeddddddde, 0xddedddcbcbbbaab7, 0x9baaabbbcccccccc, 0xdcddddddcddcdddd, 0xddddddcccccccccb, 0xbbbba99999888887, 
+	0xcdddddddeddddddd, 0xddedeeddeeeeeeee, 0xeedddeeeedeeeddd, 0xeeeddddccbbbbab7, 0x9baaabbbbbccccdd, 0xddddddddcddcdddd, 0xdddddddccccccccc, 0xcbbbaaa999988887, 
+	0xccdddcddddddeded, 0xddeeeedeedeeeeee, 0xdeeeeeeeddeedddd, 0xdeeddddcdccccab7, 0x9aaaabbbbccccdcd, 0xdddddddddddddddd, 0xddccccccdccccccc, 0xbbbbaaa999988887, 
+	0xcddddddddddddddd, 0xdddeddddeeeeeeee, 0xdddeeeeeceeeeedd, 0xdddddddddccccab7, 0x9aaaaabbbcbccccd, 0xcdcddddddddddddd, 0xddddccccccccccbc, 0xbbbbaaa988988887, 
+	0xcddcddddddddddde, 0xeddeddddeddeeeee, 0xeeeeeedddeeeeddd, 0xddcddddddccccab7, 0xaaaaaabbbbbccccd, 0xcccddddccccddddd, 0xddddcddcccccccbb, 0xbbbaaaa999988887, 
+	0xcdccdddddedddddd, 0xededdddddddeeeee, 0xeeeeeeeddeeeeeed, 0xddddddddccccb9b8, 0x9aaaaabbbbcccccc, 0xddcddccdcdccdcdc, 0xdddddcccccccccbc, 0xbbbbaa9a99988887, 
+	0xcdccccdddddddddd, 0xdddddddddddddeee, 0xeeeeeeeeeeeeeddd, 0xddddddddddccbab7, 0x9aaaaabbbbbccccc, 0xdccdcccccdccccdd, 0xddddddccccccccbc, 0xcbaaaaa998888888, 
+	0xddddcddddddddddd, 0xddddcdcddeeddeee, 0xeeeedeeeeeeeeddd, 0xddeddddcdccccab7, 0x9aaaaaaaababcccc, 0xccccccdcccccccdd, 0xddddddccccccccbc, 0xbbbaaaaa99888888, 
+	0xddccccdddddddddd, 0xddcccddddddddeee, 0xeeeeeeeeeeeeedee, 0xdddddcdcdccccbb8, 0x9aabaaaabaabcccc, 0xccccccddcdcccccc, 0xdddcdcccccccccbc, 0xb9abaaa999988888, 
+	0xccccccddddddddcd, 0xddddcddddddddeee, 0xeeeeeeeedeeeeeee, 0xddddddcdcccccbb7, 0x9aabbababbb9bcbc, 0xcccccccccccccccc, 0xdcdcccdcccccccbc, 0xbbbaaa9999888888, 
+	0xcccddcdddddddddd, 0xddddddddeddddeee, 0xeedeeeeeeeeeeeed, 0xdeededcdcccccbb8, 0x9aaababbbaaa9bbc, 0xbccccccccccccccc, 0xcccccdccccccccbb, 0xb889a99999888888, 
+	0xccccdddddddddddd, 0xccddddddddddddee, 0xeeddeeeeeeeeeded, 0xddeddddcdcccccb8, 0x9aaaaabbbba9abbb, 0xbbbccccccccccccc, 0xccccccccccccccbb, 0xcbbbaaaa99888888, 
+	0xccccddddddddedee, 0xddddcddeddddddde, 0xeddddddedddedddd, 0xdddddddcdcccccb8, 0x9baabbbbbbaaaabb, 0xbbbccbcccccccccc, 0xcccccccccccccccc, 0xbbbbaaaa99888898, 
+	0xbbbbcddddddddedd, 0xddddddcdddeeddde, 0xeddddddddddddedd, 0xccddddddddddccb8, 0x9baabbbbbbbbbbbb, 0xbbabbbbbbbbbcccc, 0xccccccccccccccbc, 0xbbbbaaaa99988888, 
+	0xabbccddddddeeddd, 0xeeddddddddeeddee, 0xddddddddddddcddd, 0xededddddddddccb8, 0x8aaabbbbbbbbbbbb, 0xbbbbbbbbbbbbbbbb, 0xcccccccccccccccc, 0xcccbbaaaa9998888, 
+	0xabcddddddddddddd, 0xeeddddddddedddde, 0xeeeddedddddedddd, 0xdddddededcdcccb8, 0x9baabbbbbbbbbbbb, 0xbbbbbbbcccccbbbc, 0xbccccccccccccccc, 0xbbbbbaaa99998778, 
+	0xabbcccdddddddddd, 0xddddddddddeeddde, 0xeeeddddeeddddddd, 0xeddedededddddcb8, 0x8baabbbbbbccbbbb, 0xbbcbcbbccbccbbbb, 0xbccccccccccccccc, 0xbbbbaaaaa9998878, 
+	0xbbbcccdddddddddd, 0xdddddddcddeeddde, 0xeeeddddeeddddddd, 0xddddddbdeddddcb9, 0x8babbbbcbcccbbbb, 0xbbbbcbcccbbbbbcb, 0xbbbbbccccccccccc, 0xbbbbaaaa99988878, 
+	0xbbbcccccddddcddd, 0xdddddddddddddddd, 0xeeeeddeeddeddddc, 0xcddddddddddddcb9, 0x9baaaaabbbbbbbbb, 0xbaaabbbbbbbbbbbb, 0xbbbbbbcccccccccc, 0xbbbbaaaa99988888, 
+	0xcbbcccccdccdcddd, 0xdddddddddddddddd, 0xdddeedddeddddcdc, 0xcddcdddddddddcb9, 0x9babbbbbbbbbbbbb, 0xcbbbbbbcbbbbbbbb, 0xbbabbbbcbcccccbb, 0xbbbbaaaa99998888, 
+	0xccbbcccccccccccd, 0xdccdddcddddddddd, 0xdddddddddddddccc, 0xddcddcdcdcdccbb9, 0x9aaaaabbbbbcbbbb, 0xbbabbccbccbbbbbb, 0xbaabbaabbbbcccbb, 0xbbbbaaa999998888, 
+	0xcbbccccccccddccd, 0xddccdccdcddddddd, 0xcddddddedddddccd, 0xddddccdcdcccdbb9, 0xaaaabbbabbccbbbb, 0xbbbbbbbcbcbbbbbb, 0xbbbaaaabbbbccccc, 0xcbbbbaaa99988888, 
+	0xcbabbdcbcccccddd, 0xccccccccddcdddcc, 0xddddddddddddddcd, 0xcdddcccbdddddbb9, 0xaaabbbbabbbccbbb, 0xbbbbbbbbbccbbbbb, 0xbbbaaabbabbbbbcb, 0xbbbbba9a99998888, 
+	0xacaaaacccccccddd, 0xcdddcdcdcdcdcccc, 0xccdddddcdddddddd, 0xdddcccccdcccccb9, 0x99aaaaaaaabbbbba, 0xbbbbbbbbbbbbbbbb, 0xbaaaaaaaaaaaabbb, 0xbbbbaa9a99998888, 
+	0xc9baabaacccccccc, 0xccccccccbcccccbc, 0xbbccccccddcccccd, 0xcccccccccccccba8, 0x899999a9aaaabbba, 0xaabaaaaabbbaabba, 0xaaabbbaaaaaaaaaa, 0xbaaaaa9999998888, 
+	0xbb9ba999abcccccb, 0xccbcccccbbbbccbb, 0xbcccccccccbccccb, 0xccccbbbbcbcbba98, 0x899999999aaaabba, 0xbbaa9aabaaabaabb, 0xaaaaaaaaaaaaa9aa, 0xaaaaa99998888889, 
+	0xcca9bbaa9abccccc, 0xbbbbbbbbbbabccaa, 0xabccccccbbcccbcc, 0xbbbbbbbbbbbbba97, 0x8999999999aaaaaa, 0xaaaaaaaaa889aaaa, 0xaaaaaaaaaaaa9999, 0x9aa9998888888889, 
+	0xcccb9c999aabbbbc, 0xbcbbbbbbbaabbbbb, 0xabbbbbbcbcccbbcb, 0xbabaaaaaabaaa997, 0x8899999999999aaa, 0xaaaaaaaaaaba9aaa, 0xaaaaaaaaaaa99999, 0x9999988877777788, 
+	0xbccbaac99aaaabbb, 0xbbcbbbabbaabbbbb, 0xabbbaaaaabbbbbcb, 0xbabbaaa9aba99997, 0x8888888888888999, 0x99999a99a99aa999, 0x9999999999998889, 0x9988877767777777, 
+	
+};
+
+u64 mainmap_dl_souko_sceneTex_005C10_rgba16_ci8[] = {
+	0x0001020304050606, 0x0707060809060008, 0x0a0b0c000105030d, 0x0e0f100303031111, 0x0403030307061213, 0x1405150311050303, 0x0316030303030503, 0x1604021104030317, 
+	0x0f18191313180f19, 0x1913130e181a1818, 0x18181a1b1b1c1d1e, 0x1d191d1d191d1e1c, 0x131a1c1f1a181b18, 0x18122021221c1c1c, 0x191c1c192324250f, 0x191919230f19130e, 
+	0x1604262728292a04, 0x262b28002c061f06, 0x0706060600000601, 0x01062a1f1a052627, 0x2d2e2e2f2f282d30, 0x2b0404071f080605, 0x03030517121b1b1b, 0x1b0526272d261627, 
+	0x3131312832043133, 0x1132323435363531, 0x3331110404312727, 0x3135283311311132, 0x3237323232323238, 0x311f391b39080503, 0x3a033a3a073b3a03, 0x0233313232313811, 
+	0x0311040228270605, 0x07042b1604040303, 0x0505040404041604, 0x1104112728272728, 0x2728382728282827, 0x112727113a03033a, 0x05030705001b0603, 0x3b27040427041127, 
+	0x0702270702270503, 0x3a073b1f133c193d, 0x1a0c0607073e3a07, 0x063b070402070702, 0x2704041127272704, 0x0304110411111111, 0x033a070700080600, 0x0800060606010006, 
+	0x3e11333e113a1611, 0x3a04110404060606, 0x030505040403043a, 0x043a3e04283a3e11, 0x3333333333282833, 0x2811111111111111, 0x1115030506050211, 0x11113a28113a283f, 
+	0x39400639001b4100, 0x1b00000c42394242, 0x424239420c420b39, 0x1b1b181b401f3940, 0x0600000606060606, 0x39390c08081f0600, 0x001f1f0b4342443e, 0x06001b06001b0000, 
+	0x0516040516040404, 0x2a042b36362a2a36, 0x0706060706060629, 0x050607050d030516, 0x0404040404041605, 0x4546171107472a11, 0x0404033a3a3b3b3a, 0x0605030404050404, 
+	0x3f33483f31313131, 0x313349282828492e, 0x3827273838313131, 0x3133282831113f33, 0x482828283228111c, 0x4a402833382d2828, 0x2831110404043a3a, 0x1131313328113128, 
+	0x071e1f0707061f07, 0x061f1f0c0c0c0909, 0x0c0c000504041128, 0x270216070605071e, 0x1f1f1f1f1a1a184b, 0x25404c3b03170505, 0x3a07050505060505, 0x3b050744083b4408, 
+	0x18234d1919192319, 0x19230f0f18181313, 0x0f0f4e191b1d1d12, 0x1219191923191923, 0x4d13181a1a181b18, 0x18123b211e1d1d1d, 0x4f4f1c4f23255051, 0x191919230f19230f, 
+	0x52272d52042d2704, 0x26272d0029291f06, 0x050505050505052a, 0x2a052b1f53045227, 0x2d2e2e2f2f382e2d, 0x2738323838270427, 0x02540d0d17551b1b, 0x3d2a26272d26272d, 
+	0x3332323338333238, 0x3332323504363531, 0x3333333838383838, 0x32332e3833283332, 0x3237323237563737, 0x3732323232323232, 0x4857333333111111, 0x0233333232333232, 
+	0x1131271130111130, 0x1111271604040303, 0x0504040431272727, 0x282727272d301131, 0x27262d2727272727, 0x282d2d2702273002, 0x3333111111111111, 0x3a30111127111127, 
+	0x07063b070607443b, 0x07063b58594a5a42, 0x181b000644443e07, 0x4406060606060706, 0x3b443b3e3b3b3b3a, 0x3a0706063b073b3b, 0x064006121212121e, 0x1f0607443b07443b, 
+	0x2d28382d2d38282d, 0x382828425b5c583d, 0x0505160427282827, 0x270227282d2e2d28, 0x3828280211282838, 0x3228332828282828, 0x28285d2711030305, 0x032d38282d38282d, 
+	0x3333333328331128, 0x3311330629290106, 0x043a111128282833, 0x5e33284848283333, 0x332828285e282848, 0x2e282d28302e3028, 0x2828282827031f25, 0x3b28331128331128, 
+	0x482828482e48332e, 0x48332807162a4444, 0x1111273a3a282828, 0x28283328322e4828, 0x28285d28115e2832, 0x2e28282827282802, 0x492803030403171a, 0x1e2e483328483328, 
+	0x2d28282d2d30282d, 0x3028280405070507, 0x1616160703272d27, 0x27110402302d2d28, 0x280203030311302e, 0x285d281111282828, 0x5d28111111030306, 0x032d302828302828, 
+	0x2828282828282828, 0x282828040403033b, 0x1603070227272727, 0x1102272828282828, 0x2828303028302828, 0x2828281111282828, 0x112811113a030203, 0x0328282828282828, 
+	0x2828282828282828, 0x2828282702022804, 0x2711042827111128, 0x1111282828282828, 0x2833282828282828, 0x2828270211282830, 0x3028270211040403, 0x0528282828282828, 
+	0x1111041111040404, 0x0404044704041601, 0x052a052a01010505, 0x2a052a0416021111, 0x0404040203030404, 0x1616041604161616, 0x160505472a050505, 0x4704040404040411, 
+	0x1e1e1e1e1e1e1e1e, 0x1e1e1e5f1e1e1a39, 0x1a1c1d121f1f1d1c, 0x1f1c5f1e20201e1e, 0x1e1e1e3b1e1c203b, 0x3e3b3e4c4c3b3b1e, 0x3b203b211e3b211e, 0x1e1e1e1e1e1e1e21, 
+	0x2830022830282828, 0x2828110403051603, 0x020416275d60614d, 0x6216020228482830, 0x025d020202021102, 0x2849282e2e280202, 0x2716031616030302, 0x112828285d28285d, 
+	0x3127273127270431, 0x0404044401072a07, 0x0304360411070063, 0x1305043128283127, 0x2727111111110427, 0x2728283838272727, 0x0405050404040404, 0x0427110431110428, 
+	0x0202020202024011, 0x0005030606050404, 0x0216043a0303042a, 0x0502025d28282802, 0x0202020202020230, 0x3028282d28280202, 0x0216030505030303, 0x031111031111035d, 
+	0x2703040211040602, 0x0427020205050507, 0x0516160407071616, 0x0402160411282827, 0x0202110303030302, 0x0227282827040202, 0x1604050707050503, 0x292a053b05050602, 
+	0x2802282802282728, 0x2828282804040303, 0x0702030516020202, 0x0204020227282828, 0x2828272828022828, 0x2828282811151111, 0x1115111503030303, 0x0503020228270230, 
+	0x2747281111281128, 0x3333281127111102, 0x0402040427020404, 0x0204041602361111, 0x2711115d02040211, 0x2827270211040427, 0x2702020211040303, 0x05055e5e28332828, 
+	0x4764160416162a2a, 0x16040410472a1647, 0x6529641005002929, 0x0505292947474716, 0x1604040516640505, 0x0416164747052947, 0x10470505472a0529, 0x2910040404040404, 
+	0x080b121e12080b66, 0x0b0b0b66670b0b42, 0x6869690c0b0c1f1f, 0x1f1f0c0c1f080606, 0x121e121f06120c12, 0x123e4c3b0706123b, 0x1e3b3b3b1e1e3b44, 0x1e1e1e1e1e1e1e1e, 
+	
+};
+
+u64 mainmap_dl_souko_sceneTex_005C10_rgba16_pal_rgba16[] = {
+	0x6b1373538b978355, 0x83957b5573137b53, 0x6ad36b115ad162d3, 0x62d18357524f520d, 0x7b578b9572d35a4d, 0x4a0f8b5583977b15, 0x5a4f624f628f6291, 0x6a8f6a9172d16ad1, 
+	0x7ad37ad172915a0d, 0x51cb49cb8bd98bd7, 0x93d773557b9583d7, 0x6b1594199c199c59, 0x93d98bd59c1793d5, 0x7b93839383d5a459, 0x94175a8f83537b13, 0x49c962937b118b93, 
+	0x73156b535a91528f, 0x7311598b398b7b97, 0x9bd79bd951874189, 0x8313520b5a0f6a4f, 0x498b51cd8c19628d, 0x8b576a93a4179bd5, 0x52913989420d2905, 0x4945939793956acf, 
+	0x9399839951c9524b, 0x73576b555ad352d1, 0x4a91529300000000
+};
+
+u64 mainmap_dl_souko_sceneTex_004C10_rgba16_ci8[] = {
+	0x0001020304050607, 0x0800090a0b0c0d0e, 0x0f10111213061415, 0x1606150001171606, 0x0008180b16170001, 0x191704191a1b1c1d, 0x1e1a111f20182119, 0x0b00192219152306, 
+	0x1421060a01071914, 0x111901191a182425, 0x1519262728050622, 0x0422010429220b04, 0x2a06112216062b2c, 0x010806191113042d, 0x2e182f3026310b23, 0x3000230429320b1e, 
+	0x1901191900330114, 0x1618182929061b2d, 0x3435293635371e35, 0x38130b393a0b1600, 0x140506011e1e1619, 0x081805043b3a3c3d, 0x0416203a3504053c, 0x071b070818160406, 
+	0x3e0b3b3b29161819, 0x150407040b3f3c3d, 0x364039071e18032f, 0x3903350106290800, 0x0118353508171708, 0x3e063c2f2f064142, 0x4007294308183c29, 0x4403350818291801, 
+	0x0b19232908010429, 0x0006161845441d38, 0x18002a430b1b1e07, 0x18453b174607171e, 0x40051807080b1b1e, 0x1e3a201111114243, 0x4747110b1b29161b, 0x1e3048461e050b2f, 
+	0x18440b01070b0b03, 0x242f2f2f06131e33, 0x1901290449001b44, 0x241613354a131e07, 0x06180b3e29161e04, 0x2916293c29083d4a, 0x3a30300008133a07, 0x381b0b3a04293a04, 
+	0x15010b4021181e49, 0x050b0b1e4b064c1e, 0x0b01220423160b1e, 0x290b2f4413353a00, 0x061317010643161e, 0x484d11164e0b3d11, 0x0617011b382f1706, 0x063529114f3a4422, 
+	0x29052b0824002816, 0x293b16161b0e2211, 0x0b061649501e1316, 0x454a160b4d0b3e01, 0x2204001106071b18, 0x2c06510a28520638, 0x01160815432c5107, 0x1343183704401845, 
+	
+};
+
+u64 mainmap_dl_souko_sceneTex_004C10_rgba16_pal_rgba16[] = {
+	0x93d98397ac5b7311, 0x835593d79c197b13, 0x8b97a45dac9d8395, 0x4a0b20c74a0d5a8f, 0x8c1bac9bc561a459, 0x9c5b9c597b559419, 0x8bd7a45bb51f7b53, 0x20c529076ad1b49d, 
+	0xa4199c1b8bd99417, 0x5a4d3147524f4a0f, 0xb4dd7313ac9facdd, 0xacdf420dbd1d6a91, 0x72d3418b83d7941b, 0xbcdb628fa41749cb, 0x6ad3835372d15a4f, 0x520d41cba49b9bd7, 
+	0x9c1749cd3989b4df, 0x8b956a8f7b95b521, 0x62918357624f7b57, 0x18c55a0dac596b13, 0x8b99731521070000
 };
 
 u64 mainmap_dl_bookshelf1_64x32_rgba16[] = {
@@ -302,6 +433,111 @@ u64 mainmap_dl_ganontika_room_4Tex_006C88_rgba16_pal_rgba16[] = {
 	0x584b508540476089, 0x400148c7488758cb, 0x58c9588f580b3801, 0x508338453803688b, 0x58c7488938435881, 0x604360cd60456087, 0x4009404968c960c9, 0x6843608359056885, 
 	0x5081608538074083, 0x4841480b40873885, 0x680948c3688f60cb, 0x488b680b38835801, 0x408558c56887580d, 0x60c5504d4881500b, 0x604b6845500d480d, 0x704b590968c56805, 
 	0x684768cb604d6105, 
+};
+
+Vtx mainmap_dl_a_books_mesh_layer_Opaque_vtx_cull[8] = {
+	{{ {1569, -231, 908}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1569, -231, 908}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1569, -231, 842}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1569, -231, 842}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1652, -231, 908}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1652, -231, 908}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1652, -231, 842}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1652, -231, 842}, 0, {0, 0}, {0, 0, 0, 0} }},
+};
+
+Vtx mainmap_dl_a_books_mesh_layer_Opaque_vtx_0[12] = {
+	{{ {1615, -231, 854}, 0, {-16, 2032}, {0, 127, 0, 255} }},
+	{{ {1632, -231, 865}, 0, {4080, 2032}, {0, 127, 0, 255} }},
+	{{ {1640, -231, 853}, 0, {4080, -16}, {0, 127, 0, 255} }},
+	{{ {1623, -231, 842}, 0, {-16, -16}, {0, 127, 0, 255} }},
+	{{ {1638, -231, 885}, 0, {-16, 2032}, {0, 127, 0, 255} }},
+	{{ {1636, -231, 905}, 0, {4080, 2032}, {0, 127, 0, 255} }},
+	{{ {1650, -231, 907}, 0, {4080, -16}, {0, 127, 0, 255} }},
+	{{ {1652, -231, 887}, 0, {-16, -16}, {0, 127, 0, 255} }},
+	{{ {1569, -231, 891}, 0, {-16, 2032}, {0, 127, 0, 255} }},
+	{{ {1580, -231, 908}, 0, {4080, 2032}, {0, 127, 0, 255} }},
+	{{ {1592, -231, 900}, 0, {4080, -16}, {0, 127, 0, 255} }},
+	{{ {1581, -231, 883}, 0, {-16, -16}, {0, 127, 0, 255} }},
+};
+
+Gfx mainmap_dl_a_books_mesh_layer_Opaque_tri_0[] = {
+	gsSPVertex(mainmap_dl_a_books_mesh_layer_Opaque_vtx_0 + 0, 12, 0),
+	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
+	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
+	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
+	gsSPEndDisplayList(),
+};
+
+Vtx mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_cull[8] = {
+	{{ {1530, -252, 960}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1530, -232, 960}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1530, -232, 824}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1530, -252, 824}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1669, -252, 960}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1669, -232, 960}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1669, -232, 824}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {1669, -252, 824}, 0, {0, 0}, {0, 0, 0, 0} }},
+};
+
+Vtx mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_0[20] = {
+	{{ {1645, -252, 840}, 0, {-8109, -127}, {82, 0, 159, 255} }},
+	{{ {1669, -232, 882}, 0, {-10145, -847}, {125, 0, 234, 255} }},
+	{{ {1669, -252, 882}, 0, {-10145, -127}, {125, 0, 234, 255} }},
+	{{ {1645, -232, 840}, 0, {-8109, -847}, {82, 0, 159, 255} }},
+	{{ {1600, -252, 824}, 0, {-6074, -127}, {0, 0, 129, 255} }},
+	{{ {1600, -232, 824}, 0, {-6074, -847}, {0, 0, 129, 255} }},
+	{{ {1554, -252, 840}, 0, {-4038, -127}, {174, 0, 159, 255} }},
+	{{ {1554, -232, 840}, 0, {-4038, -847}, {174, 0, 159, 255} }},
+	{{ {1530, -252, 882}, 0, {-2003, -127}, {131, 0, 234, 255} }},
+	{{ {1530, -232, 882}, 0, {-2003, -847}, {131, 0, 234, 255} }},
+	{{ {1539, -252, 929}, 0, {33, -127}, {146, 0, 63, 255} }},
+	{{ {1539, -232, 929}, 0, {33, -847}, {146, 0, 63, 255} }},
+	{{ {1576, -252, 960}, 0, {2068, -127}, {213, 0, 119, 255} }},
+	{{ {1576, -232, 960}, 0, {2068, -847}, {213, 0, 119, 255} }},
+	{{ {1624, -252, 960}, 0, {4104, -127}, {43, 0, 119, 255} }},
+	{{ {1624, -232, 960}, 0, {4104, -847}, {43, 0, 119, 255} }},
+	{{ {1660, -252, 929}, 0, {6139, -127}, {110, 0, 63, 255} }},
+	{{ {1660, -232, 929}, 0, {6139, -847}, {110, 0, 63, 255} }},
+	{{ {1669, -252, 882}, 0, {8175, -127}, {125, 0, 234, 255} }},
+	{{ {1669, -232, 882}, 0, {8175, -847}, {125, 0, 234, 255} }},
+};
+
+Gfx mainmap_dl_b_table_chairs_mesh_layer_Opaque_tri_0[] = {
+	gsSPVertex(mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_0 + 0, 20, 0),
+	gsSP2Triangles(0, 1, 2, 0, 0, 3, 1, 0),
+	gsSP2Triangles(4, 3, 0, 0, 4, 5, 3, 0),
+	gsSP2Triangles(6, 5, 4, 0, 6, 7, 5, 0),
+	gsSP2Triangles(8, 7, 6, 0, 8, 9, 7, 0),
+	gsSP2Triangles(10, 9, 8, 0, 10, 11, 9, 0),
+	gsSP2Triangles(12, 11, 10, 0, 12, 13, 11, 0),
+	gsSP2Triangles(14, 13, 12, 0, 14, 15, 13, 0),
+	gsSP2Triangles(16, 15, 14, 0, 16, 17, 15, 0),
+	gsSP2Triangles(18, 17, 16, 0, 18, 19, 17, 0),
+	gsSPEndDisplayList(),
+};
+
+Vtx mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_1[10] = {
+	{{ {1645, -232, 840}, 0, {1021, 460}, {0, 127, 0, 255} }},
+	{{ {1600, -232, 824}, 0, {1201, -39}, {0, 127, 0, 255} }},
+	{{ {1600, -232, 894}, 0, {431, -39}, {0, 127, 0, 255} }},
+	{{ {1554, -232, 840}, 0, {1021, -539}, {0, 127, 0, 255} }},
+	{{ {1530, -232, 882}, 0, {565, -805}, {0, 127, 0, 255} }},
+	{{ {1539, -232, 929}, 0, {46, -712}, {0, 127, 0, 255} }},
+	{{ {1576, -232, 960}, 0, {-292, -305}, {0, 127, 0, 255} }},
+	{{ {1624, -232, 960}, 0, {-292, 226}, {0, 127, 0, 255} }},
+	{{ {1660, -232, 929}, 0, {46, 634}, {0, 127, 0, 255} }},
+	{{ {1669, -232, 882}, 0, {565, 726}, {0, 127, 0, 255} }},
+};
+
+Gfx mainmap_dl_b_table_chairs_mesh_layer_Opaque_tri_1[] = {
+	gsSPVertex(mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_1 + 0, 10, 0),
+	gsSP2Triangles(0, 1, 2, 0, 1, 3, 2, 0),
+	gsSP2Triangles(3, 4, 2, 0, 4, 5, 2, 0),
+	gsSP2Triangles(5, 6, 2, 0, 6, 7, 2, 0),
+	gsSP2Triangles(7, 8, 2, 0, 8, 9, 2, 0),
+	gsSP1Triangle(9, 0, 2, 0),
+	gsSPEndDisplayList(),
 };
 
 Vtx mainmap_dl_bookshelves_mesh_layer_Opaque_vtx_cull[8] = {
@@ -1490,7 +1726,7 @@ Gfx mainmap_dl_bookshelves_mesh_layer_Opaque_tri_2[] = {
 	gsSPEndDisplayList(),
 };
 
-Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_cull[8] = {
+Vtx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_cull[8] = {
 	{{ {1268, -265, 1236}, 0, {0, 0}, {0, 0, 0, 0} }},
 	{{ {1268, 145, 1236}, 0, {0, 0}, {0, 0, 0, 0} }},
 	{{ {1268, 145, 564}, 0, {0, 0}, {0, 0, 0, 0} }},
@@ -1501,7 +1737,7 @@ Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_cull[8] = {
 	{{ {1940, -265, 564}, 0, {0, 0}, {0, 0, 0, 0} }},
 };
 
-Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0[153] = {
+Vtx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0[153] = {
 	{{ {1269, -85, 586}, 0, {3726, 468}, {67, 177, 73, 255} }},
 	{{ {1280, -149, 919}, 0, {468, 1707}, {114, 218, 214, 255} }},
 	{{ {1278, -149, 859}, 0, {1055, 1707}, {116, 218, 35, 255} }},
@@ -1657,8 +1893,8 @@ Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0[153] = {
 	{{ {1705, -207, 995}, 0, {-411, 2856}, {129, 0, 4, 255} }},
 };
 
-Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0 + 0, 30, 0),
+Gfx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0 + 0, 30, 0),
 	gsSP2Triangles(0, 1, 2, 0, 1, 3, 4, 0),
 	gsSP2Triangles(5, 1, 6, 0, 7, 8, 9, 0),
 	gsSP2Triangles(10, 11, 12, 0, 10, 12, 13, 0),
@@ -1666,7 +1902,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
 	gsSP2Triangles(18, 19, 20, 0, 18, 20, 21, 0),
 	gsSP2Triangles(22, 23, 24, 0, 22, 24, 25, 0),
 	gsSP2Triangles(26, 27, 28, 0, 26, 28, 29, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0 + 30, 31, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0 + 30, 31, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1675,7 +1911,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
 	gsSP2Triangles(19, 20, 21, 0, 19, 21, 22, 0),
 	gsSP2Triangles(23, 24, 25, 0, 23, 25, 26, 0),
 	gsSP2Triangles(27, 28, 29, 0, 27, 29, 30, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0 + 61, 32, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0 + 61, 32, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1684,7 +1920,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
 	gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
 	gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
 	gsSP2Triangles(28, 29, 30, 0, 28, 30, 31, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0 + 93, 32, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0 + 93, 32, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 11, 9, 0),
@@ -1695,7 +1931,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
 	gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
 	gsSP2Triangles(28, 27, 26, 0, 28, 26, 29, 0),
 	gsSP2Triangles(28, 29, 30, 0, 28, 30, 31, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_0 + 125, 28, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_0 + 125, 28, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1706,7 +1942,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0[] = {
 	gsSPEndDisplayList(),
 };
 
-Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_1[42] = {
+Vtx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_1[42] = {
 	{{ {1604, -252, 885}, 0, {1029, 240}, {0, 127, 0, 255} }},
 	{{ {1280, -249, 919}, 0, {-2154, 467}, {38, 115, 217, 255} }},
 	{{ {1290, -249, 1236}, 0, {-2155, 3570}, {56, 78, 173, 255} }},
@@ -1751,15 +1987,15 @@ Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_1[42] = {
 	{{ {1919, -63, 565}, 0, {4212, -2792}, {185, 71, 78, 255} }},
 };
 
-Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_1[] = {
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_1 + 0, 30, 0),
+Gfx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_1[] = {
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_1 + 0, 30, 0),
 	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
 	gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
 	gsSP2Triangles(12, 13, 9, 0, 14, 15, 16, 0),
 	gsSP2Triangles(17, 18, 19, 0, 14, 20, 10, 0),
 	gsSP2Triangles(21, 22, 23, 0, 24, 25, 26, 0),
 	gsSP1Triangle(27, 28, 29, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_1 + 30, 12, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_1 + 30, 12, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 7, 6, 5, 0),
 	gsSP2Triangles(7, 5, 8, 0, 9, 8, 10, 0),
@@ -1767,7 +2003,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_1[] = {
 	gsSPEndDisplayList(),
 };
 
-Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_2[78] = {
+Vtx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_2[78] = {
 	{{ {1432, -83, 738}, 0, {-1190, 199}, {92, 179, 215, 255} }},
 	{{ {1269, -85, 586}, 0, {-4292, 226}, {67, 177, 73, 255} }},
 	{{ {1431, -66, 738}, 0, {-1208, 39}, {32, 139, 218, 255} }},
@@ -1848,8 +2084,8 @@ Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_2[78] = {
 	{{ {1775, -224, 992}, 0, {5349, 1345}, {1, 132, 26, 255} }},
 };
 
-Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_2[] = {
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_2 + 0, 30, 0),
+Gfx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_2[] = {
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_2 + 0, 30, 0),
 	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
 	gsSP2Triangles(6, 7, 8, 0, 9, 10, 11, 0),
 	gsSP2Triangles(12, 13, 14, 0, 15, 16, 17, 0),
@@ -1857,7 +2093,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_2[] = {
 	gsSP2Triangles(19, 21, 22, 0, 23, 24, 25, 0),
 	gsSP2Triangles(23, 25, 26, 0, 13, 27, 28, 0),
 	gsSP1Triangle(13, 28, 29, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_2 + 30, 32, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_2 + 30, 32, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1867,7 +2103,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_2[] = {
 	gsSP2Triangles(20, 22, 23, 0, 24, 25, 26, 0),
 	gsSP2Triangles(24, 26, 27, 0, 28, 29, 30, 0),
 	gsSP1Triangle(28, 30, 31, 0),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_2 + 62, 16, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_2 + 62, 16, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1875,7 +2111,7 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_2[] = {
 	gsSPEndDisplayList(),
 };
 
-Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_3[32] = {
+Vtx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_3[32] = {
 	{{ {1504, -124, 806}, 0, {176, -566}, {220, 122, 1, 255} }},
 	{{ {1699, -66, 799}, 0, {3987, -566}, {220, 122, 1, 255} }},
 	{{ {1697, -66, 729}, 0, {3987, -1251}, {220, 122, 1, 255} }},
@@ -1910,8 +2146,8 @@ Vtx mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_3[32] = {
 	{{ {1775, -207, 992}, 0, {5349, 1345}, {0, 127, 0, 255} }},
 };
 
-Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_3[] = {
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_3 + 0, 32, 0),
+Gfx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_3[] = {
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_3 + 0, 32, 0),
 	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
 	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
 	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
@@ -1920,6 +2156,60 @@ Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_3[] = {
 	gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
 	gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
 	gsSP2Triangles(28, 29, 30, 0, 28, 30, 31, 0),
+	gsSPEndDisplayList(),
+};
+
+Gfx mat_mainmap_dl_f3dlite_material_001_layerOpaque[] = {
+	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
+	gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_FOG | G_LIGHTING | G_LIGHTING_POSITIONAL | G_SHADING_SMOOTH),
+	gsSPSetOtherMode(G_SETOTHERMODE_H, 4, 20, G_AD_NOISE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_NONE | G_TL_TILE | G_TD_CLAMP | G_TP_PERSP | G_CYC_2CYCLE | G_PM_NPRIMITIVE),
+	gsSPSetOtherMode(G_SETOTHERMODE_L, 0, 32, G_AC_NONE | G_ZS_PIXEL | G_RM_FOG_SHADE_A | G_RM_AA_ZB_OPA_SURF2),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetPrimColor(0, 0, 255, 216, 0, 255),
+	gsDPSetTextureImage(G_IM_FMT_I, G_IM_SIZ_16b, 1, mainmap_dl_open_book_128x64_gray_i4),
+	gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 2047, 256),
+	gsDPSetTile(G_IM_FMT_I, G_IM_SIZ_4b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 6, 0, G_TX_WRAP | G_TX_NOMIRROR, 7, 0),
+	gsDPSetTileSize(0, 0, 0, 508, 252),
+	gsSPEndDisplayList(),
+};
+
+Gfx mat_mainmap_dl_tableside_layerOpaque[] = {
+	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
+	gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_FOG | G_LIGHTING | G_LIGHTING_POSITIONAL | G_SHADING_SMOOTH),
+	gsSPSetOtherMode(G_SETOTHERMODE_H, 4, 20, G_AD_NOISE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_RGBA16 | G_TL_TILE | G_TD_CLAMP | G_TP_PERSP | G_CYC_2CYCLE | G_PM_NPRIMITIVE),
+	gsSPSetOtherMode(G_SETOTHERMODE_L, 0, 32, G_AC_NONE | G_ZS_PIXEL | G_RM_FOG_SHADE_A | G_RM_AA_ZB_OPA_SURF2),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetPrimColor(0, 0, 188, 155, 120, 255),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, mainmap_dl_souko_sceneTex_005C10_rgba16_pal_rgba16),
+	gsDPSetTile(0, 0, 0, 256, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadTLUTCmd(5, 105),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 1, mainmap_dl_souko_sceneTex_005C10_rgba16_ci8),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 1023, 256),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 8, 0, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 6, 0),
+	gsDPSetTileSize(0, 0, 0, 252, 124),
+	gsSPEndDisplayList(),
+};
+
+Gfx mat_mainmap_dl_tabletop_layerOpaque[] = {
+	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, 1, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
+	gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_CULL_BACK | G_FOG | G_LIGHTING | G_LIGHTING_POSITIONAL | G_SHADING_SMOOTH),
+	gsSPSetOtherMode(G_SETOTHERMODE_H, 4, 20, G_AD_NOISE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_BILERP | G_TT_RGBA16 | G_TL_TILE | G_TD_CLAMP | G_TP_PERSP | G_CYC_2CYCLE | G_PM_NPRIMITIVE),
+	gsSPSetOtherMode(G_SETOTHERMODE_L, 0, 32, G_AC_NONE | G_ZS_PIXEL | G_RM_FOG_SHADE_A | G_RM_AA_ZB_OPA_SURF2),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetPrimColor(0, 0, 188, 155, 120, 255),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, mainmap_dl_souko_sceneTex_004C10_rgba16_pal_rgba16),
+	gsDPSetTile(0, 0, 0, 256, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadTLUTCmd(5, 82),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 1, mainmap_dl_souko_sceneTex_004C10_rgba16_ci8),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b_LOAD_BLOCK, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 255, 512),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_8b, 4, 0, 0, 0, G_TX_WRAP | G_TX_MIRROR, 4, 0, G_TX_WRAP | G_TX_MIRROR, 5, 0),
+	gsDPSetTileSize(0, 0, 0, 124, 60),
 	gsSPEndDisplayList(),
 };
 
@@ -2050,6 +2340,28 @@ Gfx mat_mainmap_dl_placeholder_library_floor2_layerOpaque[] = {
 	gsSPEndDisplayList(),
 };
 
+Gfx mainmap_dl_a_books_mesh_layer_Opaque[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPVertex(mainmap_dl_a_books_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPCullDisplayList(0, 7),
+	gsSPDisplayList(mat_mainmap_dl_f3dlite_material_001_layerOpaque),
+	gsSPDisplayList(mainmap_dl_a_books_mesh_layer_Opaque_tri_0),
+	gsSPEndDisplayList(),
+};
+
+Gfx mainmap_dl_b_table_chairs_mesh_layer_Opaque[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPVertex(mainmap_dl_b_table_chairs_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPCullDisplayList(0, 7),
+	gsSPDisplayList(mat_mainmap_dl_tableside_layerOpaque),
+	gsSPDisplayList(mainmap_dl_b_table_chairs_mesh_layer_Opaque_tri_0),
+	gsSPDisplayList(mat_mainmap_dl_tabletop_layerOpaque),
+	gsSPDisplayList(mainmap_dl_b_table_chairs_mesh_layer_Opaque_tri_1),
+	gsSPEndDisplayList(),
+};
+
 Gfx mainmap_dl_bookshelves_mesh_layer_Opaque[] = {
 	gsSPClearGeometryMode(G_LIGHTING),
 	gsSPVertex(mainmap_dl_bookshelves_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
@@ -2064,19 +2376,19 @@ Gfx mainmap_dl_bookshelves_mesh_layer_Opaque[] = {
 	gsSPEndDisplayList(),
 };
 
-Gfx mainmap_dl_library_quick_geo_mesh_layer_Opaque[] = {
+Gfx mainmap_dl_c_library_quick_geo_mesh_layer_Opaque[] = {
 	gsSPClearGeometryMode(G_LIGHTING),
-	gsSPVertex(mainmap_dl_library_quick_geo_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
+	gsSPVertex(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
 	gsSPSetGeometryMode(G_LIGHTING),
 	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_mainmap_dl_placeholder_library_wall_layerOpaque),
-	gsSPDisplayList(mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_0),
+	gsSPDisplayList(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_0),
 	gsSPDisplayList(mat_mainmap_dl_placeholder_library_floor_layerOpaque),
-	gsSPDisplayList(mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_1),
+	gsSPDisplayList(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_1),
 	gsSPDisplayList(mat_mainmap_dl_placeholder_library_ceiling_layerOpaque),
-	gsSPDisplayList(mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_2),
+	gsSPDisplayList(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_2),
 	gsSPDisplayList(mat_mainmap_dl_placeholder_library_floor2_layerOpaque),
-	gsSPDisplayList(mainmap_dl_library_quick_geo_mesh_layer_Opaque_tri_3),
+	gsSPDisplayList(mainmap_dl_c_library_quick_geo_mesh_layer_Opaque_tri_3),
 	gsSPEndDisplayList(),
 };
 

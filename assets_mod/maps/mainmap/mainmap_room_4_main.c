@@ -11,7 +11,7 @@
  * Header Child Day (Default)
 */
 #define LENGTH_MAINMAP_ROOM_4_HEADER00_LIGHTINFOLIST 1
-#define LENGTH_MAINMAP_ROOM_4_HEADER00_ACTORLIST 1
+#define LENGTH_MAINMAP_ROOM_4_HEADER00_ACTORLIST 2
 SceneCmd mainmap_room_4_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
     SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
@@ -41,7 +41,15 @@ ActorEntry mainmap_room_4_header00_actorList[LENGTH_MAINMAP_ROOM_4_HEADER00_ACTO
         /* Actor ID   */ ACTOR_EN_ITEM00,
         /* Position   */ { 1327, -249, 1213 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
-        /* Parameters */ ITEM00_SMALL_KEY
+        /* Parameters */ ITEM00_SMALL_KEY | (1 << 8 /*collectibleflag1*/)
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_OUR_TEXT_SPOT,
+        /* Position   */ { 1577, -232, 898 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
     },
 };
 

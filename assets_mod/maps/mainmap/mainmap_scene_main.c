@@ -18,7 +18,7 @@ SceneCmd mainmap_scene_header00[] = {
     SCENE_CMD_SPECIAL_FILES(0x00, OBJECT_GAMEPLAY_DANGEON_KEEP),
     SCENE_CMD_SKYBOX_SETTINGS(0x01, 0x00, LIGHT_MODE_SETTINGS),
     SCENE_CMD_ENTRANCE_LIST(mainmap_scene_header00_entranceList),
-    SCENE_CMD_SPAWN_LIST(1, mainmap_scene_header00_playerEntryList),
+    SCENE_CMD_SPAWN_LIST(2, mainmap_scene_header00_playerEntryList),
     SCENE_CMD_ENV_LIGHT_SETTINGS(1, mainmap_scene_header00_lightSettings),
     SCENE_CMD_TRANSITION_ACTOR_LIST(7, mainmap_scene_header00_transitionActors),
     SCENE_CMD_END(),
@@ -40,6 +40,12 @@ ActorEntry mainmap_scene_header00_playerEntryList[] = {
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(338.665), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0FFF
     },
+    {
+        /* Actor ID   */ ACTOR_PLAYER,
+        /* Position   */ { 1448, -251, 792 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(52.504), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0FFF
+    },
 };
 
 TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
@@ -58,7 +64,7 @@ TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
         /* Actor ID                       */ ACTOR_EN_DOOR,
         /* Position                       */ { 1145, -175, 580 },
         /* Rotation Y                     */ DEG_TO_BINANG(180.709),
-        /* Parameters                     */ 1<<7 /*locked, flag0*/
+        /* Parameters                     */ (1<<7) | 0 /*locked, switchflag0*/
     },
 
     // Wooden Door
@@ -76,7 +82,7 @@ TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
         /* Actor ID                       */ ACTOR_EN_DOOR,
         /* Position                       */ { 1043, -249, 1274 },
         /* Rotation Y                     */ DEG_TO_BINANG(90.000),
-        /* Parameters                     */ (1<<7) | 1 /*locked, flag1*/
+        /* Parameters                     */ (1<<7) | 1 /*locked, switchflag1*/
     },
 
     // Wooden Door
@@ -110,6 +116,7 @@ TransitionActorEntry mainmap_scene_header00_transitionActors[] = {
 Spawn mainmap_scene_header00_entranceList[] = {
     // { Spawn Actor List Index, Room Index }
     { 0, 0 },
+    { 1, 4 },
 };
 
 EnvLightSettings mainmap_scene_header00_lightSettings[1] = {

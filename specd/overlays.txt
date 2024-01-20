@@ -45,3 +45,9 @@ beginseg
     include "build/src/overlays/actors/escaperoom/lights_out/lights_out.o"
     include "build/src/overlays/actors/escaperoom/lights_out/ovl_Lights_Out_reloc.o"
 endseg
+
+beginseg
+    name "ovl_OurTextSpot"
+    include "build/src/overlays/escaperoom/actors/ovl_OurTextSpot/our_text_spot.o"
+    include "build/src/overlays/escaperoom/actors/ovl_OurTextSpot/ovl_OurTextSpot_reloc.o"
+endseg

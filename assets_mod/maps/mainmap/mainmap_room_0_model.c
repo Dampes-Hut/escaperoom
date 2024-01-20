@@ -13,6 +13,7 @@ Gfx mainmap_room_0_entry_0_opaque[] = {
 	gsSPDisplayList(mainmap_dl_ded_tree_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_lightfixture1_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_lightfixture2_mesh_layer_Opaque),
+	gsSPDisplayList(mainmap_dl_mcpoppies_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_ord_a_graves_dirt_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_ord_b_env_mesh_layer_Opaque),
 	gsSPDisplayList(mainmap_dl_step_to_door_to_corridor_mesh_layer_Opaque),
@@ -79,6 +80,16 @@ u64 mainmap_dl_spot15_sceneTex_009800_ia8_ia4[] = {
 	0x1111111111111111, 0xeeeeee1111eeeeee, 0xeeeeee1111eeeeee, 0xeeeeee1111eeeeee, 0x1111111111111111, 0x1111111111111111, 0x1111111111111111, 0xeeeeee1111eeeeee, 
 	0xeeeeee1111eeeeee, 0x1111111111111111, 0x1111111111111111, 0x1111111111111111, 0xeeeeee1111eeeeee, 0xeeeeee1111eeeeee, 0xeeeeee1111eeeeee, 0x1111111111111111, 
 	
+};
+
+u64 mainmap_dl_mc_poppy_old_ci4[] = {
+	0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000000000000, 0x0000000110000000, 0x0000001234300000, 0x0000033312000000, 
+	0x0000001422300000, 0x0000003560000000, 0x0000000700000000, 0x0000007500000000, 0x0000000650000000, 0x0000000057000000, 0x0000000760000000, 0x0000000060000000, 
+	
+};
+
+u64 mainmap_dl_mc_poppy_old_pal_rgba16[] = {
+	0x0000f0459003c843, 0xb8431c0113015a0f, 
 };
 
 u64 mainmap_dl_earth_ia8_ia8[] = {
@@ -700,6 +711,65 @@ Vtx mainmap_dl_lightfixture2_mesh_layer_Opaque_vtx_0[6] = {
 Gfx mainmap_dl_lightfixture2_mesh_layer_Opaque_tri_0[] = {
 	gsSPVertex(mainmap_dl_lightfixture2_mesh_layer_Opaque_vtx_0 + 0, 6, 0),
 	gsSP2Triangles(0, 1, 2, 0, 3, 4, 5, 0),
+	gsSPEndDisplayList(),
+};
+
+Vtx mainmap_dl_mcpoppies_mesh_layer_Opaque_vtx_cull[8] = {
+	{{ {809, -168, -182}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {809, -147, -182}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {809, -147, -221}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {809, -168, -221}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {844, -168, -182}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {844, -147, -182}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {844, -147, -221}, 0, {0, 0}, {0, 0, 0, 0} }},
+	{{ {844, -168, -221}, 0, {0, 0}, {0, 0, 0, 0} }},
+};
+
+Vtx mainmap_dl_mcpoppies_mesh_layer_Opaque_vtx_0[32] = {
+	{{ {821, -167, -204}, 0, {145, 512}, {0, 0, 127, 255} }},
+	{{ {833, -167, -204}, 0, {367, 512}, {0, 0, 127, 255} }},
+	{{ {833, -147, -204}, 0, {367, 143}, {0, 0, 127, 255} }},
+	{{ {821, -147, -204}, 0, {145, 143}, {0, 0, 127, 255} }},
+	{{ {827, -167, -198}, 0, {145, 512}, {127, 0, 0, 255} }},
+	{{ {827, -167, -210}, 0, {367, 512}, {127, 0, 0, 255} }},
+	{{ {827, -147, -210}, 0, {367, 143}, {127, 0, 0, 255} }},
+	{{ {827, -147, -198}, 0, {145, 143}, {127, 0, 0, 255} }},
+	{{ {809, -168, -188}, 0, {145, 512}, {0, 0, 127, 255} }},
+	{{ {821, -168, -188}, 0, {367, 512}, {0, 0, 127, 255} }},
+	{{ {821, -148, -188}, 0, {367, 143}, {0, 0, 127, 255} }},
+	{{ {809, -148, -188}, 0, {145, 143}, {0, 0, 127, 255} }},
+	{{ {815, -168, -182}, 0, {145, 512}, {127, 0, 0, 255} }},
+	{{ {815, -168, -194}, 0, {367, 512}, {127, 0, 0, 255} }},
+	{{ {815, -148, -194}, 0, {367, 143}, {127, 0, 0, 255} }},
+	{{ {815, -148, -182}, 0, {145, 143}, {127, 0, 0, 255} }},
+	{{ {832, -167, -215}, 0, {145, 512}, {0, 0, 127, 255} }},
+	{{ {844, -167, -215}, 0, {367, 512}, {0, 0, 127, 255} }},
+	{{ {844, -147, -215}, 0, {367, 143}, {0, 0, 127, 255} }},
+	{{ {832, -147, -215}, 0, {145, 143}, {0, 0, 127, 255} }},
+	{{ {838, -167, -209}, 0, {145, 512}, {127, 0, 0, 255} }},
+	{{ {838, -167, -221}, 0, {367, 512}, {127, 0, 0, 255} }},
+	{{ {838, -147, -221}, 0, {367, 143}, {127, 0, 0, 255} }},
+	{{ {838, -147, -209}, 0, {145, 143}, {127, 0, 0, 255} }},
+	{{ {825, -168, -189}, 0, {145, 512}, {0, 0, 127, 255} }},
+	{{ {837, -168, -189}, 0, {367, 512}, {0, 0, 127, 255} }},
+	{{ {837, -148, -189}, 0, {367, 143}, {0, 0, 127, 255} }},
+	{{ {825, -148, -189}, 0, {145, 143}, {0, 0, 127, 255} }},
+	{{ {831, -168, -183}, 0, {145, 512}, {127, 0, 0, 255} }},
+	{{ {831, -168, -195}, 0, {367, 512}, {127, 0, 0, 255} }},
+	{{ {831, -148, -195}, 0, {367, 143}, {127, 0, 0, 255} }},
+	{{ {831, -148, -183}, 0, {145, 143}, {127, 0, 0, 255} }},
+};
+
+Gfx mainmap_dl_mcpoppies_mesh_layer_Opaque_tri_0[] = {
+	gsSPVertex(mainmap_dl_mcpoppies_mesh_layer_Opaque_vtx_0 + 0, 32, 0),
+	gsSP2Triangles(0, 1, 2, 0, 0, 2, 3, 0),
+	gsSP2Triangles(4, 5, 6, 0, 4, 6, 7, 0),
+	gsSP2Triangles(8, 9, 10, 0, 8, 10, 11, 0),
+	gsSP2Triangles(12, 13, 14, 0, 12, 14, 15, 0),
+	gsSP2Triangles(16, 17, 18, 0, 16, 18, 19, 0),
+	gsSP2Triangles(20, 21, 22, 0, 20, 22, 23, 0),
+	gsSP2Triangles(24, 25, 26, 0, 24, 26, 27, 0),
+	gsSP2Triangles(28, 29, 30, 0, 28, 30, 31, 0),
 	gsSPEndDisplayList(),
 };
 
@@ -1524,6 +1594,25 @@ Gfx mat_mainmap_dl_lightfixturemetalgrid_layerOpaque[] = {
 	gsSPEndDisplayList(),
 };
 
+Gfx mat_mainmap_dl_f3dlite_material_002_layerOpaque[] = {
+	gsDPPipeSync(),
+	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
+	gsSPLoadGeometryMode(G_ZBUFFER | G_SHADE | G_FOG | G_LIGHTING | G_LIGHTING_POSITIONAL | G_SHADING_SMOOTH),
+	gsSPSetOtherMode(G_SETOTHERMODE_H, 4, 20, G_AD_NOISE | G_CD_MAGICSQ | G_CK_NONE | G_TC_FILT | G_TF_POINT | G_TT_RGBA16 | G_TL_TILE | G_TD_CLAMP | G_TP_PERSP | G_CYC_2CYCLE | G_PM_NPRIMITIVE),
+	gsSPSetOtherMode(G_SETOTHERMODE_L, 0, 32, G_AC_NONE | G_ZS_PIXEL | G_RM_FOG_SHADE_A | G_RM_AA_ZB_TEX_EDGE2),
+	gsSPTexture(65535, 65535, 0, 0, 1),
+	gsDPSetPrimColor(0, 0, 255, 255, 255, 255),
+	gsDPSetTextureImage(G_IM_FMT_RGBA, G_IM_SIZ_16b, 1, mainmap_dl_mc_poppy_old_pal_rgba16),
+	gsDPSetTile(0, 0, 0, 256, 5, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadTLUTCmd(5, 7),
+	gsDPSetTextureImage(G_IM_FMT_CI, G_IM_SIZ_16b, 1, mainmap_dl_mc_poppy_old_ci4),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_16b, 0, 0, 7, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0, G_TX_WRAP | G_TX_NOMIRROR, 0, 0),
+	gsDPLoadBlock(7, 0, 0, 63, 2048),
+	gsDPSetTile(G_IM_FMT_CI, G_IM_SIZ_4b, 1, 0, 0, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0, G_TX_CLAMP | G_TX_NOMIRROR, 4, 0),
+	gsDPSetTileSize(0, 0, 0, 60, 60),
+	gsSPEndDisplayList(),
+};
+
 Gfx mat_mainmap_dl_gravedirt_layerOpaque[] = {
 	gsDPPipeSync(),
 	gsDPSetCombineLERP(TEXEL0, 0, SHADE, 0, 0, 0, 0, TEXEL0, COMBINED, 0, PRIMITIVE, 0, 0, 0, 0, COMBINED),
@@ -1700,6 +1789,16 @@ Gfx mainmap_dl_lightfixture2_mesh_layer_Opaque[] = {
 	gsSPCullDisplayList(0, 7),
 	gsSPDisplayList(mat_mainmap_dl_lightfixturemetalgrid_layerOpaque),
 	gsSPDisplayList(mainmap_dl_lightfixture2_mesh_layer_Opaque_tri_0),
+	gsSPEndDisplayList(),
+};
+
+Gfx mainmap_dl_mcpoppies_mesh_layer_Opaque[] = {
+	gsSPClearGeometryMode(G_LIGHTING),
+	gsSPVertex(mainmap_dl_mcpoppies_mesh_layer_Opaque_vtx_cull + 0, 8, 0),
+	gsSPSetGeometryMode(G_LIGHTING),
+	gsSPCullDisplayList(0, 7),
+	gsSPDisplayList(mat_mainmap_dl_f3dlite_material_002_layerOpaque),
+	gsSPDisplayList(mainmap_dl_mcpoppies_mesh_layer_Opaque_tri_0),
 	gsSPEndDisplayList(),
 };
 

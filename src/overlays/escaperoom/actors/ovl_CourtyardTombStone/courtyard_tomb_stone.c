@@ -161,6 +161,8 @@ void CourtyardTombStone_Update(Actor* thisx, PlayState* play) {
 
     if (driverInstance == this) {
         if (gSaveContext.save.info.courtyard_graves_pulled_flags == CORRECT_COURTYARD_GRAVES_PULLED_FLAGS) {
+            rmonPrintf("correct tombstones!\n");
+            // TODO
             Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
         }
     }

@@ -152,7 +152,7 @@ ActorEntry mainmap_room_0_header00_actorList[LENGTH_MAINMAP_ROOM_0_HEADER00_ACTO
         /* Actor ID   */ ACTOR_EN_ITEM00,
         /* Position   */ { 1062, -179, 69 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
-        /* Parameters */ ITEM00_SMALL_KEY
+        /* Parameters */ ITEM00_SMALL_KEY | (2 << 8 /*collectibleflag2*/)
     },
 };
 
