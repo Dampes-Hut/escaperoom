@@ -49,6 +49,11 @@ void SwordReward_Update(Actor* thisx, PlayState* play) {
         rmonPrintf("SwordReward_Update: sword reward ON\n");
         rmonPrintf("csState=%d csTimer=%d\n", this->csState, this->csTimer);
 
+        if (this->csState == 0 && this->csTimer < 20) {
+            this->csTimer++;
+            return;
+        }
+
         if (this->csState == 0) {
             this->csState++;
 
