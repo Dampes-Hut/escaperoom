@@ -25,7 +25,7 @@ beginseg
     include "build/src/libultra/io/driverominit.o"
     include "build/src/boot/mio0.o"
     include "build/src/boot/stackcheck.o"
-#ifndef NDEBUG
+#ifndef NDEBUG_PRINTS
     include "build/src/boot/logutils.o"
 #endif
     include "build/src/libultra/libc/sprintf.o"

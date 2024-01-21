@@ -327,8 +327,8 @@ void __osFree(Arena* arena, void* ptr FILE_LINE_DECL) {
 
     next = ArenaImpl_GetNextBlock(node);
     prev = ArenaImpl_GetPrevBlock(node);
-#ifndef NDEBUG
     node->isFree = true;
+#ifndef NDEBUG
     node->filename = file;
     node->line = line;
     node->threadId = osGetThreadId(NULL);

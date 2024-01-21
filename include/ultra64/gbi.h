@@ -5140,7 +5140,7 @@ _DW({                                                   \
 #define gDPLoadSync(pkt)        gDPNoParam(pkt, G_RDPLOADSYNC)
 #define gsDPLoadSync()          gsDPNoParam(    G_RDPLOADSYNC)
 
-#ifdef NDEBUG
+#ifdef NDEBUG_GFX
 #  define gDPNoOp(pkt)
 #else
 #define gDPNoOp(pkt)            gDPNoParam(pkt, G_NOOP)
@@ -5148,7 +5148,7 @@ _DW({                                                   \
 
 #define gsDPNoOp()              gsDPNoParam(    G_NOOP)
 
-#ifdef NDEBUG
+#ifdef NDEBUG_GFX
 #  define gDPNoOpTag(pkt, tag)
 #else
 #define gDPNoOpTag(pkt, tag)    gDPParam(pkt,   G_NOOP, tag)
@@ -5156,7 +5156,7 @@ _DW({                                                   \
 
 #define gsDPNoOpTag(tag)        gsDPParam(      G_NOOP, tag)
 
-#ifdef NDEBUG
+#ifdef NDEBUG_GFX
 #  define gDPNoOpHere(pkt, file, line)
 #  define gDPNoOpString(pkt, data, n)
 #  define gDPNoOpWord(pkt, data, n)

@@ -3,7 +3,7 @@
 
 // ALLOCATORS
 
-#ifdef NDEBUG
+#ifdef NDEBUG_MALLOC_FUNCS
 // TODO NDEBUG alternatives
 #define GameAlloc_MallocDebug(this, size, ...)      GameAlloc_Malloc(this, size)
 #else
@@ -26,7 +26,7 @@
 #define Fault_AddHungupAndCrash(...) Fault_AddHungupAndCrash(__FILE__, __LINE__)
 
 // Logging utilities, remove if NDEBUG
-#ifndef NDEBUG
+#ifndef NDEBUG_PRINTS
 
 #define LogUtils_LogThreadId(...)                       LogUtils_LogThreadId(__FILE__, __LINE__)
 #define LogUtils_HungupThread(...)                      LogUtils_HungupThread(__FILE__, __LINE__)
@@ -69,7 +69,7 @@
 #define LOG_HEX32(exp, value, ...)   (void)0
 #define LOG_FLOAT(exp, value, ...)   (void)0
 
-#define rmonPrintf(...) (void)0
+//#define rmonPrintf(...) (void)0
 
 #endif
 
@@ -92,7 +92,7 @@
 #define POLY_XLU_DISP   __gfxCtx->polyXlu.p
 #define OVERLAY_DISP    __gfxCtx->overlay.p
 
-#ifdef NDEBUG
+#ifdef NDEBUG_GFX
 #define OPEN_DISPS(gfxCtx, ...)             \
     {                                       \
         GraphicsContext* __gfxCtx;          \
@@ -123,7 +123,7 @@
 #define Matrix_NewMtx(gfxCtx, ...) Matrix_NewMtx(gfxCtx, __FILE__, __LINE__)
 #define Matrix_CheckFloats(mf, ...) Matrix_CheckFloats(mf, __FILE__, __LINE__)
 
-#ifdef NDEBUG
+#ifdef NDEBUG_GFX
 #define Graph_Alloc(gfxCtx, size) ((void*)((gfxCtx)->polyOpa.d = (Gfx*)((u8*)(gfxCtx)->polyOpa.d - ALIGN16(size))))
 #else
 #define Graph_Alloc(gfxCtx, size) Graph_Alloc(gfxCtx, size)

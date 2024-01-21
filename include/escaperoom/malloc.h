@@ -34,7 +34,7 @@ typedef struct ArenaNode {
 extern u32 __osMalloc_FreeBlockTest_Enable;
 extern Arena gSystemArena;
 
-#ifdef NDEBUG
+#ifdef NDEBUG_MALLOC_FUNCS
 #define FILE_LINE_ARGS
 #define FILE_LINE_DECL
 #else
@@ -99,7 +99,7 @@ u8 DebugArena_IsInitialized(void);
 
 // Cleanup vanilla calls
 
-#ifdef NDEBUG
+#ifdef NDEBUG_MALLOC_FUNCS
 #define __osMallocDebug(arena, size, ...)           __osMalloc(arena, size)
 #define __osMallocRDebug(arena, size, ...)          __osMallocR(arena, size)
 #define __osFreeDebug(arena, ptr, ...)              __osFree(arena, size)

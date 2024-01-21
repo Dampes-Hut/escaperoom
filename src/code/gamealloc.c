@@ -12,7 +12,7 @@ void GameAlloc_Log(GameAlloc* this) {
     }
 }
 
-#ifndef NDEBUG
+#ifndef NDEBUG_MALLOC_FUNCS
 #undef GameAlloc_MallocDebug
 void* GameAlloc_MallocDebug(GameAlloc* this, u32 size, const char* file, int line) {
     GameAllocEntry* ptr = SystemArena_Malloc(size + sizeof(GameAllocEntry), file, line);

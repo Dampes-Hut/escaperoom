@@ -37,7 +37,7 @@ u32 func_80001F48(void);
 u32 func_80001F8C(void);
 u32 Locale_IsRegionNative(void);
 void isPrintfInit(void);
-#ifndef NDEBUG
+#ifndef NDEBUG_PRINTS
 FORMAT_PRINTF(1, 2) void rmonPrintf(const char* fmt, ...);
 #endif
 void evenNDEBUGprintf(const char* fmt, ...);
@@ -51,7 +51,7 @@ void StackCheck_Cleanup(StackEntry* entry);
 u32 StackCheck_GetState(StackEntry* entry);
 u32 StackCheck_CheckAll(void);
 u32 StackCheck_Check(StackEntry* entry);
-#ifndef NDEBUG
+#ifndef NDEBUG_PRINTS
 f32 LogUtils_CheckFloatRange(const char* exp, int line, const char* valueName, f32 value, const char* minName, f32 min,
                              const char* maxName, f32 max);
 s32 LogUtils_CheckIntRange(const char* exp, int line, const char* valueName, s32 value, const char* minName, s32 min,
