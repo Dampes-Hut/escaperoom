@@ -21,11 +21,11 @@ typedef struct ArenaNode {
     /* 0x04 */ u32 size;
     /* 0x08 */ struct ArenaNode* next;
     /* 0x0C */ struct ArenaNode* prev;
-    Arena* arena;
 #ifndef NDEBUG
     const char* filename;
     int line;
     OSId threadId;
+    Arena* arena;
     OSTime time;
     u8 padding[8]; // up to 0x10 byte boundary
 #endif

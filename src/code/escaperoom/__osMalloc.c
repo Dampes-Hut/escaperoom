@@ -316,12 +316,14 @@ void __osFree(Arena* arena, void* ptr FILE_LINE_DECL) {
         osSyncPrintf(VT_COL(RED, WHITE) "__osFree:二重解放(%08x)\n" VT_RST, ptr); // "__osFree: Double release (%08x)"
         goto exit;
     }
+#ifndef NDEBUG
     if (arena != node->arena && arena != NULL) {
         // "__osFree:Tried to release in a different way than when it was secured (%08x:%08x)"
         osSyncPrintf(VT_COL(RED, WHITE) "__osFree:確保時と違う方法で解放しようとした (%08x:%08x)\n" VT_RST, arena,
                      node->arena);
         goto exit;
     }
+#endif
 
     next = ArenaImpl_GetNextBlock(node);
     prev = ArenaImpl_GetPrevBlock(node);
