@@ -58,12 +58,12 @@ courtyard graves layout
 
 // 8 and 9: push 9
 DEFINE_MESSAGE_EN(200, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nOf the two facing each other, do not disturb the one near the wall." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nOf the two facing each other,\ndo not disturb the one near the wall." QUICKTEXT_DISABLE
 )
 
 // pull 0
 DEFINE_MESSAGE_EN(201, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nThe one nearest to the coffins should be troubled." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nThe one nearest to the coffins\nshould be troubled." QUICKTEXT_DISABLE
 )
 
 // forbidden
@@ -74,23 +74,23 @@ UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nBother the o
 
 // 0, 1, 2, 3: push at least two
 DEFINE_MESSAGE_EN(203, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nAt least two of them should be left in peace." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nAt least two of them\nshould be left in peace." QUICKTEXT_DISABLE
 )
 
 // forbidden
 // 0, 1, 2, 3: any one may not be surrounded by two pushed ones (one on each side)
 DEFINE_MESSAGE_EN(204, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nNo one may be surrounded on both sides by harmony." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nNo one may be surrounded on both\nsides by harmony." QUICKTEXT_DISABLE
 )
 
 // 0, 1, 2, 3: there may not be 2 pulled ones side by side
 DEFINE_MESSAGE_EN(205, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nA troubled one may not be a neighbour to another one of its kind." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried, four side by side.\nA troubled one may not be a neighbour\nto another one of its kind." QUICKTEXT_DISABLE
 )
 
 // pull 8 (near the tree)
 DEFINE_MESSAGE_EN(206, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nDisturb the one near what is dead yet not buried." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nDisturb the one near what is dead\nyet not buried." QUICKTEXT_DISABLE
 )
 
 // push 5 (has mc poppies)
@@ -101,15 +101,34 @@ UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nShow respect
 // forbidden
 // pull 6 (slower to push/pull)
 DEFINE_MESSAGE_EN(208, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nTrouble the one carrying heavy misdeeds." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nTrouble the one carrying\nheavy misdeeds." QUICKTEXT_DISABLE
 )
 
 // forbidden
 // 5 and 7: set 7 like 5 (push)
 DEFINE_MESSAGE_EN(209, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
-UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nThe two closest to the tower should not be separated." QUICKTEXT_DISABLE
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Ten souls lie buried.\nThe two closest to the tower\nshould not be separated." QUICKTEXT_DISABLE
 )
 
+
+DEFINE_MESSAGE_EN(0x300, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "Link, you triggered a curse!" QUICKTEXT_DISABLE
+TEXTID("\x03\x01")
+)
+
+DEFINE_MESSAGE_EN(0x301, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "This shadow of yourself\ndoes not seem aggressive..." QUICKTEXT_DISABLE
+TEXTID("\x03\x02")
+)
+
+DEFINE_MESSAGE_EN(0x302, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "... but it is " COLOR(RED) "bound to your movements" COLOR(RED) "." QUICKTEXT_DISABLE
+TEXTID("\x03\x03")
+)
+
+DEFINE_MESSAGE_EN(0x303, TEXTBOX_TYPE_BLACK, TEXTBOX_POS_MIDDLE,
+UNSKIPPABLE QUICKTEXT_ENABLE COLOR(DEFAULT) "You have to get rid of it\nin order to move freely!" QUICKTEXT_DISABLE
+)
 
 
 #ifdef DEFINE_MESSAGE_FFFC

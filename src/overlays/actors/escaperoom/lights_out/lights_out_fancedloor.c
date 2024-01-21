@@ -192,6 +192,13 @@ void LightsOutFanceDloor_Update(Actor* thisx, PlayState* play) {
                 this->overlayAlpha = 100;
                 Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
                                      &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
+
+                Actor* swordRewardActor = Actor_Find(&play->actorCtx, ACTOR_SWORD_REWARD, ACTORCAT_MISC);
+                assert(swordRewardActor != NULL);
+                if (swordRewardActor != NULL) {
+                    swordRewardActor->parent = &this->dyna.actor;
+                    this->dyna.actor.child = swordRewardActor;
+                }
             }
         }
     } else {

@@ -23,7 +23,7 @@ SceneCmd mainmap_room_2_header00[] = {
 
 LightInfo mainmap_room_2_header00_lightInfoList[LENGTH_MAINMAP_ROOM_2_HEADER00_LIGHTINFOLIST] = {
     {
-        LIGHT_POINT_GLOW,
+        LIGHT_POINT_NOGLOW,
         .params.point = {
             1137, -151, 911,
             { 255, 213, 130 },

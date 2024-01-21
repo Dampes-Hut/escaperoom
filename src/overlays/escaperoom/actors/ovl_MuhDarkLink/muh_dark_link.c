@@ -13,6 +13,7 @@ void MuhDarkLink_Destroy(Actor* thisx, PlayState* play);
 void MuhDarkLink_Update(Actor* thisx, PlayState* play);
 void MuhDarkLink_Draw(Actor* thisx, PlayState* play);
 
+static void muhdl_fadeaction_noop(MuhDarkLinkActor* this, PlayState* play);
 static void muhdl_fadeaction_visible(MuhDarkLinkActor* this, PlayState* play);
 static void muhdl_fadeaction_fade_out(MuhDarkLinkActor* this, PlayState* play);
 static void muhdl_fadeaction_hidden_cooldown(MuhDarkLinkActor* this, PlayState* play);
@@ -22,7 +23,7 @@ static void muhdl_fadeaction_visible_cooldown(MuhDarkLinkActor* this, PlayState*
 
 ActorInit MuhDarkLink_InitVars = {
     /**/ ACTOR_MUH_DARK_LINK,
-    /**/ ACTORCAT_MISC,
+    /**/ ACTORCAT_BOSS,
     /**/ FLAGS,
     /**/ OBJECT_TORCH2,
     /**/ sizeof(MuhDarkLinkActor),
@@ -49,11 +50,21 @@ static ColliderCylinderInit sColliderCylinderInit = {
         BUMP_ON,
         OCELEM_ON,
     },
-    { 12, 60, 0, { 0, 0, 0 } },
+    { 30, 60, 0, { 0, 0, 0 } },
 };
 
 void MuhDarkLink_Init(Actor* thisx, PlayState* play) {
     MuhDarkLinkActor* this = (MuhDarkLinkActor*)thisx;
+
+    if (Flags_GetClear(play, play->roomCtx.curRoom.num)) {
+        Actor_Kill(&this->actor);
+        return;
+    }
+
+    this->csState = MUHDL_CS_WAIT;
+
+    this->centerX = this->actor.home.pos.x;
+    this->centerZ = this->actor.home.pos.z;
 
     Collider_InitAndSetCylinder(play, &this->colliderCylinder, &this->actor, &sColliderCylinderInit);
 
@@ -70,7 +81,7 @@ void MuhDarkLink_Init(Actor* thisx, PlayState* play) {
     this->maxBodyAlpha = 255;
     this->bodyAlpha = this->maxBodyAlpha;
 
-    this->fadeActionFunc = muhdl_fadeaction_visible;
+    this->fadeActionFunc = muhdl_fadeaction_noop;
 }
 
 void MuhDarkLink_Destroy(Actor* thisx, PlayState* play) {
@@ -99,14 +110,14 @@ static void muhdl_update_pos(MuhDarkLinkActor* this, PlayState* play) {
     this->actor.gravity = player->actor.gravity;
     Actor_MoveXZGravity(&this->actor); // handle gravity
 
-    thisPos->x = this->centerX - playerPos->x;
-    thisPos->z = this->centerZ - playerPos->z;
+    thisPos->x = 2.0f * this->centerX - playerPos->x;
+    thisPos->z = 2.0f * this->centerZ - playerPos->z;
     Actor_UpdateBgCheckInfo(play, &this->actor, 26.0f, player->ageProperties->wallCheckRadius,
                             player->ageProperties->ceilingCheckHeight,
                             UPDBGCHECKINFO_FLAG_0 | UPDBGCHECKINFO_FLAG_1 | UPDBGCHECKINFO_FLAG_2 |
                                 UPDBGCHECKINFO_FLAG_3 | UPDBGCHECKINFO_FLAG_4 | UPDBGCHECKINFO_FLAG_5);
-    playerPos->x = this->centerX - thisPos->x;
-    playerPos->z = this->centerZ - thisPos->z;
+    playerPos->x = 2.0f * this->centerX - thisPos->x;
+    playerPos->z = 2.0f * this->centerZ - thisPos->z;
 }
 
 #define FADE_OUT_DIST_THRESHOLD 30
@@ -115,6 +126,9 @@ static void muhdl_update_pos(MuhDarkLinkActor* this, PlayState* play) {
 static void muhdl_set_fadeaction(MuhDarkLinkActor* this, MuhDarkLinkActorFadeActionFunc fadeActionFunc) {
     this->fadeActionFunc = fadeActionFunc;
     this->fadeTimer = 0;
+}
+static void muhdl_fadeaction_noop(MuhDarkLinkActor* this, PlayState* play) {
+    // no-op for manual control
 }
 static void muhdl_set_fade_factor(MuhDarkLinkActor* this, float f) {
     ASSERT_SOFT(f >= 0.0f && f <= 1.0f);
@@ -211,32 +225,224 @@ static void muhdl_update_debug(MuhDarkLinkActor* this, PlayState* play) {
     if (play->state.input[0].press.button & BTN_L) {
         Player* player = GET_PLAYER(play);
 
-        this->centerX = player->actor.world.pos.x;
-        this->centerZ = player->actor.world.pos.z;
+        // this->centerX = player->actor.world.pos.x;
+        // this->centerZ = player->actor.world.pos.z;
+    }
+}
+
+static void muhdl_setup_intro_cs(MuhDarkLinkActor* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    this->csState = MUHDL_CS_INTRO;
+    Cutscene_StartManual(play, &play->csCtx);
+    this->subCamId = Play_CreateSubCamera(play);
+    Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STAT_WAIT);
+    Play_ChangeCameraStatus(play, this->subCamId, CAM_STAT_ACTIVE);
+
+    this->subCamAt = this->actor.world.pos;
+    this->subCamAt.y += 50.0f;
+    this->subCamEye = player->actor.world.pos;
+    this->subCamEye.y += 100.0f;
+
+    muhdl_set_fadeaction(this, muhdl_fadeaction_noop);
+    this->bodyAlpha = 0;
+    this->smokeIntensity = 0.0f;
+
+    this->csTimer = 0;
+    this->csSubState = 0;
+}
+
+static void muhdl_end_intro_cs(MuhDarkLinkActor* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    this->csState = MUHDL_CS_NONE;
+
+    Cutscene_StopManual(play, &play->csCtx);
+
+    Message_StartTextbox(play, 0x300, NULL);
+
+    assert(this->subCamId != SUB_CAM_ID_DONE);
+    if (this->subCamId != SUB_CAM_ID_DONE) {
+        Play_ReturnToMainCam(play, this->subCamId, 0);
+        this->subCamId = SUB_CAM_ID_DONE;
+    }
+}
+
+static void muhdl_update_intro_cs(MuhDarkLinkActor* this, PlayState* play) {
+    this->subCamAt = this->actor.world.pos;
+    this->subCamAt.y += 40.0f;
+    Math_Vec3f_Sum(&this->subCamAt, &(Vec3f){ 80.0f, 20.0f, 30.0f }, &this->subCamEye);
+
+    Play_SetCameraAtEye(play, this->subCamId, &this->subCamAt, &this->subCamEye);
+
+    this->csTimer++;
+
+    switch (this->csSubState) {
+        case 0:
+            this->doDraw = true;
+
+            Math_StepToF(&this->smokeIntensity, 1.0f, 0.04f);
+            if (this->csTimer > 80) {
+                this->csTimer = 0;
+                this->csSubState++;
+            }
+            break;
+
+        case 1:
+            if (this->bodyAlpha <= 255 - 6) {
+                this->bodyAlpha += 6;
+            } else {
+                this->bodyAlpha = 255;
+            }
+
+            if (this->bodyAlpha > 100) {
+                Math_StepToF(&this->smokeIntensity, 0.0f, 0.04f);
+            }
+
+            if (this->csTimer > 100) {
+                muhdl_set_fadeaction(this, muhdl_fadeaction_visible);
+                muhdl_end_intro_cs(this, play);
+            }
+            break;
+    }
+}
+
+static void muhdl_setup_ded_cs(MuhDarkLinkActor* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    this->csState = MUHDL_CS_DED;
+    Cutscene_StartManual(play, &play->csCtx);
+    this->subCamId = Play_CreateSubCamera(play);
+    Play_ChangeCameraStatus(play, CAM_ID_MAIN, CAM_STAT_WAIT);
+    Play_ChangeCameraStatus(play, this->subCamId, CAM_STAT_ACTIVE);
+
+    this->subCamAt = this->actor.world.pos;
+    this->subCamAt.y += 50.0f;
+    this->subCamEye = player->actor.world.pos;
+    this->subCamEye.y += 100.0f;
+
+    muhdl_set_fadeaction(this, muhdl_fadeaction_noop);
+    this->bodyAlpha = 255;
+    this->smokeIntensity = 0.0f;
+
+    this->csTimer = 0;
+    this->csSubState = 0;
+}
+
+static void muhdl_end_ded_cs(MuhDarkLinkActor* this, PlayState* play) {
+    Player* player = GET_PLAYER(play);
+
+    Flags_SetClear(play, play->roomCtx.curRoom.num);
+    Actor_Kill(&this->actor);
+
+    Cutscene_StopManual(play, &play->csCtx);
+
+    assert(this->subCamId != SUB_CAM_ID_DONE);
+    if (this->subCamId != SUB_CAM_ID_DONE) {
+        Play_ReturnToMainCam(play, this->subCamId, 0);
+        this->subCamId = SUB_CAM_ID_DONE;
+    }
+}
+
+static void muhdl_update_ded_cs(MuhDarkLinkActor* this, PlayState* play) {
+    rmonPrintf("muhdl_update_ded_cs this->csSubState=%d\n", this->csSubState);
+    this->subCamAt = this->actor.world.pos;
+    this->subCamAt.y += 40.0f;
+    Math_Vec3f_Sum(&this->subCamAt, &(Vec3f){ -30.0f, 20.0f, 80.0f }, &this->subCamEye);
+
+    Play_SetCameraAtEye(play, this->subCamId, &this->subCamAt, &this->subCamEye);
+
+    this->csTimer++;
+
+    switch (this->csSubState) {
+        case 0:
+            rmonPrintf("muhdl_update_ded_cs 0\n");
+            Math_StepToF(&this->smokeIntensity, 1.0f, 0.04f);
+            if (this->bodyAlpha > 2) {
+                this->bodyAlpha -= 2;
+            }
+
+            if (this->csTimer == 30) {
+                Sfx_PlaySfxAtPos(&this->actor.projectedPos, NA_SE_PL_DAMAGE);
+            }
+
+            if (this->csTimer > 80) {
+                this->csTimer = 0;
+                this->csSubState++;
+            }
+            break;
+
+        case 1:
+            rmonPrintf("muhdl_update_ded_cs 1\n");
+            if (this->bodyAlpha > 0) {
+                this->bodyAlpha--;
+            }
+            Math_StepToF(&this->smokeIntensity, 0.0f, 0.015f);
+
+            if (this->csTimer > 100) {
+                Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
+                muhdl_end_ded_cs(this, play);
+            }
+            break;
     }
 }
 
 void MuhDarkLink_Update(Actor* thisx, PlayState* play) {
     MuhDarkLinkActor* this = (MuhDarkLinkActor*)thisx;
 
+#ifndef NDEBUG
     muhdl_update_debug(this, play);
+#endif
+
+    if (this->csState == MUHDL_CS_WAIT) {
+        Player* player = GET_PLAYER(play);
+
+        if (player->actor.world.pos.y < this->actor.home.pos.y + 5.0f) {
+            this->actor.world.pos.x = 2.0f * this->centerX - player->actor.world.pos.x;
+            this->actor.world.pos.z = 2.0f * this->centerZ - player->actor.world.pos.z;
+            this->actor.prevPos = this->actor.world.pos;
+
+            muhdl_setup_intro_cs(this, play);
+        } else {
+            return;
+        }
+    }
 
     muhdl_copy_player_pose(this, play);
     muhdl_update_pos(this, play);
 
     muhdl_update_effects(this, play);
 
-    this->fadeActionFunc(this, play);
+    if (this->fadeActionFunc != NULL) {
+        this->fadeActionFunc(this, play);
+    }
 
     Collider_UpdateCylinder(&this->actor, &this->colliderCylinder);
     CollisionCheck_SetAC(play, &play->colChkCtx, &this->colliderCylinder.base);
     CollisionCheck_SetOC(play, &play->colChkCtx, &this->colliderCylinder.base);
+
+    if (this->csState == MUHDL_CS_INTRO) {
+        muhdl_update_intro_cs(this, play);
+    }
+
+    if (this->csState == MUHDL_CS_NONE &&
+        Actor_FindNearby(play, &this->actor, ACTOR_PROP_FLAME, ACTORCAT_MISC, 20.0f)) {
+
+        muhdl_setup_ded_cs(this, play);
+    }
+
+    if (this->csState == MUHDL_CS_DED) {
+        muhdl_update_ded_cs(this, play);
+    }
 }
 
 static void muhdl_draw_debug_impl(MuhDarkLinkActor* this, PlayState* play, GfxPrint* printer) {
     GfxPrint_SetColor(printer, 255, 0, 255, 255);
     GfxPrint_Printf(printer, "bodyAlpha=%d\n", (int)this->bodyAlpha);
     GfxPrint_Printf(printer, "smokeIntensity=%f\n", this->smokeIntensity);
+    GfxPrint_Printf(printer, "csState=%d\n", this->csState);
+    GfxPrint_Printf(printer, "csTimer=%d\n", this->csTimer);
+    GfxPrint_Printf(printer, "csSubState=%d\n", this->csSubState);
 }
 
 static void muhdl_draw_debug(MuhDarkLinkActor* this, PlayState* play) {
@@ -388,10 +594,16 @@ static void muhdl_draw_smoke(MuhDarkLinkActor* this, PlayState* play) {
 void MuhDarkLink_Draw(Actor* thisx, PlayState* play) {
     MuhDarkLinkActor* this = (MuhDarkLinkActor*)thisx;
 
+#ifndef NDEBUG
+    muhdl_draw_debug(this, play);
+#endif
+
+    if (!this->doDraw) {
+        return;
+    }
+
     // I don't understand the graphics interaction between translucent dark link and the smoke,
     // but it looks very cool
     muhdl_draw_dark_link(this, play);
     muhdl_draw_smoke(this, play);
-
-    muhdl_draw_debug(this, play);
 }

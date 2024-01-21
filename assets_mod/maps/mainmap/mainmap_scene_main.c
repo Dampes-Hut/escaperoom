@@ -11,14 +11,14 @@
  * Header Child Day (Default)
 */
 SceneCmd mainmap_scene_header00[] = {
-    SCENE_CMD_SOUND_SETTINGS(0x00, 0x00, NA_BGM_NATURE_AMBIENCE),
+    SCENE_CMD_SOUND_SETTINGS(0x00, 0x13, NA_BGM_INSIDE_DEKU_TREE),
     SCENE_CMD_ROOM_LIST(6, mainmap_scene_roomList),
     SCENE_CMD_MISC_SETTINGS(0x00, 0x00),
     SCENE_CMD_COL_HEADER(&mainmap_collisionHeader),
     SCENE_CMD_SPECIAL_FILES(0x00, OBJECT_GAMEPLAY_DANGEON_KEEP),
     SCENE_CMD_SKYBOX_SETTINGS(0x01, 0x00, LIGHT_MODE_SETTINGS),
     SCENE_CMD_ENTRANCE_LIST(mainmap_scene_header00_entranceList),
-    SCENE_CMD_SPAWN_LIST(2, mainmap_scene_header00_playerEntryList),
+    SCENE_CMD_SPAWN_LIST(3, mainmap_scene_header00_playerEntryList),
     SCENE_CMD_ENV_LIGHT_SETTINGS(1, mainmap_scene_header00_lightSettings),
     SCENE_CMD_TRANSITION_ACTOR_LIST(7, mainmap_scene_header00_transitionActors),
     SCENE_CMD_END(),
@@ -44,6 +44,12 @@ ActorEntry mainmap_scene_header00_playerEntryList[] = {
         /* Actor ID   */ ACTOR_PLAYER,
         /* Position   */ { 1448, -251, 792 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(52.504), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0FFF
+    },
+    {
+        /* Actor ID   */ ACTOR_PLAYER,
+        /* Position   */ { 928, -290, 1273 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(275.999), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0FFF
     },
 };
@@ -117,6 +123,7 @@ Spawn mainmap_scene_header00_entranceList[] = {
     // { Spawn Actor List Index, Room Index }
     { 0, 0 },
     { 1, 4 },
+    { 2, 5 },
 };
 
 EnvLightSettings mainmap_scene_header00_lightSettings[1] = {

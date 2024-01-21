@@ -888,8 +888,6 @@ void func_80A03CF8(EnElf* this, PlayState* play) {
     } else {
         distFromPlayerHat = Math_Vec3f_DistXYZ(&player->bodyPartsPos[PLAYER_BODYPART_HAT], &this->actor.world.pos);
 
-        rmonPrintf("this->unk_2A8=%hd\n", this->unk_2A8);
-
         switch (this->unk_2A8) {
             case 7:
                 func_80A02C98(this, &player->bodyPartsPos[PLAYER_BODYPART_HAT], 1.0f - this->unk_2AE * (1.0f / 30.0f));

@@ -12,7 +12,7 @@
 */
 #define LENGTH_MAINMAP_ROOM_3_HEADER00_LIGHTINFOLIST 1
 #define LENGTH_MAINMAP_ROOM_3_HEADER00_OBJECTLIST 1
-#define LENGTH_MAINMAP_ROOM_3_HEADER00_ACTORLIST 2
+#define LENGTH_MAINMAP_ROOM_3_HEADER00_ACTORLIST 3
 SceneCmd mainmap_room_3_header00[] = {
     SCENE_CMD_ECHO_SETTINGS(0x00),
     SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
@@ -27,7 +27,7 @@ SceneCmd mainmap_room_3_header00[] = {
 
 LightInfo mainmap_room_3_header00_lightInfoList[LENGTH_MAINMAP_ROOM_3_HEADER00_LIGHTINFOLIST] = {
     {
-        LIGHT_POINT_GLOW,
+        LIGHT_POINT_NOGLOW,
         .params.point = {
             897, -18, 999,
             { 255, 213, 130 },
@@ -54,6 +54,14 @@ ActorEntry mainmap_room_3_header00_actorList[LENGTH_MAINMAP_ROOM_3_HEADER00_ACTO
     {
         /* Actor ID   */ ACTOR_LIGHTS_OUT_TARGET,
         /* Position   */ { 658, -63, 1256 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ 0/*TODO*/,
+        /* Position   */ { 682, -249, 686 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0000
     },

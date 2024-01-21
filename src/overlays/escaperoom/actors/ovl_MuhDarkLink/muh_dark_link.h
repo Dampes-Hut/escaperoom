@@ -21,6 +21,18 @@ typedef struct MuhDarkLinkActor {
     SkelAnime skelAnime;
     ColliderCylinder colliderCylinder;
 
+    enum {
+        MUHDL_CS_WAIT,
+        MUHDL_CS_INTRO,
+        MUHDL_CS_NONE, // gameplay
+        MUHDL_CS_DED
+    } csState;
+    bool doDraw;
+    s16 subCamId;
+    Vec3f subCamAt, subCamEye;
+    int csTimer;
+    int csSubState;
+
     float centerX, centerZ;
 
     Vec3f bodyPartsPos[PLAYER_LIMB_MAX]; // Note: don't use index 0 (PLAYER_LIMB_NONE)

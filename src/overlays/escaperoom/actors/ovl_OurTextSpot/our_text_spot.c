@@ -23,6 +23,8 @@ ActorInit OurTextSpot_InitVars = {
 
 void OurTextSpot_Init(Actor* thisx, PlayState* play) {
     OurTextSpotActor* this = (OurTextSpotActor*)thisx;
+
+    this->actor.targetMode = 4;
 }
 
 void OurTextSpot_Destroy(Actor* thisx, PlayState* play) {
@@ -33,7 +35,7 @@ void OurTextSpot_Update(Actor* thisx, PlayState* play) {
     OurTextSpotActor* this = (OurTextSpotActor*)thisx;
 
     this->actor.textId = this->actor.params;
-    if (Actor_OfferTalk(&this->actor, play, 100.0f)) {
+    if (Actor_OfferTalkExchange(&this->actor, play, 50.0f, 100.0f, EXCH_ITEM_NONE)) {
         this->actor.flags |= ACTOR_FLAG_0;
     } else {
         // only be targetable when in range to talk
