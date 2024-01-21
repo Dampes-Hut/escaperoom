@@ -164,9 +164,9 @@ ActorEntry mainmap_room_0_header00_actorList[LENGTH_MAINMAP_ROOM_0_HEADER00_ACTO
         /* Parameters */ ITEM00_SMALL_KEY | (2 << 8 /*collectibleflag2*/)
     },
 
-    // Poe
+    // Custom Actor
     {
-        /* Actor ID   */ ACTOR_EN_POH,
+        /* Actor ID   */ ACTOR_TOWER_TOP_POE_MANAGER,
         /* Position   */ { 623, 1462, -493 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(273.730), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0000
@@ -299,9 +299,9 @@ ActorEntry mainmap_room_0_header04_actorList[LENGTH_MAINMAP_ROOM_0_HEADER04_ACTO
         /* Parameters */ ITEM00_SMALL_KEY | (2 << 8 /*collectibleflag2*/)
     },
 
-    // Poe
+    // Custom Actor
     {
-        /* Actor ID   */ ACTOR_EN_POH,
+        /* Actor ID   */ ACTOR_TOWER_TOP_POE_MANAGER,
         /* Position   */ { 623, 1462, -493 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(273.730), DEG_TO_BINANG(0.000) },
         /* Parameters */ 0x0000

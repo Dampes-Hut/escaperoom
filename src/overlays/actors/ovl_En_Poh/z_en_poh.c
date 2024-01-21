@@ -380,7 +380,7 @@ void EnPoh_SetupDeath(EnPoh* this, PlayState* play) {
         this->actor.shape.rot.x = -0x8000;
     }
     Actor_ChangeCategory(play, &play->actorCtx, &this->actor, ACTORCAT_MISC);
-    this->unk_198 = 60;
+    this->unk_198 = 20;
     this->actionFunc = EnPoh_Death;
 }
 
@@ -717,12 +717,20 @@ void EnPoh_Death(EnPoh* this, PlayState* play) {
     if (this->unk_198 != 0) {
         this->unk_198--;
     }
+
+    // don't form a poe soul on the ground
+#if 0
     if (this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) {
         objectId = (this->infoIdx == EN_POH_INFO_COMPOSER) ? OBJECT_PO_COMPOSER : OBJECT_POH;
         EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 6.0f, 0, 1, 1, 15, objectId, 10,
                                  this->info->lanternDisplayList);
         func_80ADE6D4(this);
-    } else if (this->unk_198 == 0) {
+    } else
+#endif
+    if ((this->actor.bgCheckFlags & BGCHECKFLAG_GROUND) || this->unk_198 == 0) {
+        Actor_PlaySfx(&this->actor, NA_SE_EV_METAL_BOX_BOUND);
+        EffectSsHahen_SpawnBurst(play, &this->actor.world.pos, 6.0f, 0, 1, 1, 15, OBJECT_POH, 10,
+                                 this->info->lanternDisplayList);
         Actor_Kill(&this->actor);
         return;
     }

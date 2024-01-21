@@ -366,6 +366,10 @@ void Sram_OpenSave(SramContext* sramCtx) {
             gSaveContext.save.entranceIndex = ENTR_INN_BEDROOM_0;
             break;
 
+        case SCENE_MAINMAP:
+            gSaveContext.save.entranceIndex = ENTR_MAINMAP_COURTYARD_COFFIN;
+            break;
+
         default:
             ASSERT_SOFT(0);
             gSaveContext.save.entranceIndex = ENTR_INN_BEDROOM_0;

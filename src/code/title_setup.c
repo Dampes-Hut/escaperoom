@@ -5,7 +5,7 @@ void Setup_MainImpl(SetupState* this) {
     SaveContext_Init();
     this->state.running = false;
 
-#if 0
+#if !LOAD_SAVE_AND_MAPSELECT_ON_BOOT
     // vanilla
     SET_NEXT_GAMESTATE(&this->state, ConsoleLogo_Init, ConsoleLogoState);
 #else
@@ -53,5 +53,7 @@ void Setup_Init(GameState* thisx) {
     this->state.main = Setup_Main;
     this->state.destroy = Setup_Destroy;
 
+#if LOAD_SAVE_AND_MAPSELECT_ON_BOOT
     Sram_Alloc(&this->state, &this->sramCtx);
+#endif
 }

@@ -292,7 +292,14 @@ typedef struct {
 
 typedef struct {
     /* 0x00 */ GameState state;
+#ifdef NDEBUG
+#define LOAD_SAVE_AND_MAPSELECT_ON_BOOT 0
+#else
+#define LOAD_SAVE_AND_MAPSELECT_ON_BOOT 0
+#endif
+#if LOAD_SAVE_AND_MAPSELECT_ON_BOOT
     SramContext sramCtx;
+#endif
 } SetupState; // size = 0xA4
 
 typedef struct {

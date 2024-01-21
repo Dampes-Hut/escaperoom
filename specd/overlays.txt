@@ -57,3 +57,9 @@ beginseg
     include "build/src/overlays/escaperoom/actors/ovl_SwordReward/sword_reward.o"
     include "build/src/overlays/escaperoom/actors/ovl_SwordReward/ovl_SwordReward_reloc.o"
 endseg
+
+beginseg
+    name "ovl_TowerTopPoeManager"
+    include "build/src/overlays/escaperoom/actors/ovl_TowerTopPoeManager/tower_top_poe_manager.o"
+    include "build/src/overlays/escaperoom/actors/ovl_TowerTopPoeManager/ovl_TowerTopPoeManager_reloc.o"
+endseg
