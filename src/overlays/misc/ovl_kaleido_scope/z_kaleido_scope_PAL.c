@@ -817,7 +817,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
                     PauseMapMark_Draw(play);
                 }
             } else {
-                KaleidoScope_DrawWorldMap(play, gfxCtx);
+                // KaleidoScope_DrawWorldMap(play, gfxCtx);
             }
         }
 
@@ -865,7 +865,7 @@ void KaleidoScope_DrawPages(PlayState* play, GraphicsContext* gfxCtx) {
                         PauseMapMark_Draw(play);
                     }
                 } else {
-                    KaleidoScope_DrawWorldMap(play, gfxCtx);
+                    // KaleidoScope_DrawWorldMap(play, gfxCtx);
                 }
                 break;
 

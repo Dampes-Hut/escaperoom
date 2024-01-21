@@ -558,7 +558,7 @@ void KaleidoScope_DrawEquipment(PlayState* play) {
                                                    gItemIcons[sChildUpgradeItemBases[i] + point - 1], ITEM_ICON_WIDTH,
                                                    ITEM_ICON_HEIGHT, 0);
             }
-        } else {
+        } else if(0) {
             if ((i == 0) && (CUR_UPG_VALUE(sAdultUpgrades[i]) == 0)) {
                 KaleidoScope_DrawQuadTextureRGBA32(
                     play->state.gfxCtx, gItemIcons[sChildUpgradeItemBases[i] + CUR_UPG_VALUE(sChildUpgrades[i]) - 1],

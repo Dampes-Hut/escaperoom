@@ -252,14 +252,9 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
 }
 
 void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {
-    static bool successJinglePlayed = false;
     bool tombStonesPuzzleSolved =
         gSaveContext.save.info.courtyard_graves_pulled_flags == CORRECT_COURTYARD_GRAVES_PULLED_FLAGS;
     if (tombStonesPuzzleSolved) {
-        if (!successJinglePlayed) {
-            successJinglePlayed = true;
-            Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
-        }
         if (CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, EQUIP_INV_SWORD_MASTER)) {
             this->actor.textId = 0x402;
         } else {
@@ -269,6 +264,12 @@ void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {
         this->actor.textId = 0x400;
     }
     if (Actor_ProcessTalkRequest(&this->actor, play)) {
+        static bool successJinglePlayed = false;
+        if (tombStonesPuzzleSolved && !successJinglePlayed) {
+            successJinglePlayed = true;
+            Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
+        }
+
         this->actionFunc = EnDoor_Check;
     } else {
         func_8002F2CC(&this->actor, play, DOOR_CHECK_RANGE);

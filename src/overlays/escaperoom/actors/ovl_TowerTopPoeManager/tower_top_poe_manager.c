@@ -76,15 +76,15 @@ void TowerTopPoeManager_Update(Actor* thisx, PlayState* play) {
         } break;
 
         case TTPM_STATE_CREDITS: {
-            if (this->timer < 40) {
+            if (this->timer < 100) {
                 this->timer++;
                 if (this->timer == 40) {
                     Message_StartTextbox(play, 0x700, NULL);
                 }
             }
-            if (Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) {
+            if (this->timer >= 100 && Message_GetState(&play->msgCtx) == TEXT_STATE_NONE) {
                 this->timer++;
-                if (this->timer > 100) {
+                if (this->timer > 160) {
                     play->nextEntranceIndex = ENTR_INN_BEDROOM_0;
                     gSaveContext.nextCutsceneIndex = 0xFFF0;
                     play->transitionTrigger = TRANS_TRIGGER_START;

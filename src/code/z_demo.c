@@ -666,9 +666,28 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
                 play->transitionTrigger = TRANS_TRIGGER_START;
                 play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
 
-                // unequip shield and sword
-                gSaveContext.save.info.equips.equipment &= 0xFF00;
-                gSaveContext.save.info.inventory.equipment &= 0xFF00;
+                // unequip and remove swords
+                gSaveContext.save.info.equips.equipment &= ~(0xF << (4 * EQUIP_TYPE_SWORD));
+                gSaveContext.save.info.equips.equipment |= (EQUIP_VALUE_SWORD_NONE << (4 * EQUIP_TYPE_SWORD));
+                gSaveContext.save.info.inventory.equipment &= ~(0xF << (4 * EQUIP_TYPE_SWORD));
+
+                // unequip and remove shields
+                gSaveContext.save.info.equips.equipment &= ~(0xF << (4 * EQUIP_TYPE_SHIELD));
+                gSaveContext.save.info.equips.equipment |= (EQUIP_VALUE_SHIELD_NONE << (4 * EQUIP_TYPE_SHIELD));
+                gSaveContext.save.info.inventory.equipment &= ~(0xF << (4 * EQUIP_TYPE_SHIELD));
+
+                // equip kokiri tunic and remove other tunics
+                gSaveContext.save.info.equips.equipment &= ~(0xF << (4 * EQUIP_TYPE_TUNIC));
+                gSaveContext.save.info.equips.equipment |= (EQUIP_VALUE_TUNIC_KOKIRI << (4 * EQUIP_TYPE_TUNIC));
+                gSaveContext.save.info.inventory.equipment &= ~(0xF << (4 * EQUIP_TYPE_TUNIC));
+                gSaveContext.save.info.inventory.equipment |= (1 << (4 * EQUIP_TYPE_TUNIC + EQUIP_INV_TUNIC_KOKIRI));
+
+                // equip kokiri boots and remove other boots
+                gSaveContext.save.info.equips.equipment &= ~(0xF << (4 * EQUIP_TYPE_BOOTS));
+                gSaveContext.save.info.equips.equipment |= (EQUIP_VALUE_BOOTS_KOKIRI << (4 * EQUIP_TYPE_BOOTS));
+                gSaveContext.save.info.inventory.equipment &= ~(0xF << (4 * EQUIP_TYPE_BOOTS));
+                gSaveContext.save.info.inventory.equipment |= (1 << (4 * EQUIP_TYPE_BOOTS + EQUIP_INV_TUNIC_KOKIRI));
+
                 break;
 
             case CS_DEST_MAINMAP_COFFIN:

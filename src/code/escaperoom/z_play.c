@@ -458,12 +458,25 @@ void Play_Init(GameState* thisx) {
     }
 }
 
+void apply_poor_workarounds(void) {
+    // work around a bug I don't have time to figure out, when loading saves the owned boots (inventory.equipment)
+    // reset to "hover boots and iron boots"
+
+    // equip kokiri boots and remove other boots
+    gSaveContext.save.info.equips.equipment &= ~(0xF << (4 * EQUIP_TYPE_BOOTS));
+    gSaveContext.save.info.equips.equipment |= (EQUIP_VALUE_BOOTS_KOKIRI << (4 * EQUIP_TYPE_BOOTS));
+    gSaveContext.save.info.inventory.equipment &= ~(0xF << (4 * EQUIP_TYPE_BOOTS));
+    gSaveContext.save.info.inventory.equipment |= (1 << (4 * EQUIP_TYPE_BOOTS + EQUIP_INV_TUNIC_KOKIRI));
+}
+
 void Play_Update(PlayState* this) {
     s32 pad1;
     s32 isPaused;
     Input* input;
     u32 i;
     s32 pad2;
+
+    apply_poor_workarounds();
 
     input = this->state.input;
 
