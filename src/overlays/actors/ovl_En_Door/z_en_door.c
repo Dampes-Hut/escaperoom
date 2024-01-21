@@ -196,17 +196,8 @@ void EnDoor_SetupType(EnDoor* this, PlayState* play) {
                 this->actor.world.rot.y = -0x1800;
             }
         } else if (doorType == DOOR_CHECKABLE) {
-            this->actor.textId = ENDOOR_GET_CHECKABLE_TEXT_ID(&this->actor) + 0x0200;
-            if (this->actor.textId == 0x0229 && !GET_EVENTCHKINF(EVENTCHKINF_TALON_RETURNED_FROM_CASTLE)) {
-                // Talon's house door. If Talon has not been woken up at Hyrule Castle
-                // this door should be openable at any time of day.
-                // Note that there is no check for time of day, as the night layers for Lon Lon
-                // have a door with a different text ID.
-                doorType = DOOR_SCENEEXIT;
-            } else {
-                this->actionFunc = EnDoor_WaitForCheck;
-                this->actor.flags |= ACTOR_FLAG_0 | ACTOR_FLAG_3 | ACTOR_FLAG_27;
-            }
+            this->actionFunc = EnDoor_WaitForCheck;
+            this->actor.flags |= ACTOR_FLAG_0 | ACTOR_FLAG_3 | ACTOR_FLAG_27;
         }
         // Replace the door type it was loaded with by the new type
         this->actor.params = (this->actor.params & ~ENDOOR_PARAMS_TYPE_MASK) | (doorType << ENDOOR_PARAMS_TYPE_SHIFT);
@@ -261,6 +252,22 @@ void EnDoor_Idle(EnDoor* this, PlayState* play) {
 }
 
 void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {
+    static bool successJinglePlayed = false;
+    bool tombStonesPuzzleSolved =
+        gSaveContext.save.info.courtyard_graves_pulled_flags == CORRECT_COURTYARD_GRAVES_PULLED_FLAGS;
+    if (tombStonesPuzzleSolved) {
+        if (!successJinglePlayed) {
+            successJinglePlayed = true;
+            Sfx_PlaySfxCentered(NA_SE_SY_CORRECT_CHIME);
+        }
+        if (CHECK_OWNED_EQUIP(EQUIP_TYPE_SWORD, EQUIP_INV_SWORD_MASTER)) {
+            this->actor.textId = 0x402;
+        } else {
+            this->actor.textId = 0x401;
+        }
+    } else {
+        this->actor.textId = 0x400;
+    }
     if (Actor_ProcessTalkRequest(&this->actor, play)) {
         this->actionFunc = EnDoor_Check;
     } else {
@@ -269,6 +276,20 @@ void EnDoor_WaitForCheck(EnDoor* this, PlayState* play) {
 }
 
 void EnDoor_Check(EnDoor* this, PlayState* play) {
+    rmonPrintf("EnDoor_Check\n");
+    if (Message_GetState(&play->msgCtx) == TEXT_STATE_CHOICE) {
+        rmonPrintf("choiceIndex=%d\n", (int)play->msgCtx.choiceIndex);
+        if (Message_ShouldAdvance(play)) {
+            rmonPrintf("Message_ShouldAdvance\n");
+            if (play->msgCtx.choiceIndex == 0) {
+                // yes
+                play->nextEntranceIndex = ENTR_MAINMAP_TOWERTOP;
+                play->transitionTrigger = TRANS_TRIGGER_START;
+            } else {
+                // no
+            }
+        }
+    }
     if (Actor_TextboxIsClosing(&this->actor, play)) {
         this->actionFunc = EnDoor_WaitForCheck;
     }

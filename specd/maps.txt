@@ -50,6 +50,7 @@ beginseg
     include "build/assets_mod/maps/mainmap/mainmap_scene_main.o"
     include "build/assets_mod/maps/mainmap/mainmap_scene_col.o"
     include "build/assets_mod/maps/mainmap/mainmap_scene_tex.o"
+    include "build/assets_mod/maps/mainmap/mainmap_scene_cs_0.o"
     number 2
 endseg
 

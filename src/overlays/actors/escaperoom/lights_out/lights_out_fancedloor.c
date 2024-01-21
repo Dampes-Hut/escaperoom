@@ -190,10 +190,8 @@ void LightsOutFanceDloor_Update(Actor* thisx, PlayState* play) {
                 // Game is in winning state
                 this->inert = true;
                 this->overlayAlpha = 100;
-                Audio_PlaySfxGeneral(NA_SE_SY_CORRECT_CHIME, &gSfxDefaultPos, 4, &gSfxDefaultFreqAndVolScale,
-                                     &gSfxDefaultFreqAndVolScale, &gSfxDefaultReverb);
 
-                Actor* swordRewardActor = Actor_Find(&play->actorCtx, ACTOR_SWORD_REWARD, ACTORCAT_MISC);
+                Actor* swordRewardActor = Actor_Find(&play->actorCtx, ACTOR_SWORD_REWARD, ACTORCAT_ITEMACTION);
                 assert(swordRewardActor != NULL);
                 if (swordRewardActor != NULL) {
                     swordRewardActor->parent = &this->dyna.actor;

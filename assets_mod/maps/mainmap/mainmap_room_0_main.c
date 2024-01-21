@@ -11,9 +11,10 @@
  * Header Child Day (Default)
 */
 #define LENGTH_MAINMAP_ROOM_0_HEADER00_LIGHTINFOLIST 2
-#define LENGTH_MAINMAP_ROOM_0_HEADER00_OBJECTLIST 1
-#define LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST 13
+#define LENGTH_MAINMAP_ROOM_0_HEADER00_OBJECTLIST 2
+#define LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST 14
 SceneCmd mainmap_room_0_header00[] = {
+    SCENE_CMD_ALTERNATE_HEADER_LIST(mainmap_room_0_alternateHeaders),
     SCENE_CMD_ECHO_SETTINGS(0x00),
     SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
     SCENE_CMD_SKYBOX_DISABLES(false, true),
@@ -23,6 +24,13 @@ SceneCmd mainmap_room_0_header00[] = {
     SCENE_CMD_OBJECT_LIST(LENGTH_MAINMAP_ROOM_0_HEADER00_OBJECTLIST, mainmap_room_0_header00_objectList),
     SCENE_CMD_ACTOR_LIST(LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST, mainmap_room_0_header00_actorList),
     SCENE_CMD_END(),
+};
+
+SceneCmd* mainmap_room_0_alternateHeaders[] = {
+    NULL,
+    NULL,
+    NULL,
+    mainmap_room_0_header04,
 };
 
 LightInfo mainmap_room_0_header00_lightInfoList[LENGTH_MAINMAP_ROOM_0_HEADER00_LIGHTINFOLIST] = {
@@ -48,6 +56,7 @@ LightInfo mainmap_room_0_header00_lightInfoList[LENGTH_MAINMAP_ROOM_0_HEADER00_L
 
 s16 mainmap_room_0_header00_objectList[LENGTH_MAINMAP_ROOM_0_HEADER00_OBJECTLIST] = {
     OBJECT_HAKA,
+    OBJECT_POH,
 };
 
 ActorEntry mainmap_room_0_header00_actorList[LENGTH_MAINMAP_ROOM_0_HEADER00_ACTORLIST] = {
@@ -153,6 +162,149 @@ ActorEntry mainmap_room_0_header00_actorList[LENGTH_MAINMAP_ROOM_0_HEADER00_ACTO
         /* Position   */ { 1062, -179, 69 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
         /* Parameters */ ITEM00_SMALL_KEY | (2 << 8 /*collectibleflag2*/)
+    },
+
+    // Poe
+    {
+        /* Actor ID   */ ACTOR_EN_POH,
+        /* Position   */ { 623, 1462, -493 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(273.730), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
+    },
+};
+
+/**
+ * Header Cutscene No. 1
+*/
+#define LENGTH_MAINMAP_ROOM_0_HEADER04_OBJECTLIST 2
+#define LENGTH_MAINMAP_ROOM_0_HEADER04_ACTORLIST 14
+SceneCmd mainmap_room_0_header04[] = {
+    SCENE_CMD_ECHO_SETTINGS(0x00),
+    SCENE_CMD_ROOM_BEHAVIOR_PL(0x00, 0x00, false, false, true),
+    SCENE_CMD_SKYBOX_DISABLES(false, true),
+    SCENE_CMD_TIME_SETTINGS(0, 0, 0),
+    SCENE_CMD_ROOM_SHAPE(&mainmap_room_0_shapeHeader),
+    SCENE_CMD_OBJECT_LIST(LENGTH_MAINMAP_ROOM_0_HEADER04_OBJECTLIST, mainmap_room_0_header04_objectList),
+    SCENE_CMD_ACTOR_LIST(LENGTH_MAINMAP_ROOM_0_HEADER04_ACTORLIST, mainmap_room_0_header04_actorList),
+    SCENE_CMD_END(),
+};
+
+s16 mainmap_room_0_header04_objectList[LENGTH_MAINMAP_ROOM_0_HEADER04_OBJECTLIST] = {
+    OBJECT_HAKA,
+    OBJECT_POH,
+};
+
+ActorEntry mainmap_room_0_header04_actorList[LENGTH_MAINMAP_ROOM_0_HEADER04_ACTORLIST] = {
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 457, -225, 334 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(123.107), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 580, -225, 423 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(160.373), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 1
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 742, -226, 444 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(180.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 2
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 909, -217, 443 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(180.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 3
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 1341, -203, 411 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(219.018), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 4
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 795, -166, -231 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(48.483), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 5
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 946, -162, -458 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(54.657), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 6
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 841, -163, -380 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(33.766), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 7
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 1148, -182, 19 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(156.517), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 8
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_COURTYARD_TOMB_STONE,
+        /* Position   */ { 1277, -166, -319 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(343.954), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 9
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_PROP_FLAME,
+        /* Position   */ { 599, 22, -190 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 50
+    },
+
+    // Custom Actor
+    {
+        /* Actor ID   */ ACTOR_PROP_FLAME,
+        /* Position   */ { 440, 22, -19 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 50
+    },
+
+    // Collectable Item
+    {
+        /* Actor ID   */ ACTOR_EN_ITEM00,
+        /* Position   */ { 1062, -179, 69 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
+        /* Parameters */ ITEM00_SMALL_KEY | (2 << 8 /*collectibleflag2*/)
+    },
+
+    // Poe
+    {
+        /* Actor ID   */ ACTOR_EN_POH,
+        /* Position   */ { 623, 1462, -493 },
+        /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(273.730), DEG_TO_BINANG(0.000) },
+        /* Parameters */ 0x0000
     },
 };
 

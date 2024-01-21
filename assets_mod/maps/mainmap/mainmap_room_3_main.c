@@ -38,7 +38,7 @@ LightInfo mainmap_room_3_header00_lightInfoList[LENGTH_MAINMAP_ROOM_3_HEADER00_L
 };
 
 s16 mainmap_room_3_header00_objectList[LENGTH_MAINMAP_ROOM_3_HEADER00_OBJECTLIST] = {
-    OBJECT_HUMAN,
+    OBJECT_TOKI_OBJECTS,
 };
 
 ActorEntry mainmap_room_3_header00_actorList[LENGTH_MAINMAP_ROOM_3_HEADER00_ACTORLIST] = {
@@ -60,10 +60,10 @@ ActorEntry mainmap_room_3_header00_actorList[LENGTH_MAINMAP_ROOM_3_HEADER00_ACTO
 
     // Custom Actor
     {
-        /* Actor ID   */ 0/*TODO*/,
+        /* Actor ID   */ ACTOR_SWORD_REWARD,
         /* Position   */ { 682, -249, 686 },
         /* Rotation   */ { DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000), DEG_TO_BINANG(0.000) },
-        /* Parameters */ 0x0000
+        /* Parameters */ 4
     },
 };
 

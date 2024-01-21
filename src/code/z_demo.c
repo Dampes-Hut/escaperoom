@@ -661,13 +661,20 @@ void CutsceneCmd_Destination(PlayState* play, CutsceneContext* csCtx, CsCmdDesti
                 break;
 
             case CS_DEST_INTROCS_PART2:
-                play->nextEntranceIndex = ENTR_INN_BEDROOM_0; // placeholder
+                play->nextEntranceIndex = ENTR_MAINMAP_COURTYARD_COFFIN;
+                gSaveContext.save.cutsceneIndex = 0xFFF0;
                 play->transitionTrigger = TRANS_TRIGGER_START;
                 play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
 
                 // unequip shield and sword
                 gSaveContext.save.info.equips.equipment &= 0xFF00;
                 gSaveContext.save.info.inventory.equipment &= 0xFF00;
+                break;
+
+            case CS_DEST_MAINMAP_COFFIN:
+                play->nextEntranceIndex = ENTR_MAINMAP_COURTYARD_COFFIN;
+                play->transitionTrigger = TRANS_TRIGGER_START;
+                play->transitionType = TRANS_TYPE_FADE_BLACK_FAST;
                 break;
 
             case CS_DEST_CUTSCENE_MAP_GANON_HORSE:
