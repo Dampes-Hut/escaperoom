@@ -856,6 +856,7 @@ void Sram_InitSram(GameState* gameState, SramContext* sramCtx) {
         Sram_WriteSramHeader(sramCtx);
     }
 
+#ifndef NDEBUG
     if (CHECK_BTN_ANY(gameState->input[2].cur.button, BTN_DRIGHT)) {
         rmonPrintf("CLEARING SRAM\n");
         bzero(sramCtx->readBuff, SRAM_SIZE);
@@ -865,6 +866,7 @@ void Sram_InitSram(GameState* gameState, SramContext* sramCtx) {
         SsSram_ReadWrite(OS_K1_TO_PHYSICAL(0xA8000000), sramCtx->readBuff, SRAM_SIZE, OS_WRITE);
         osSyncPrintf("ＳＲＡＭ破壊！！！！！！\n"); // "SRAM destruction! ! ! ! ! !"
     }
+#endif
 
     // "GOOD! GOOD! Size = %d + %d = %d"
     osSyncPrintf("ＧＯＯＤ！ＧＯＯＤ！ サイズ＝%d + %d ＝ %d\n", sizeof(SaveInfo), 4, sizeof(SaveInfo) + 4);

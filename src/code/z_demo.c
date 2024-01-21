@@ -175,6 +175,7 @@ void Cutscene_UpdateManual(PlayState* play, CutsceneContext* csCtx) {
 void Cutscene_UpdateScripted(PlayState* play, CutsceneContext* csCtx) {
     Input* input = &play->state.input[0];
 
+#ifndef NDEBUG
     if (CHECK_BTN_ALL(input->press.button, BTN_DLEFT) && (csCtx->state == CS_STATE_IDLE) && IS_CUTSCENE_LAYER) {
         gUseCutsceneCam = false;
         gSaveContext.save.cutsceneIndex = 0xFFFD;
@@ -187,6 +188,7 @@ void Cutscene_UpdateScripted(PlayState* play, CutsceneContext* csCtx) {
         gSaveContext.save.cutsceneIndex = 0xFFFD;
         gSaveContext.cutsceneTrigger = 1;
     }
+#endif
 
     if ((gSaveContext.cutsceneTrigger != 0) && (play->transitionTrigger == TRANS_TRIGGER_START)) {
         gSaveContext.cutsceneTrigger = 0;
@@ -1908,10 +1910,12 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
         return;
     }
 
+#ifndef NDEBUG
     if (CHECK_BTN_ALL(play->state.input[0].press.button, BTN_DRIGHT)) {
         csCtx->state = CS_STATE_STOP;
         return;
     }
+#endif
 
     for (i = 0; i < totalEntries; i++) {
         MemCpy(&cmdType, script, sizeof(cmdType));

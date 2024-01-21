@@ -19,11 +19,14 @@ void KaleidoSetup_Update(PlayState* play) {
         gSaveContext.magicState != MAGIC_STATE_FILL &&
         (play->sceneId != SCENE_BOMBCHU_BOWLING_ALLEY || !Flags_GetSwitch(play, 0x38))) {
 
+#ifndef NDEBUG
         if (CHECK_BTN_ALL(input->cur.button, BTN_L) && CHECK_BTN_ALL(input->press.button, BTN_CUP)) {
             if (BREG(0)) {
                 pauseCtx->debugState = 3;
             }
-        } else if (CHECK_BTN_ALL(input->press.button, BTN_START)) {
+        } else
+#endif
+            if (CHECK_BTN_ALL(input->press.button, BTN_START)) {
             // The start button was pressed, pause
             gSaveContext.prevHudVisibilityMode = gSaveContext.hudVisibilityMode;
 

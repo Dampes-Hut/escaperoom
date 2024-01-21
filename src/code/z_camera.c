@@ -7823,9 +7823,11 @@ Vec3s Camera_Update(Camera* camera) {
                      CAM_BINANG_TO_DEG(camera->camDir.x), camera->camDir.y, CAM_BINANG_TO_DEG(camera->camDir.y));
     }
 
+#ifndef NDEBUG
     if (camera->timer != -1 && CHECK_BTN_ALL(D_8015BD7C->state.input[0].press.button, BTN_DRIGHT)) {
         camera->timer = 0;
     }
+#endif
 
     if (R_DEBUG_CAM_UPDATE) {
         osSyncPrintf("camera: out (%f %f %f) (%f %f %f)\n", camera->at.x, camera->at.y, camera->at.z, camera->eye.x,

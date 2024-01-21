@@ -3966,6 +3966,7 @@ void Interface_Update(PlayState* play) {
     u16 action;
     Input* debugInput = &play->state.input[2];
 
+#ifndef NDEBUG
     if (CHECK_BTN_ALL(debugInput->press.button, BTN_DLEFT)) {
         gSaveContext.language = LANGUAGE_ENG;
         osSyncPrintf("J_N=%x J_N=%x\n", gSaveContext.language, &gSaveContext.language);
@@ -3976,6 +3977,7 @@ void Interface_Update(PlayState* play) {
         gSaveContext.language = LANGUAGE_FRA;
         osSyncPrintf("J_N=%x J_N=%x\n", gSaveContext.language, &gSaveContext.language);
     }
+#endif
 
     if (!IS_PAUSED(&play->pauseCtx)) {
         if ((gSaveContext.minigameState == 1) || !IS_CUTSCENE_LAYER ||

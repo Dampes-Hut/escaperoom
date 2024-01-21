@@ -385,6 +385,7 @@ void FileSelect_PulsateCursor(GameState* thisx) {
     SramContext* sramCtx = &this->sramCtx;
     Input* debugInput = &this->state.input[2];
 
+#ifndef NDEBUG
     if (CHECK_BTN_ALL(debugInput->press.button, BTN_DLEFT)) {
         sramCtx->readBuff[SRAM_HEADER_LANGUAGE] = gSaveContext.language = LANGUAGE_ENG;
         *((u8*)0x80000002) = LANGUAGE_ENG;
@@ -424,6 +425,7 @@ void FileSelect_PulsateCursor(GameState* thisx) {
                      sramCtx->readBuff[SRAM_HEADER_ZTARGET], sramCtx->readBuff[SRAM_HEADER_LANGUAGE],
                      sramCtx->readBuff[SRAM_HEADER_MAGIC]);
     }
+#endif
 
     alphaStep = ABS(this->highlightColor[3] - cursorAlphaTargets[this->highlightPulseDir]) / XREG(35);
 

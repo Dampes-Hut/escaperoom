@@ -11350,7 +11350,13 @@ void Player_Update(Actor* thisx, PlayState* play) {
     Input sp44;
     Actor* dog;
 
-    if (func_8084FCAC(this, play)) {
+    if (
+#ifndef NDEBUG
+        func_8084FCAC(this, play)
+#else
+        true
+#endif
+    ) {
         if (gSaveContext.dogParams < 0) {
             if (Object_GetSlot(&play->objectCtx, OBJECT_DOG) < 0) {
                 gSaveContext.dogParams = 0;

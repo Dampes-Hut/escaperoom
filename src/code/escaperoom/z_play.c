@@ -512,7 +512,13 @@ void Play_Update(PlayState* this) {
     gSegments[5] = VIRTUAL_TO_PHYSICAL(this->objectCtx.slots[this->objectCtx.subKeepSlot].segment);
     gSegments[2] = VIRTUAL_TO_PHYSICAL(this->sceneSegment);
 
-    if (FrameAdvance_Update(&this->frameAdvCtx, &input[1])) {
+    if (
+#ifndef NDEBUG
+        FrameAdvance_Update(&this->frameAdvCtx, &input[1])
+#else
+        true
+#endif
+    ) {
         if ((this->transitionMode == TRANS_MODE_OFF) && (this->transitionTrigger != TRANS_TRIGGER_OFF)) {
             this->transitionMode = TRANS_MODE_SETUP;
         }
