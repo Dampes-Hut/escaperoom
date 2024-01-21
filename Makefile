@@ -147,8 +147,7 @@ FADO       := tools/fado/fado.elf
 ifeq ($(COMPILER),gcc)
   OPTFLAGS :=
   ifeq ($(NDEBUG),1)
-    #OPTFLAGS += -Os
-    OPTFLAGS += -Og
+    OPTFLAGS += -Os
   else
     OPTFLAGS += -Og
   endif

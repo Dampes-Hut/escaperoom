@@ -163,11 +163,6 @@ void Graph_InitTHGA(GraphicsContext* gfxCtx) {
     gfxCtx->overlayBuffer = pool->overlayBuffer;
     gfxCtx->workBuffer = pool->workBuffer;
 
-    evenNDEBUGprintf("Graph_InitTHGA polyOpaBuffer=0x%08X\n", (u32)gfxCtx->polyOpaBuffer);
-    evenNDEBUGprintf("Graph_InitTHGA polyXluBuffer=0x%08X\n", (u32)gfxCtx->polyXluBuffer);
-    evenNDEBUGprintf("Graph_InitTHGA overlayBuffer=0x%08X\n", (u32)gfxCtx->overlayBuffer);
-    evenNDEBUGprintf("Graph_InitTHGA workBuffer=0x%08X\n", (u32)gfxCtx->workBuffer);
-
     gfxCtx->curFrameBuffer = SysCfb_GetFbPtr(gfxCtx->fbIdx % 2);
     gfxCtx->unk_014 = 0;
 }
@@ -358,9 +353,6 @@ void Graph_Update(GraphicsContext* gfxCtx, GameState* gameState) {
 
     gSPBranchList(WORK_DISP++, gfxCtx->polyOpaBuffer);
     gSPBranchList(POLY_OPA_DISP++, gfxCtx->polyXluBuffer);
-    evenNDEBUGprintf("Graph_Update polyOpaBuffer=0x%08X\n", (u32)gfxCtx->polyOpaBuffer);
-    evenNDEBUGprintf("Graph_Update polyXluBuffer=0x%08X\n", (u32)gfxCtx->polyXluBuffer);
-    evenNDEBUGprintf("Graph_Update overlayBuffer=0x%08X\n", (u32)gfxCtx->overlayBuffer);
     gSPBranchList(POLY_XLU_DISP++, gfxCtx->overlayBuffer);
     gDPPipeSync(OVERLAY_DISP++);
     gDPFullSync(OVERLAY_DISP++);

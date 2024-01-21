@@ -69,7 +69,7 @@
 #define LOG_HEX32(exp, value, ...)   (void)0
 #define LOG_FLOAT(exp, value, ...)   (void)0
 
-//#define rmonPrintf(...) (void)0
+#define rmonPrintf(...) (void)0
 
 #endif
 
