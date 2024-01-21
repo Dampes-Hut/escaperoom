@@ -437,6 +437,13 @@ void PadMgr_RequestPadData(PadMgr* padMgr, Input* inputs, s32 gameRequest) {
     PadMgr_LockPadData(padMgr);
 
     for (inputIn = &padMgr->inputs[0], inputOut = &inputs[0], i = 0; i < MAXCONTROLLERS; i++, inputIn++, inputOut++) {
+#ifdef NDEBUG
+        // zero inputs other than on first controller
+        if (i >= 1) {
+            *inputOut = (Input){ 0 };
+            continue;
+        }
+#endif
         if (gameRequest) {
             // Copy inputs as-is, press and rel are calculated prior in `PadMgr_UpdateInputs`
             *inputOut = *inputIn;
