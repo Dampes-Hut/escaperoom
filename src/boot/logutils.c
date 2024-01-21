@@ -19,6 +19,7 @@ s32 LogUtils_CheckIntRange(const char* exp, int line, const char* valueName, s32
     return value;
 }
 
+#undef LogUtils_LogHexDump
 void LogUtils_LogHexDump(void* ptr, s32 size0) {
     u8* addr = (u8*)ptr;
     s32 size = (s32)size0;

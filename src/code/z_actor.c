@@ -2839,7 +2839,9 @@ Actor* Actor_Spawn(ActorContext* actorCtx, PlayState* play, s16 actorId, f32 pos
     name = overlayEntry->name != NULL ? overlayEntry->name : "";
     overlaySize = (uintptr_t)overlayEntry->vramEnd - (uintptr_t)overlayEntry->vramStart;
 
+#ifndef NDEBUG
     actorSpawnFaultClientInfo.ovlName = name;
+#endif
 
     if (HREG(20) != 0) {
         // "Actor class addition [%d:%s]"

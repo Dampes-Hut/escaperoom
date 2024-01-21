@@ -52,6 +52,7 @@
 #else
 
 #define LogUtils_LogThreadId(...)                       (void)0
+#define LogUtils_LogHexDump(...)                        (void)0
 #define LogUtils_HungupThread(...)                      (void)0
 #define LogUtils_LogPointer(value, max, ptr, ...)       (void)0
 #define LogUtils_CheckBoundary(name, value, msbit, ...) (void)0
@@ -67,6 +68,8 @@
 #define LOG_HEX(exp, value, ...)     (void)0
 #define LOG_HEX32(exp, value, ...)   (void)0
 #define LOG_FLOAT(exp, value, ...)   (void)0
+
+#define rmonPrintf(...) (void)0
 
 #endif
 
@@ -121,9 +124,7 @@
 #define Matrix_CheckFloats(mf, ...) Matrix_CheckFloats(mf, __FILE__, __LINE__)
 
 #ifdef NDEBUG
-#define Graph_Alloc(gfxCtx, size) 
-
-// TODO NDEBUG graph alloc
+#define Graph_Alloc(gfxCtx, size) ((void*)((gfxCtx)->polyOpa.d = (Gfx*)((u8*)(gfxCtx)->polyOpa.d - ALIGN16(size))))
 #else
 #define Graph_Alloc(gfxCtx, size) Graph_Alloc(gfxCtx, size)
 #endif

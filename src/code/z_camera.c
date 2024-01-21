@@ -7066,12 +7066,16 @@ void Camera_Init(Camera* camera, View* view, CollisionContext* colCtx, PlayState
             R_CAM_DATA(i) = sCamDataRegsInit[i];
         }
 
+#ifndef NDEBUG
         DebugCamera_Reset(camera, &D_8015BD80);
+#endif
         sInitRegs = false;
         PREG(88) = -1;
     }
     camera->play = D_8015BD7C = play;
+#ifndef NDEBUG
     DebugCamera_Init(&D_8015BD80, camera);
+#endif
     curUID = sNextUID;
     sNextUID++;
     while (curUID != 0) {
@@ -7730,6 +7734,7 @@ Vec3s Camera_Update(Camera* camera) {
                      sCameraSettings[camera->setting].cameraModes[camera->mode].funcIdx);
     }
 
+#ifndef NDEBUG
     // enable/disable debug cam
     if (CHECK_BTN_ALL(D_8015BD7C->state.input[2].press.button, BTN_START)) {
         gDebugCamEnabled ^= 1;
@@ -7750,6 +7755,7 @@ Vec3s Camera_Update(Camera* camera) {
         }
         return D_8015BD80.sub.unk_104A;
     }
+#endif
 
     OREG(0) &= ~8;
 

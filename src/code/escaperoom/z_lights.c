@@ -511,6 +511,7 @@ STATIC void Lights_BindDummy(UNUSED Lights* lights, UNUSED LightParams* params, 
 //  Light Drawing
 //
 
+#ifndef NDEBUG
 typedef struct LightsBindAndDrawFaultClientInfo {
     PlayState* play;
     Vec3f* objPos;
@@ -554,6 +555,7 @@ s32 Lights_BindAndDraw_FaultClient(void* arg0, void* arg1) {
     }
     return false;
 }
+#endif
 
 /**
  * For every light registered with the Light Context, build a Lights group containing the 7 lights that are of the

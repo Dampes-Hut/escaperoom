@@ -37,7 +37,10 @@ u32 func_80001F48(void);
 u32 func_80001F8C(void);
 u32 Locale_IsRegionNative(void);
 void isPrintfInit(void);
+#ifndef NDEBUG
 FORMAT_PRINTF(1, 2) void rmonPrintf(const char* fmt, ...);
+#endif
+void evenNDEBUGprintf(const char* fmt, ...);
 void* is_proutSyncPrintf(void* arg, const char* str, size_t count);
 NORETURN void func_80002384(const char* exp, const char* file, u32 line);
 OSPiHandle* osDriveRomInit(void);
@@ -48,6 +51,7 @@ void StackCheck_Cleanup(StackEntry* entry);
 u32 StackCheck_GetState(StackEntry* entry);
 u32 StackCheck_CheckAll(void);
 u32 StackCheck_Check(StackEntry* entry);
+#ifndef NDEBUG
 f32 LogUtils_CheckFloatRange(const char* exp, int line, const char* valueName, f32 value, const char* minName, f32 min,
                              const char* maxName, f32 max);
 s32 LogUtils_CheckIntRange(const char* exp, int line, const char* valueName, s32 value, const char* minName, s32 min,
@@ -60,6 +64,7 @@ void LogUtils_CheckValidPointer(const char* exp, void* ptr, const char* file, in
 void LogUtils_LogThreadId(const char* name, int line);
 void LogUtils_HungupThread(const char* name, int line);
 void LogUtils_ResetHungup(void);
+#endif
 void __osPiCreateAccessQueue(void);
 void __osPiGetAccess(void);
 void __osPiRelAccess(void);

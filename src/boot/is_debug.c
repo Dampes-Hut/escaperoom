@@ -32,7 +32,17 @@ void osSyncPrintf(const char* fmt, ...) {
 }
 
 // assumption
+#undef rmonPrintf
 void rmonPrintf(const char* fmt, ...) {
+    va_list args;
+    va_start(args, fmt);
+
+    _Printf(is_proutSyncPrintf, NULL, fmt, args);
+
+    va_end(args);
+}
+
+void evenNDEBUGprintf(const char* fmt, ...) {
     va_list args;
     va_start(args, fmt);
 
