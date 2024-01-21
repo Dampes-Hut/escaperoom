@@ -234,7 +234,7 @@ void Skin_DrawImpl(Actor* actor, PlayState* play, Skin* skin, SkinPostDraw postD
         postDraw(actor, play, skin);
     }
 
-close_disps:
+close_disps:;
     CLOSE_DISPS(gfxCtx, "../z_skin.c", 534);
 }
 

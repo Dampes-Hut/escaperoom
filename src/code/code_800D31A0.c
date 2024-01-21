@@ -11,7 +11,11 @@ NORETURN void func_800D31A0(void) {
 }
 
 void func_800D31F0(void) {
+#ifndef NDEBUG
     gIsCtrlr2Valid = (gPadMgr.validCtrlrsMask & 2) != 0;
+#else
+    gIsCtrlr2Valid = false;
+#endif
 }
 
 void func_800D3210(void) {

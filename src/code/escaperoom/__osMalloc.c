@@ -163,7 +163,7 @@ void __osMalloc_FreeBlockTest(Arena* arena, ArenaNode* node) {
 
         while (iter < end) {
             if (*iter != BLOCK_UNINIT_MAGIC_32 && *iter != BLOCK_FREE_MAGIC_32) {
-                osSyncPrintf(
+                evenNDEBUGprintf(
                     VT_COL(RED, WHITE) "緊急事態！メモリリーク検出！ (block=%08x s=%08x e=%08x p=%08x)\n" VT_RST, node,
                     start, end, iter);
                 __osDisplayArena(arena);
@@ -309,17 +309,17 @@ void __osFree(Arena* arena, void* ptr FILE_LINE_DECL) {
     node = (ArenaNode*)((u32)ptr - sizeof(ArenaNode));
     if (node == NULL || node->magic != NODE_MAGIC) {
         // "__osFree: Unauthorized release (%08x)"
-        osSyncPrintf(VT_COL(RED, WHITE) "__osFree:不正解放(%08x)\n" VT_RST, ptr);
+        evenNDEBUGprintf(VT_COL(RED, WHITE) "__osFree: BAD MAGIC (%08x)\n" VT_RST, ptr);
         goto exit;
     }
     if (node->isFree) {
-        osSyncPrintf(VT_COL(RED, WHITE) "__osFree:二重解放(%08x)\n" VT_RST, ptr); // "__osFree: Double release (%08x)"
+        evenNDEBUGprintf(VT_COL(RED, WHITE) "__osFree: DOUBLE FREE (%08x)\n" VT_RST, ptr); // "__osFree: Double release (%08x)"
         goto exit;
     }
 #ifndef NDEBUG
     if (arena != node->arena && arena != NULL) {
         // "__osFree:Tried to release in a different way than when it was secured (%08x:%08x)"
-        osSyncPrintf(VT_COL(RED, WHITE) "__osFree:確保時と違う方法で解放しようとした (%08x:%08x)\n" VT_RST, arena,
+        evenNDEBUGprintf(VT_COL(RED, WHITE) "__osFree: DIFFERENT ARENA (%08x:%08x)\n" VT_RST, arena,
                      node->arena);
         goto exit;
     }
@@ -377,7 +377,7 @@ void* __osRealloc(Arena* arena, void* ptr, u32 newSize FILE_LINE_DECL) {
     ArenaNode* overNext;
 
     newSize = ALIGN16(newSize);
-    osSyncPrintf("__osRealloc(%08x, %d)\n", ptr, newSize);
+    evenNDEBUGprintf("__osRealloc(%08x, %d)\n", ptr, newSize);
 
     if (ptr == NULL) {
         return __osMalloc(arena, newSize FILE_LINE_ARGS);
@@ -545,12 +545,12 @@ void __osDisplayArena(Arena* arena) {
     ArenaNode* next;
 
     if (!__osMallocIsInitialized(arena)) {
-        rmonPrintf("[__osMalloc] Tried to call __osDisplayArena on uninitialized arena %08X!\n", arena);
+        evenNDEBUGprintf("[__osMalloc] Tried to call __osDisplayArena on uninitialized arena %08X!\n", arena);
         return;
     }
 
-    rmonPrintf("\n[__osMalloc] Arena contents for %08X\n", arena);
-    rmonPrintf("Heap nodes list | start-end:status size [time:TID:file:line]\n");
+    evenNDEBUGprintf("\n[__osMalloc] Arena contents for %08X\n", arena);
+    evenNDEBUGprintf("Heap nodes list | start-end:status size [time:TID:file:line]\n");
 
     maxFree = 0;
     freeSize = 0;
@@ -561,7 +561,7 @@ void __osDisplayArena(Arena* arena) {
     iter = arena->head;
     while (iter != NULL) {
         if (iter->magic != NODE_MAGIC) {
-            rmonPrintf("[__osMalloc] Block @ %08X is invalid!\n", iter);
+            evenNDEBUGprintf("[__osMalloc] Block @ %08X is invalid!\n", iter);
             break;
         }
 
@@ -577,14 +577,14 @@ void __osDisplayArena(Arena* arena) {
         const char* freeMarker = iter->isFree ? "FREE" : "USED";
 
 #ifndef NDEBUG
-        rmonPrintf("%08X-%08X:%c %s %08X", (uintptr_t)iter, end, marker, freeMarker, iter->size);
+        evenNDEBUGprintf("%08X-%08X:%c %s %08X", (uintptr_t)iter, end, marker, freeMarker, iter->size);
         if (!iter->isFree) {
             const char* fileName = iter->filename != NULL ? iter->filename : "**NULL**";
-            rmonPrintf(" [%016llu:%2d:%s:%d]", OS_CYCLES_TO_NSEC(iter->time), iter->threadId, fileName, iter->line);
+            evenNDEBUGprintf(" [%016llu:%2d:%s:%d]", OS_CYCLES_TO_NSEC(iter->time), iter->threadId, fileName, iter->line);
         }
-        rmonPrintf("\n");
+        evenNDEBUGprintf("\n");
 #else
-        rmonPrintf("%08X-%08X:%c %s %08X\n", (uintptr_t)iter, end, marker, freeMarker, iter->size);
+        evenNDEBUGprintf("%08X-%08X:%c %s %08X\n", (uintptr_t)iter, end, marker, freeMarker, iter->size);
 #endif
 
         if (iter->isFree) {
@@ -601,9 +601,9 @@ void __osDisplayArena(Arena* arena) {
 
     ArenaImpl_Unlock(arena);
 
-    rmonPrintf("[__osMalloc] Total reserved space: %08X\n", allocatedSize);
-    rmonPrintf("[__osMalloc] Total free space: %08X\n", freeSize);
-    rmonPrintf("[__osMalloc] Largest free block size: %08X\n\n", maxFree);
+    evenNDEBUGprintf("[__osMalloc] Total reserved space: %08X\n", allocatedSize);
+    evenNDEBUGprintf("[__osMalloc] Total free space: %08X\n", freeSize);
+    evenNDEBUGprintf("[__osMalloc] Largest free block size: %08X\n\n", maxFree);
 }
 
 void ArenaImpl_FaultClient(Arena* arena) {
@@ -662,19 +662,19 @@ u32 __osCheckArena(Arena* arena) {
 
     ArenaImpl_Lock(arena);
     // "Checking the contents of the arena. . ． (%08x)"
-    osSyncPrintf("アリーナの内容をチェックしています．．． (%08x)\n", arena);
+    evenNDEBUGprintf("アリーナの内容をチェックしています．．． (%08x)\n", arena);
     iter = arena->head;
     while (iter != NULL) {
         if (iter && iter->magic == NODE_MAGIC) {
             // "Oops!! (%08x %08x)"
-            osSyncPrintf(VT_COL(RED, WHITE) "おおっと！！ (%08x %08x)\n" VT_RST, iter, iter->magic);
+            evenNDEBUGprintf(VT_COL(RED, WHITE) "おおっと！！ (%08x %08x)\n" VT_RST, iter, iter->magic);
             error = 1;
             break;
         }
         iter = ArenaImpl_GetNextBlock(iter);
     }
     if (error == 0) {
-        osSyncPrintf("アリーナはまだ、いけそうです\n"); // "The arena is still going well"
+        evenNDEBUGprintf("アリーナはまだ、いけそうです\n"); // "The arena is still going well"
     }
     ArenaImpl_Unlock(arena);
 

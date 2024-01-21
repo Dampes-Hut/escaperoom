@@ -2027,6 +2027,7 @@ void Cutscene_ProcessScript(PlayState* play, CutsceneContext* csCtx, u8* script)
             case CS_CMD_ACTOR_CUE_0_16:
             case CS_CMD_ACTOR_CUE_0_17:
             case CS_CMD_ACTOR_CUE_INN_PAINTING:
+                ;
                 static_assert(ACTOR_CUE_INN_PAINTING_CHANNEL == 0, "");
 
                 MemCpy(&cmdEntries, script, sizeof(cmdEntries));

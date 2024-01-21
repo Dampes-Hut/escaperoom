@@ -272,6 +272,6 @@ void EffectSpark_Draw(void* thisx, GraphicsContext* gfxCtx) {
         gDPPipeSync(POLY_XLU_DISP++);
     }
 
-end:
+end:;
     CLOSE_DISPS(gfxCtx, "../z_eff_spark.c", 498);
 }
